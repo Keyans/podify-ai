@@ -1,151 +1,402 @@
 <template>
-  <div class="space-y-6">
-      <!-- 智能目标 -->
-      <div class="bg-white rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">智能目标</h2>
-        <p class="text-gray-600 text-sm mb-4">基于您的历史数据和市场趋势为您推荐最佳商品，帮助您快速找到热销商品，提升您的产品竞争力。</p>
-      </div>
-
-      <!-- 热门商品推荐 -->
-      <div class="bg-white rounded-lg p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-800">热门商品推荐</h2>
-          <div class="flex space-x-2">
-            <button class="px-3 py-1 text-sm bg-blue-500 text-white rounded">Amazon</button>
-            <button class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Etsy</button>
-            <button class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">更多平台</button>
-          </div>
+  <div>
+    <!-- POD商品头部 -->
+    <div 
+      class="p-6 mb-6 rounded-lg shadow-sm" 
+      :style="{ 
+        backgroundColor: 'var(--bg-secondary)', 
+        color: 'var(--text-primary)' 
+      }"
+    >
+      <div class="flex items-center">
+        <div 
+          class="p-2 rounded-lg mr-4" 
+          :style="{
+            backgroundColor: 'var(--accent-color)', 
+            opacity: '0.1'
+          }"
+        >
+          <svg 
+            class="w-6 h-6" 
+            :style="{ color: 'var(--accent-color)' }" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+          </svg>
         </div>
-        
-        <div class="grid grid-cols-3 gap-4">
-          <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div class="w-full h-32 bg-gray-200 rounded mb-3 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-1">女性运动鞋</h3>
-            <p class="text-sm text-gray-600 mb-2">价格：$50</p>
-            <p class="text-xs text-gray-500">销量</p>
-          </div>
-          
-          <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div class="w-full h-32 bg-gray-200 rounded mb-3 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-1">智能手表</h3>
-            <p class="text-sm text-gray-600 mb-2">价格：$199</p>
-            <p class="text-xs text-gray-500">销量</p>
-          </div>
-          
-          <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div class="w-full h-32 bg-gray-200 rounded mb-3 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-1">小型家电器</h3>
-            <p class="text-sm text-gray-600 mb-2">价格：$45</p>
-            <p class="text-xs text-gray-500">销量</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 热门设计师推荐 -->
-      <div class="bg-green-50 rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">热门设计师推荐</h2>
-        
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-white rounded-lg p-4 text-center">
-            <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-1">创意实验</h3>
-            <p class="text-xs text-gray-600 mb-2">风格：简约、现代风格</p>
-            <p class="text-xs text-gray-500">销量</p>
-          </div>
-          
-          <div class="bg-white rounded-lg p-4 text-center">
-            <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-1">设计师名</h3>
-            <p class="text-xs text-gray-600 mb-2">风格：复古、怀旧风格</p>
-            <p class="text-xs text-gray-500">销量</p>
-          </div>
-          
-          <div class="bg-white rounded-lg p-4 text-center">
-            <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-1">艺术家名</h3>
-            <p class="text-xs text-gray-600 mb-2">风格：抽象、现代风格</p>
-            <p class="text-xs text-gray-500">销量</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI推荐设计方案 -->
-      <div class="bg-white rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">AI推荐设计方案</h2>
-        
-        <div class="grid grid-cols-2 gap-6">
-          <div class="bg-blue-50 rounded-lg p-6 text-center">
-            <div class="w-16 h-16 bg-gray-200 rounded mx-auto mb-4 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-2">AI推荐：创意实验室系列设计</h3>
-            <p class="text-sm text-gray-600 mb-4">基于市场趋势，为您推荐最具潜力的设计方案，帮助您快速获得市场认可。</p>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition-colors">
-              查看详情
-            </button>
-          </div>
-          
-          <div class="bg-purple-50 rounded-lg p-6 text-center">
-            <div class="w-16 h-16 bg-gray-200 rounded mx-auto mb-4 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-              </svg>
-            </div>
-            <h3 class="font-medium text-gray-800 mb-2">AI推荐：极简风格系列设计</h3>
-            <p class="text-sm text-gray-600 mb-4">人工智能分析市场数据，为您推荐最具商业价值的设计方案，让您的产品脱颖而出。</p>
-            <button class="bg-purple-500 text-white px-4 py-2 rounded text-sm hover:bg-purple-600 transition-colors">
-              查看详情
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 市场趋势信息 -->
-      <div class="bg-white rounded-lg p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">市场趋势信息</h2>
-        
-        <div class="space-y-3">
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-            <span class="text-sm text-gray-700">• Amazon：电子产品、服装配饰、家居用品等热销商品持续上升</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-            <span class="text-sm text-gray-700">• Etsy：手工艺品、个性化定制、复古风格商品需求增长</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-            <span class="text-sm text-gray-700">• 大数据：健康生活、环保材料、智能科技类产品市场前景广阔</span>
-          </div>
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
-            <span class="text-sm text-gray-700">• 关键词：节能环保、个性化定制、健康生活、智能家居</span>
-          </div>
+        <div>
+          <h1 class="text-xl font-bold" :style="{ color: 'var(--text-primary)' }">POD商品</h1>
+          <p :style="{ color: 'var(--text-secondary)' }" class="text-sm">便捷创建和管理智能打印</p>
         </div>
       </div>
     </div>
+
+    <!-- 数据统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <!-- POD商品总数 -->
+      <div class="bg-white p-6 rounded-lg shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">POD商品总数</p>
+          <p class="text-2xl font-bold">86</p>
+        </div>
+        <div class="bg-purple-50 p-2 rounded-lg">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 已刊登数量 -->
+      <div class="bg-white p-6 rounded-lg shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">已刊登数量</p>
+          <p class="text-2xl font-bold">42</p>
+        </div>
+        <div class="bg-green-50 p-2 rounded-lg">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 今日新增 -->
+      <div class="bg-white p-6 rounded-lg shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">今日新增</p>
+          <p class="text-2xl font-bold">8</p>
+        </div>
+        <div class="bg-blue-50 p-2 rounded-lg">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 平均价格 -->
+      <div class="bg-white p-6 rounded-lg shadow-sm flex justify-between items-center">
+        <div>
+          <p class="text-gray-500 text-sm">平均价格</p>
+          <p class="text-2xl font-bold text-orange-500">¥89.99</p>
+        </div>
+        <div class="bg-orange-50 p-2 rounded-lg">
+          <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作按钮区域 -->
+    <div class="flex space-x-2 mb-6">
+      <button 
+        class="flex items-center space-x-2 px-4 py-2 rounded-lg"
+        :style="{
+          backgroundColor: 'var(--bg-tertiary)',
+          color: 'var(--text-primary)'
+        }"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <span>POD商品生成"POD生产"应用程序生成，无法手动创建</span>
+      </button>
+      <button 
+        class="flex items-center space-x-2 px-4 py-2 rounded-lg"
+        :style="{
+          backgroundColor: 'var(--accent-color)',
+          color: 'white'
+        }"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+        </svg>
+        <span>导出商品</span>
+      </button>
+    </div>
+
+    <!-- 商品列表区域 -->
+    <div class="bg-white rounded-lg shadow-sm">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-lg font-semibold">POD商品列表</h2>
+        <p class="text-sm text-gray-500">智能管理您创建的商品</p>
+      </div>
+
+      <!-- 表格 -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y" :style="{ borderColor: 'var(--border-color)' }">
+          <thead :style="{ backgroundColor: 'var(--bg-tertiary)' }">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">商品缩略图</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">商品名称</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">价格（美元）</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">SKU编号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">行动类型</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">创建人</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">创建时间</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">操作</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <!-- 第一行 -->
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <img src="https://via.placeholder.com/60" alt="个性T恤" class="w-12 h-12 object-cover rounded">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">个性化T恤 - 猫咪图案</p>
+                  <p class="text-xs text-gray-500">类别：T恤/服饰</p>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-green-600 font-medium">¥79.9</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">5</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">已刊登</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs">张</div>
+                  <span class="ml-2 text-sm text-gray-900">张三</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">2024-01-15 14:30:25</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex space-x-2">
+                  <button class="text-blue-600 hover:text-blue-800 text-sm">查看详情</button>
+                  <button class="text-red-600 hover:text-red-800 text-sm">下架</button>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- 第二行 -->
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <img src="https://via.placeholder.com/60" alt="宠物玩具" class="w-12 h-12 object-cover rounded">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">宠物玩具 - 发声玩具</p>
+                  <p class="text-xs text-gray-500">类别：宠物用品</p>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-green-600 font-medium">¥45.9</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">3</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">未刊登</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">李</div>
+                  <span class="ml-2 text-sm text-gray-900">李四</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">2024-01-15 13:45:12</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex space-x-2">
+                  <button class="text-blue-600 hover:text-blue-800 text-sm">查看详情</button>
+                  <button class="text-green-600 hover:text-green-800 text-sm">刊登</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 第三行 -->
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <img src="https://via.placeholder.com/60" alt="艺术帆布包" class="w-12 h-12 object-cover rounded">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">艺术帆布包 - 抽象画风</p>
+                  <p class="text-xs text-gray-500">类别：时尚配饰</p>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-green-600 font-medium">¥69.9</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">4</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">处理中</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-xs">王</div>
+                  <span class="ml-2 text-sm text-gray-900">王五</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">2024-01-15 12:20:08</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex space-x-2">
+                  <button class="text-blue-600 hover:text-blue-800 text-sm">查看详情</button>
+                  <button class="text-gray-600 hover:text-gray-800 text-sm">取消</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 第四行 -->
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <img src="https://via.placeholder.com/60" alt="个性手机壳" class="w-12 h-12 object-cover rounded">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">个性化手机壳 - 几何图案</p>
+                  <p class="text-xs text-gray-500">类别：iPhone手机壳</p>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-green-600 font-medium">¥39.9</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">8</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">已刊登</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs">赵</div>
+                  <span class="ml-2 text-sm text-gray-900">赵六</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">2024-01-15 11:15:25</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex space-x-2">
+                  <button class="text-blue-600 hover:text-blue-800 text-sm">查看详情</button>
+                  <button class="text-red-600 hover:text-red-800 text-sm">下架</button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- 第五行 -->
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <img src="https://via.placeholder.com/60" alt="宠物服装" class="w-12 h-12 object-cover rounded">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">宠物服装 - 卡通图案</p>
+                  <p class="text-xs text-gray-500">类别：宠物服饰</p>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-green-600 font-medium">¥59.9</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">5</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">未刊登</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">钱</div>
+                  <span class="ml-2 text-sm text-gray-900">钱七</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm text-gray-500">2024-01-15 10:30:45</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex space-x-2">
+                  <button class="text-blue-600 hover:text-blue-800 text-sm">查看详情</button>
+                  <button class="text-green-600 hover:text-green-800 text-sm">刊登</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="px-6 py-4 border-t flex items-center justify-between" :style="{ borderColor: 'var(--border-color)' }">
+        <div class="text-sm" :style="{ color: 'var(--text-secondary)' }">
+          共 5 条记录
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm" :style="{ color: 'var(--text-secondary)' }">10/page</span>
+          <button 
+            class="px-3 py-1 text-sm rounded border" 
+            :style="{
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-secondary)'
+            }"
+          >
+            上一页
+          </button>
+          <button 
+            class="px-3 py-1 text-sm rounded border"
+            :style="{
+              backgroundColor: 'var(--accent-color)',
+              borderColor: 'var(--accent-color)',
+              color: 'white'
+            }"
+          >
+            1
+          </button>
+          <span class="text-sm" :style="{ color: 'var(--text-secondary)' }">Go to</span>
+          <input 
+            type="number" 
+            value="1" 
+            class="w-12 px-2 py-1 text-sm border rounded text-center"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-primary)'
+            }"
+          >
+          <button 
+            class="px-3 py-1 text-sm rounded border"
+            :style="{
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-secondary)'
+            }"
+          >
+            下一页
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -155,9 +406,9 @@ definePageMeta({
 })
 
 useHead({
-  title: '商品采集 - PodifyAi',
+  title: 'POD商品 - PodifyAi',
   meta: [
-    { name: 'description', content: 'PodifyAi商品采集页面' }
+    { name: 'description', content: 'PodifyAi POD商品管理页面' }
   ]
 })
 </script>

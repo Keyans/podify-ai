@@ -1,0 +1,479 @@
+<template>
+  <div>
+    <!-- 工具栏 -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <!-- 左侧按钮 -->
+      <div class="flex items-center space-x-2">
+        <button 
+          @click="$emit('newTask')"
+          class="flex items-center space-x-1 px-4 py-2 rounded-md text-sm"
+          :style="{
+            backgroundColor: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)'
+          }"
+        >
+          <span class="text-xl">+</span>
+          <span>新建采集</span>
+        </button>
+      </div>
+
+      <!-- 右侧筛选和搜索 -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative">
+          <input 
+            type="text" 
+            placeholder="高级搜索" 
+            class="px-4 py-2 rounded-md text-sm w-36 focus:outline-none"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
+            }"
+          />
+        </div>
+
+        <div 
+          class="relative inline-block"
+          :style="{
+            backgroundColor: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)',
+            borderRadius: '0.375rem'
+          }"
+        >
+          <select 
+            class="block appearance-none px-4 py-2 pr-8 rounded-md text-sm focus:outline-none"
+            :style="{
+              backgroundColor: 'transparent',
+              color: 'inherit'
+            }"
+          >
+            <option>采集状态</option>
+            <option>进行中</option>
+            <option>已完成</option>
+            <option>失败</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+            <svg class="w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <button 
+            class="px-4 py-2 rounded-md text-sm flex items-center space-x-1"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)'
+            }"
+          >
+            <span>开始日期</span>
+            <svg class="w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          <span class="mx-2" :style="{ color: 'var(--text-secondary)' }">~</span>
+          <button 
+            class="px-4 py-2 rounded-md text-sm flex items-center space-x-1"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)'
+            }"
+          >
+            <span>结束日期</span>
+            <svg class="w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="relative">
+          <input 
+            v-model="filters.search"
+            type="text" 
+            placeholder="采集ID" 
+            class="px-4 py-2 rounded-md text-sm w-36 focus:outline-none"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
+            }"
+          />
+        </div>
+
+        <button 
+          @click="applyFilters"
+          class="px-4 py-2 rounded-md text-sm"
+          :style="{
+            backgroundColor: 'var(--accent-color)',
+            color: 'white'
+          }"
+        >
+          <span>查询</span>
+        </button>
+
+        <button 
+          class="flex items-center space-x-2 px-4 py-2 rounded-md text-sm"
+          :style="{
+            backgroundColor: 'var(--accent-color)',
+            color: 'white'
+          }"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>下载采集插件</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="overflow-hidden rounded-lg border" :style="{ borderColor: 'var(--border-color)' }">
+      <table class="min-w-full divide-y" :style="{ borderColor: 'var(--border-color)' }">
+        <thead :style="{ backgroundColor: 'var(--bg-tertiary)' }">
+          <tr>
+            <th class="px-6 py-3 text-left" :style="{ color: 'var(--text-secondary)' }">
+              <input type="checkbox" class="rounded border-gray-300" v-model="selectAll" @change="toggleSelectAll">
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">采集ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">采集类型</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">采集数量</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">采集状态</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">创建人</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">创建时间</th>
+            <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">操作</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y" :style="{ 
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-color)'
+        }">
+          <tr 
+            v-for="(item, index) in paginatedData" 
+            :key="index" 
+            class="hover:bg-opacity-50" 
+            :style="{ backgroundColor: 'var(--bg-secondary)' }"
+          >
+            <td class="px-6 py-4">
+              <input type="checkbox" class="rounded border-gray-300" v-model="selectedItems" :value="item.id">
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm" :style="{ color: 'var(--text-primary)' }">
+              {{ item.id }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <span class="text-sm" :style="{ color: 'var(--text-primary)' }">{{ getTypeText(item.type) }}</span>
+                <span 
+                  v-if="item.platform" 
+                  class="ml-2 px-2 py-1 text-xs rounded"
+                  :style="{ 
+                    backgroundColor: getPlatformBgColor(item.platform),
+                    color: 'white'
+                  }"
+                >
+                  {{ item.platform }}
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs" :style="{ color: 'var(--text-secondary)' }">目标：{{ item.targetCount || 100 }}</span>
+                  <span class="text-xs" :style="{ color: getProgressColor(item.status) }">{{ getSuccessCount(item) }}</span>
+                </div>
+                <div class="w-full h-1 rounded-full" :style="{ backgroundColor: 'var(--bg-tertiary)' }">
+                  <div class="h-1 rounded-full" :style="{
+                    width: getProgressPercentage(item) + '%',
+                    backgroundColor: getProgressColor(item.status)
+                  }"></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <span class="px-3 py-1 rounded-md text-xs"
+                  :style="{
+                    backgroundColor: getStatusBgColor(item.status),
+                    color: 'white'
+                  }"
+                >
+                  {{ getStatusText(item.status) }}
+                </span>
+                <span v-if="item.status === 'failed'" class="ml-2 text-xs underline cursor-pointer" :style="{ color: 'var(--text-secondary)' }">查看</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm" :style="{ color: 'var(--text-primary)' }">
+              {{ item.creator || 'admin' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm" :style="{ color: 'var(--text-primary)' }">
+              {{ item.createdAt }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <button 
+                @click.stop="viewTaskDetail(item)"
+                class="px-3 py-1 text-sm" 
+                :style="{ color: 'var(--accent-color)' }"
+              >
+                查看详情
+              </button>
+              <div class="relative inline-block text-left ml-2">
+                <button 
+                  @click.stop="showMoreOptions(item)"
+                  class="inline-flex items-center text-sm rounded-md"
+                  :style="{ color: 'var(--text-secondary)' }"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- 无数据展示 -->
+          <tr v-if="filteredData.length === 0">
+            <td :colspan="8" class="py-8 text-center text-sm" :style="{ color: 'var(--text-secondary)' }">
+              暂无数据
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <!-- 分页 -->
+      <div class="px-6 py-4 flex items-center justify-between" :style="{ 
+        borderTop: '1px solid',
+        borderColor: 'var(--border-color)',
+        backgroundColor: 'var(--bg-secondary)'
+      }">
+        <div class="text-sm" :style="{ color: 'var(--text-secondary)' }">
+          共 {{ totalItems }} 条记录
+        </div>
+        <div class="flex items-center">
+          <span class="text-sm mr-2" :style="{ color: 'var(--text-secondary)' }">{{ pagination.pageSize }}/页</span>
+          
+          <button 
+            @click="goToPage(pagination.currentPage - 1)"
+            class="p-1 rounded border"
+            :style="{ 
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-secondary)',
+              opacity: pagination.currentPage === 1 ? 0.5 : 1
+            }"
+            :disabled="pagination.currentPage === 1"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div 
+            v-for="page in visiblePages" 
+            :key="page"
+            @click="goToPage(page)"
+            class="px-3 py-1 rounded cursor-pointer mx-0.5"
+            :style="{ 
+              backgroundColor: pagination.currentPage === page ? 'var(--accent-color)' : 'transparent',
+              color: pagination.currentPage === page ? 'white' : 'var(--text-secondary)',
+              borderColor: pagination.currentPage !== page ? 'var(--border-color)' : 'transparent',
+              borderWidth: pagination.currentPage !== page ? '1px' : '0'
+            }"
+          >
+            {{ page }}
+          </div>
+
+          <button 
+            @click="goToPage(pagination.currentPage + 1)"
+            class="p-1 rounded border"
+            :style="{ 
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-secondary)',
+              opacity: pagination.currentPage === totalPages ? 0.5 : 1
+            }"
+            :disabled="pagination.currentPage === totalPages"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, watch } from 'vue'
+
+// 定义props和emits
+const props = defineProps({
+  data: {
+    type: Array,
+    default: () => []
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'newTask'])
+
+// 选中项
+const selectAll = ref(false)
+const selectedItems = ref([])
+
+// 过滤器状态
+const filters = ref({
+  status: 'all',
+  date: 'all',
+  search: ''
+})
+
+// 分页状态
+const pagination = ref({
+  currentPage: 1,
+  pageSize: 10
+})
+
+// 根据筛选条件过滤数据
+const filteredData = computed(() => {
+  let result = [...props.data]
+  
+  // 按状态筛选
+  if (filters.value.status !== 'all') {
+    result = result.filter(item => item.status === filters.value.status)
+  }
+  
+  // 按ID搜索
+  if (filters.value.search) {
+    const searchLower = filters.value.search.toLowerCase()
+    result = result.filter(item => {
+      return item.id.toLowerCase().includes(searchLower)
+    })
+  }
+  
+  return result
+})
+
+// 计算分页后的数据
+const paginatedData = computed(() => {
+  const startIndex = (pagination.value.currentPage - 1) * pagination.value.pageSize
+  const endIndex = startIndex + pagination.value.pageSize
+  return filteredData.value.slice(startIndex, endIndex)
+})
+
+// 总记录数
+const totalItems = computed(() => filteredData.value.length)
+
+// 总页数
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(totalItems.value / pagination.value.pageSize))
+})
+
+// 可见页码
+const visiblePages = computed(() => {
+  if (totalPages.value <= 1) return [1]
+  return [1, 2]
+})
+
+// 类型文本
+const getTypeText = (type) => {
+  const typeMap = {
+    '商品链接': '商品',
+    '店铺链接': '店铺',
+    '搜索采集': '搜索',
+    '采集插件': '插件'
+  }
+  return typeMap[type] || type
+}
+
+// 平台背景色
+const getPlatformBgColor = (platform) => {
+  if (platform.includes('亚马逊')) return '#232f3e'
+  if (platform === 'TEMU') return '#eb2f96'
+  if (platform === 'Shein') return '#333333'
+  if (platform === '本地') return '#73d13d'
+  return '#333333'
+}
+
+// 获取成功数量
+const getSuccessCount = (item) => {
+  if (item.status === 'completed') return '100'
+  if (item.status === 'failed') return '0'
+  return '95'
+}
+
+// 获取进度百分比
+const getProgressPercentage = (item) => {
+  if (item.status === 'completed') return 100
+  if (item.status === 'failed') return 0
+  return 95
+}
+
+// 状态文本
+const getStatusText = (status) => {
+  const statusMap = {
+    'processing': '进行中',
+    'completed': '已完成',
+    'failed': '失败'
+  }
+  return statusMap[status] || status
+}
+
+// 状态背景色
+const getStatusBgColor = (status) => {
+  const statusBgColors = {
+    'processing': 'rgba(53, 122, 232, 0.9)',
+    'completed': 'rgba(39, 174, 96, 0.9)',
+    'failed': 'rgba(235, 87, 87, 0.9)'
+  }
+  return statusBgColors[status] || '#333333'
+}
+
+// 进度条颜色
+const getProgressColor = (status) => {
+  const colors = {
+    'processing': 'rgb(53, 122, 232)',
+    'completed': 'rgb(39, 174, 96)',
+    'failed': 'rgb(235, 87, 87)'
+  }
+  return colors[status] || 'var(--accent-color)'
+}
+
+// 表格操作
+const toggleSelectAll = () => {
+  if (selectAll.value) {
+    selectedItems.value = paginatedData.value.map(item => item.id)
+  } else {
+    selectedItems.value = []
+  }
+}
+
+// 监听选中项变化
+watch(selectedItems, (newVal) => {
+  selectAll.value = newVal.length === paginatedData.value.length && paginatedData.value.length > 0
+}, { deep: true })
+
+// 页码跳转
+const goToPage = (page) => {
+  if (page < 1 || page > totalPages.value) return
+  pagination.value.currentPage = page
+  emit('page-change', pagination.value)
+}
+
+// 应用过滤器
+const applyFilters = () => {
+  pagination.value.currentPage = 1
+  emit('filter-change', filters.value)
+}
+
+// 查看任务详情
+const viewTaskDetail = (item) => {
+  emit('view', item)
+}
+
+// 显示更多选项
+const showMoreOptions = (item) => {
+  console.log('显示更多选项:', item)
+}
+</script> 

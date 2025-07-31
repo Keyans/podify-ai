@@ -1,247 +1,1035 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div 
+    class="min-h-screen"
+    :style="{
+      backgroundColor: 'var(--bg-primary)',
+      color: 'var(--text-primary)'
+    }"
+  >
     <!-- 顶部导航栏 -->
-    <nav class="bg-white border-b border-gray-200 px-6 py-4">
+    <nav 
+      class="border-b px-6 py-4"
+      :style="{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-color)'
+      }"
+    >
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
           <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
-              <span class="text-white font-bold text-sm">灵</span>
-            </div>
-            <span class="text-xl font-bold text-gray-800">PodifyAi</span>
+            <span class="text-xl font-bold">
+              <span class="text-orange-500">CuzCuz</span>
+              <span class="text-green-400">AI</span>
+              <span class="text-xs text-gray-400 ml-1">Beta</span>
+            </span>
           </div>
-          <span class="text-gray-400">|</span>
-          <span class="text-gray-600">仪表盘</span>
         </div>
         
         <div class="flex items-center space-x-4">
-          <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0-15 0v5h5l-5 5-5-5h5V7a12 12 0 1 1 24 0v10z"/>
-            </svg>
-          </button>
+          <!-- 主题选择器组件 -->
           <div class="relative">
-            <div class="flex items-center space-x-2 cursor-pointer" @click="toggleDropdown">
-              <!-- 用户头像 -->
-              <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-              </div>
-              <span class="text-gray-700">管理员</span>
-              <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': isDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </div>
-            
-            <!-- 下拉菜单 -->
-            <div v-show="isDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-              <div class="py-1">
-                <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                  个人资料
-                </a>
-                <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  账户设置
-                </a>
-                <div class="border-t border-gray-100"></div>
-                <a href="#" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50" @click="logout">
-                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                  </svg>
-                  退出登录
-                </a>
-              </div>
-            </div>
+            <ThemeSelector />
           </div>
         </div>
       </div>
     </nav>
 
-    <div class="flex">
+    <div class="flex h-[calc(100vh-73px)]">
       <!-- 左侧边栏 -->
-      <aside class="w-56 bg-white border-r border-gray-200 min-h-screen">
-        <nav class="py-4">
-          <!-- 主要功能 -->
-          <div class="mb-6">
-            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">主要功能</h3>
+      <aside 
+        class="w-56 border-r flex flex-col"
+        :style="{
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-color)'
+        }"
+      >
+        <!-- 主导航区域 -->
+        <nav class="py-4 flex-1">
+          <!-- 驾驶舱 -->
+          <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                <NuxtLink to="/dashboard" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
+                <a 
+                  href="#" 
+                  @click.prevent="openInTab('/dashboard', '驾驶舱')"
+                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent" 
+                  :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard' }"
+                  :style="{ color: currentActivePath === '/dashboard' ? 'var(--text-primary)' : 'var(--text-secondary)' }"
+                >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                   </svg>
-                  <span>首页</span>
-                </NuxtLink>
+                  <span>驾驶舱</span>
+                </a>
               </li>
             </ul>
+          </div>
+
+          <!-- 我的应用 -->
+          <div class="mb-4">
+            <div 
+              class="flex items-center justify-between px-4 py-2 cursor-pointer" 
+              @click="toggleMyApps"
+            >
+              <div class="flex items-center space-x-3">
+                <svg 
+                  class="w-4 h-4" 
+                  :style="{ color: 'var(--text-secondary)' }"
+                  fill="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/>
+                </svg>
+                <span :style="{ color: 'var(--text-secondary)' }" class="text-sm">我的应用</span>
+              </div>
+              <svg 
+                class="w-4 h-4 transition-transform duration-200" 
+                :class="{ 'rotate-90': isMyAppsOpen }" 
+                :style="{ color: 'var(--text-tertiary)' }"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+            <div v-show="isMyAppsOpen" class="ml-6 space-y-1">
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/collection' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>商品采集</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/cropping' }">
+                <div class="w-1.5 h-1.5 bg-dark-accent rounded-full"></div>
+                <span>智能裁图</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/cutout' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>一键抠图</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/text-to-image' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>文生图</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/transform' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>超级裂变</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/detection' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>侵权检测</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/pod-synthesis' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>POD合成</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/title-generation' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>标题生成</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/batch-listing' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>批量刊登</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <ul class="space-y-1">
+              <li>
+                                 <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/workflow' }">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
+                  </svg>
+                  <span>工作流</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 图库管理 -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between px-4 py-2 cursor-pointer" @click="toggleImageLibrary">
+              <div class="flex items-center space-x-3">
+                <svg class="w-4 h-4 text-dark-text-secondary" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                </svg>
+                <span class="text-dark-text-secondary text-sm">图库管理</span>
+              </div>
+              <svg class="w-4 h-4 text-dark-text-tertiary transition-transform duration-200" :class="{ 'rotate-90': isImageLibraryOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+            <div v-show="isImageLibraryOpen" class="ml-6 space-y-1">
+                             <a href="#" @click.prevent="openInTab('/dashboard/images/overview', '图库概览')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/overview' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>图库概览</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/images/products', '商品图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/products' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>商品图库</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/images/materials', '素材图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/materials' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>素材图库</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/images/processing-results', '结果图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/processing-results' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>结果图库</span>
+              </a>
+            </div>
           </div>
 
           <!-- 商品管理 -->
-          <div class="mb-6">
-            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">商品管理</h3>
-            <ul class="space-y-1">
-              <li>
-                <NuxtLink to="/dashboard/products" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
-                  </svg>
-                  <span>商品采集</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/products/management" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7V10C2 16 6 20.9 12 22C18 20.9 22 16 22 10V7L12 2ZM12 7C13.1 7 14 7.9 14 9S13.1 11 12 11 10 10.1 10 9 10.9 7 12 7ZM18 15C16.67 15 15.33 14.67 14 14C12.67 14.67 11.33 15 10 15C8.67 15 7.33 14.67 6 14V13C6 11.9 6.9 11 8 11H16C17.1 11 18 11.9 18 13V15Z"/>
-                  </svg>
-                  <span>店铺管理</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/images" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z"/>
-                  </svg>
-                  <span>图片管理</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/pod" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"/>
-                  </svg>
-                  <span>POD管理</span>
-                </NuxtLink>
-              </li>
-            </ul>
+          <div class="mb-4">
+            <div class="flex items-center justify-between px-4 py-2 cursor-pointer" @click="toggleProductManagement">
+              <div class="flex items-center space-x-3">
+                <svg class="w-4 h-4 text-dark-text-secondary" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span class="text-dark-text-secondary text-sm">商品管理</span>
+              </div>
+              <svg class="w-4 h-4 text-dark-text-tertiary transition-transform duration-200" :class="{ 'rotate-90': isProductManagementOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+            <div v-show="isProductManagementOpen" class="ml-6 space-y-1">
+              <a href="#" @click.prevent="openInTab('/dashboard/products/white', '白品管理')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/products/white' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>白品管理</span>
+              </a>
+              <a href="#" @click.prevent="openInTab('/dashboard/products/pod', 'POD商品')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/products/pod' }">
+                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                <span>POD商品</span>
+              </a>
+            </div>
           </div>
 
-          <!-- 团队协作 -->
-          <div class="mb-6">
-            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">团队协作</h3>
+          <!-- 应用市场 -->
+          <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                <NuxtLink to="/dashboard/team/collaboration" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
+                                 <a href="#" @click.prevent="openInTab('/dashboard/application/market', '应用市场')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/application/market' }">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M16 4C18.2 4 20 5.8 20 8S18.2 12 16 12 12 10.2 12 8 13.8 4 16 4ZM8 12C10.2 12 12 10.2 12 8S10.2 4 8 4 4 5.8 4 8 5.8 12 8 12ZM8 14C5.33 14 0 15.34 0 18V20H16V18C16 15.34 10.67 14 8 14ZM16 14C15.71 14 15.38 14.02 15.03 14.05C16.19 14.89 17 16.3 17 18V20H24V18C24 15.34 18.67 14 16 14Z"/>
+                    <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
                   </svg>
-                  <span>团队协作</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/team/resources" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 2C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2H6ZM13 3.5L18.5 9H13V3.5ZM8 12V14H16V12H8ZM8 16V18H13V16H8Z"/>
-                  </svg>
-                  <span>团队资产</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/team/monitoring" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM15.5 6L19 10L17.59 11.41L13.5 7.31V16H11.5V7.31L7.41 11.41L6 10L9.5 6H15.5Z"/>
-                  </svg>
-                  <span>任务监控</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/tools/coupons" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.79 21L3 11.21V2H11.21L21 11.79L12.79 21ZM7 9C7.55 9 8 8.55 8 8S7.55 7 7 7 6 7.45 6 8 6.45 9 7 9Z"/>
-                  </svg>
-                  <span>热门趋势</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/tools/workflow" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L13.09 8.26L22 9L14 14L17 23L12 19L7 23L10 14L2 9L10.91 8.26L12 2Z"/>
-                  </svg>
-                  <span>工作流</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/tools/marketing" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"/>
-                  </svg>
-                  <span>营销中心</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/tools/store" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4 6H2V20C2 21.1 2.9 22 4 22H18V20H4V6ZM20 2H8C6.9 2 6 2.9 6 4V16C6 17.1 6.9 18 8 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 12H8V4H20V12Z"/>
-                  </svg>
-                  <span>应用商店</span>
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink to="/dashboard/settings" class="flex items-center space-x-3 text-gray-700 px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 hover:border-r-2 hover:border-blue-500 transition-all duration-200" active-class="bg-blue-50 text-blue-700 border-r-2 border-blue-500">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-                  </svg>
-                  <span>设置</span>
-                </NuxtLink>
+                  <span>应用市场</span>
+                </a>
               </li>
             </ul>
           </div>
         </nav>
+
+        <!-- 底部区域：账号设置、帮助中心、用户信息 -->
+        <div 
+          class="border-t py-4"
+          :style="{ borderColor: 'var(--border-color)' }"
+        >
+          <!-- 账号设置 -->
+          <div class="mb-2">
+            <ul class="space-y-1">
+              <li>
+                                 <a href="#" @click.prevent="openInTab('/dashboard/settings', '账号设置')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/settings' }">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                  </svg>
+                  <span>账号设置</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 帮助中心 -->
+          <div class="mb-4">
+            <ul class="space-y-1">
+              <li>
+                                 <a href="#" @click.prevent="openInTab('/dashboard/help', '帮助中心')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/help' }">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                  </svg>
+                  <span>帮助中心</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 用户信息区域 -->
+          <div class="relative px-4">
+            <div 
+              class="flex items-center justify-between py-2 cursor-pointer hover:bg-dark-input rounded-md px-2"
+              @click="toggleTeamModal"
+            >
+              <div class="flex items-center space-x-3">
+                <!-- 用户头像 -->
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-dark-text">体验用户</span>
+                  <span class="text-xs text-dark-text-secondary">{{ currentTeam.name }}</span>
+                </div>
+              </div>
+              <!-- 更多按钮 -->
+              <button class="p-1 hover:bg-dark-hover rounded">
+                <svg class="w-4 h-4 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </aside>
 
-      <!-- 主内容区域 -->
-      <main class="flex-1 p-6">
+      <!-- 右侧内容区域 -->
+      <div class="flex-1 flex flex-col">
+        <!-- 标签页导航区域 -->
+        <div 
+          class="border-b"
+          :style="{
+            backgroundColor: 'var(--bg-secondary)',
+            borderColor: 'var(--border-color)'
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <!-- 标签页列表 -->
+            <div class="flex items-center px-0 py-0 overflow-x-auto flex-1">
+              
+              <div 
+                v-for="tab in openTabs" 
+                :key="tab.id"
+                class="flex items-center space-x-2 px-4 py-3 text-sm whitespace-nowrap cursor-pointer transition-all duration-200 border-r min-w-0 relative"
+                :class="{
+                  'font-medium': tab.id === activeTab,
+                }"
+                :style="{
+                  backgroundColor: tab.id === activeTab ? 'var(--bg-primary)' : 'var(--bg-secondary)',
+                  borderColor: 'var(--border-color)',
+                  borderBottomColor: tab.id === activeTab ? 'var(--bg-primary)' : 'var(--border-color)',
+                  color: tab.id === activeTab ? 'var(--color-primary)' : 'var(--text-secondary)'
+                }"
+                @click="switchToTab(tab.id)"
+                @contextmenu.prevent="showTabContextMenu($event, tab.id)"
+              >
+                <!-- 活跃标签底部指示线 -->
+                <div 
+                  v-if="tab.id === activeTab"
+                  class="absolute bottom-0 left-0 right-0 h-0.5"
+                  :style="{ backgroundColor: 'var(--color-primary)' }"
+                ></div>
+                
+                <span class="truncate">{{ tab.title }}</span>
+                
+                <button 
+                  v-if="openTabs.length > 1"
+                  @click.stop="closeTab(tab.id)"
+                  class="rounded p-1 flex-shrink-0 ml-2 transition-colors"
+                  :class="{
+                    'hover:bg-gray-200': tab.id !== activeTab,
+                    'hover:bg-blue-100': tab.id === activeTab
+                  }"
+                  :style="{ color: tab.id === activeTab ? 'var(--color-primary)' : 'var(--text-tertiary)' }"
+                >
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- 右侧控制按钮 -->
+            <div class="flex items-center px-2 py-2 border-l" :style="{ borderColor: 'var(--border-color)' }">
+              <!-- 标签页菜单按钮 -->
+              <button 
+                @click.stop="showTabMenu"
+                class="p-2 rounded transition-colors"
+                :class="{
+                  'hover:bg-gray-100': !showTabMenuDropdown,
+                  'bg-gray-100': showTabMenuDropdown
+                }"
+                :style="{ color: 'var(--text-secondary)' }"
+                title="标签页操作"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 标签页右键菜单 -->
+        <div 
+          v-if="showContextMenu"
+          class="fixed border rounded-md shadow-lg py-1 z-50 min-w-[160px]"
+          :style="{ 
+            left: contextMenuPosition.x + 'px', 
+            top: contextMenuPosition.y + 'px',
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-color)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)'
+          }"
+          @click.stop
+        >
+          <button 
+            @click="closeCurrentTab"
+            class="w-full text-left px-4 py-2 text-sm transition-colors duration-200 flex items-center space-x-2"
+            :class="{
+              'opacity-50 cursor-not-allowed': openTabs.length <= 1,
+              'hover:bg-gray-100': openTabs.length > 1
+            }"
+            :style="{ 
+              color: 'var(--text-primary)',
+              backgroundColor: openTabs.length > 1 ? 'transparent' : 'var(--bg-tertiary)'
+            }"
+            :disabled="openTabs.length <= 1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            <span>关闭</span>
+          </button>
+          
+          <button 
+            @click="closeOtherTabs"
+            class="w-full text-left px-4 py-2 text-sm transition-colors duration-200 flex items-center space-x-2"
+            :class="{
+              'opacity-50 cursor-not-allowed': openTabs.length <= 1,
+              'hover:bg-gray-100': openTabs.length > 1
+            }"
+            :style="{ 
+              color: 'var(--text-primary)',
+              backgroundColor: openTabs.length > 1 ? 'transparent' : 'var(--bg-tertiary)'
+            }"
+            :disabled="openTabs.length <= 1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <span>关闭其他标签页</span>
+          </button>
+
+          <button 
+            @click="closeAllTabs"
+            class="w-full text-left px-4 py-2 text-sm transition-colors duration-200 flex items-center space-x-2"
+            :class="{
+              'opacity-50 cursor-not-allowed': openTabs.length <= 1,
+              'hover:bg-gray-100': openTabs.length > 1
+            }"
+            :style="{ 
+              color: 'var(--text-primary)',
+              backgroundColor: openTabs.length > 1 ? 'transparent' : 'var(--bg-tertiary)'
+            }"
+            :disabled="openTabs.length <= 1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>关闭所有标签页</span>
+          </button>
+
+          <hr class="my-1" :style="{ borderColor: 'var(--border-color)' }">
+
+          <button 
+            @click="reloadCurrentTab"
+            class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2"
+            :style="{ color: 'var(--text-primary)' }"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>重新加载</span>
+          </button>
+
+          <button 
+            @click="duplicateTab"
+            class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2"
+            :style="{ color: 'var(--text-primary)' }"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <span>在新窗口中打开</span>
+          </button>
+        </div>
+
+        <!-- 标签页操作菜单 -->
+        <div 
+          v-if="showTabMenuDropdown"
+          class="fixed border rounded-md shadow-lg py-1 z-50 min-w-[160px]"
+          :style="{ 
+            right: '60px', 
+            top: '115px',
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-color)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)'
+          }"
+          @click.stop
+        >
+          <button 
+            @click="closeOtherTabs"
+            class="w-full text-left px-4 py-2 text-sm transition-colors duration-200 flex items-center space-x-2"
+            :class="{
+              'opacity-50 cursor-not-allowed': openTabs.length <= 1,
+              'hover:bg-gray-100': openTabs.length > 1
+            }"
+            :style="{ 
+              color: 'var(--text-primary)',
+              backgroundColor: openTabs.length > 1 ? 'transparent' : 'var(--bg-tertiary)'
+            }"
+            :disabled="openTabs.length <= 1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <span>关闭其他标签页</span>
+          </button>
+
+          <button 
+            @click="closeAllTabs"
+            class="w-full text-left px-4 py-2 text-sm transition-colors duration-200 flex items-center space-x-2"
+            :class="{
+              'opacity-50 cursor-not-allowed': openTabs.length <= 1,
+              'hover:bg-gray-100': openTabs.length > 1
+            }"
+            :style="{ 
+              color: 'var(--text-primary)',
+              backgroundColor: openTabs.length > 1 ? 'transparent' : 'var(--bg-tertiary)'
+            }"
+            :disabled="openTabs.length <= 1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>关闭所有标签页</span>
+          </button>
+
+          <hr class="my-1" :style="{ borderColor: 'var(--border-color)' }">
+
+          <button 
+            @click="reloadAllTabs"
+            class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2"
+            :style="{ color: 'var(--text-primary)' }"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>重新加载所有标签页</span>
+          </button>
+
+          <button 
+            @click="clearAllCache"
+            class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2"
+            :style="{ color: 'var(--text-primary)' }"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <span>清理所有缓存</span>
+          </button>
+        </div>
+
+        <!-- 页面内容区域 -->
+        <main class="flex-1 overflow-auto">
         <slot />
       </main>
+      </div>
+    </div>
+
+    <!-- 团队切换弹窗 -->
+    <div 
+      v-if="showTeamModal" 
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click="closeTeamModal"
+    >
+      <div 
+        class="bg-dark-card border border-dark-border rounded-lg shadow-xl w-96 max-h-96 overflow-hidden"
+        @click.stop
+      >
+        <!-- 弹窗头部 -->
+        <div class="p-4 border-b border-dark-border">
+          <h3 class="text-lg font-medium text-dark-text">个人账号</h3>
+        </div>
+
+        <!-- 弹窗内容 -->
+        <div class="p-4">
+          <!-- 团队切换下拉选择 -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-dark-text mb-2">当前团队</label>
+            <div class="relative">
+              <select 
+                v-model="currentTeam.id"
+                @change="switchTeam"
+                class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
+              >
+                <option v-for="team in availableTeams" :key="team.id" :value="team.id">
+                  {{ team.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 当前团队信息 -->
+          <div class="bg-dark-input rounded-md p-3 mb-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                  <span class="text-white text-sm font-bold">{{ currentTeam.name.charAt(0) }}</span>
+                </div>
+                <div>
+                  <div class="font-medium text-dark-text">{{ currentTeam.name }}</div>
+                  <div class="text-xs text-orange-500 bg-orange-100 px-2 py-0.5 rounded-full inline-block">{{ currentTeam.version }}</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-dark-text">余额：¥{{ currentTeam.balance }}</div>
+                <svg class="w-4 h-4 text-green-500 ml-auto" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- 快捷操作 -->
+          <div class="space-y-2">
+            <button 
+              @click="joinNewTeam"
+              class="w-full flex items-center justify-center space-x-3 p-3 hover:bg-dark-hover rounded-md cursor-pointer transition-colors"
+            >
+              <div class="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </div>
+              <span class="font-medium text-dark-text">加入新团队</span>
+            </button>
+
+            <button 
+              @click="createTeam"
+              class="w-full flex items-center justify-center space-x-3 p-3 hover:bg-dark-hover rounded-md cursor-pointer transition-colors"
+            >
+              <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <span class="font-medium text-dark-text">创建团队</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 弹窗底部 -->
+        <div class="p-4 border-t border-dark-border bg-dark-input">
+          <button 
+            @click="logout"
+            class="w-full text-center py-2 text-red-500 hover:text-red-400 text-sm transition-colors"
+          >
+            退出登录
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
+import { useThemeStore } from '~/composables/useTheme'
+import ThemeSelector from '~/components/ThemeSelector.vue'
 
-// 下拉菜单状态
-const isDropdownOpen = ref(false)
+const themeStore = useThemeStore()
+const activeTheme = computed(() => themeStore.activeTheme)
+const route = useRoute()
 
-// 切换下拉菜单
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
+// 菜单状态
+const isMyAppsOpen = ref(true)
+const isImageLibraryOpen = ref(false)
+const isProductManagementOpen = ref(false)
+const showTeamModal = ref(false)
+
+// 标签页管理
+const openTabs = ref([
+  { id: 'dashboard', title: '驾驶舱', path: '/dashboard' }
+])
+const activeTab = ref('dashboard')
+
+// 团队管理
+const availableTeams = ref([
+  { id: 'cuzcuz', name: 'CUZCUZ团队', version: '团队版', balance: '431.31' },
+  { id: 'abc', name: 'ABC团队', version: '个人版', balance: '168.50' },
+])
+const currentTeam = ref(availableTeams.value[0])
+
+// 标签页右键菜单
+const showContextMenu = ref(false)
+const contextMenuPosition = ref({ x: 0, y: 0 })
+const showTabMenuDropdown = ref(false)
+
+// 组件缓存相关
+const pageCache = ref(new Map())
+
+// 页面标题映射
+const routeTitleMap = {
+  '/dashboard': '驾驶舱',
+  '/dashboard/apps/collection': '商品采集',
+  '/dashboard/apps/cropping': '智能裁图',
+  '/dashboard/apps/cutout': '一键抠图',
+  '/dashboard/apps/text-to-image': '文生图',
+  '/dashboard/apps/transform': '超级裂变',
+  '/dashboard/apps/detection': '侵权检测',
+  '/dashboard/apps/pod-synthesis': 'POD合成',
+  '/dashboard/apps/title-generation': '标题生成',
+  '/dashboard/apps/batch-listing': '批量刊登',
+  '/dashboard/workflow': '工作流',
+  '/dashboard/images/overview': '图库概览',
+  '/dashboard/images/products': '商品图库',
+  '/dashboard/images/materials': '素材图库',
+  '/dashboard/images/processing-results': '结果图库',
+  '/dashboard/products/white': '白品管理',
+  '/dashboard/products/pod': 'POD商品',
+  '/dashboard/application/market': '应用市场',
+  '/dashboard/settings': '账号设置',
+  '/dashboard/help': '帮助中心'
 }
 
-// 关闭下拉菜单
-const closeDropdown = () => {
-  isDropdownOpen.value = false
-}
+// 左侧导航当前激活路径
+const currentActivePath = ref(route.path)
 
-// 点击外部关闭下拉菜单
-const handleClickOutside = (event) => {
-  const dropdown = event.target.closest('.relative')
-  if (!dropdown) {
-    closeDropdown()
+// 标签页管理方法
+const openInTab = (path, title) => {
+  const existingTab = openTabs.value.find(tab => tab.path === path)
+  
+  if (existingTab) {
+    // 如果标签页已存在，直接切换到该标签页
+    activeTab.value = existingTab.id
+  } else {
+    // 创建新标签页
+    const newTabId = `tab-${Date.now()}`
+    const newTab = {
+      id: newTabId,
+      title,
+      path,
+    }
+    
+    openTabs.value.push(newTab)
+    activeTab.value = newTabId
   }
+  
+  // 导航到目标页面
+  navigateTo(path)
+}
+
+const closeTab = (tabId) => {
+  if (openTabs.value.length <= 1) return // 至少保留一个标签页
+  
+  const tabIndex = openTabs.value.findIndex(tab => tab.id === tabId)
+  if (tabIndex === -1) return
+  
+  const tabToClose = openTabs.value[tabIndex]
+  
+  // 移除标签页
+  openTabs.value.splice(tabIndex, 1)
+  
+  // 如果关闭的是当前活跃的标签页，切换到相邻的标签页
+  if (activeTab.value === tabId) {
+    const newActiveIndex = Math.max(0, tabIndex - 1)
+    const newActiveTab = openTabs.value[newActiveIndex]
+    activeTab.value = newActiveTab.id
+    navigateTo(newActiveTab.path)
+  }
+}
+
+const switchToTab = (tabId) => {
+  const tab = openTabs.value.find(t => t.id === tabId)
+  if (tab) {
+    activeTab.value = tabId
+    // 导航到对应页面
+    navigateTo(tab.path)
+  }
+}
+
+// 清理缓存方法
+const clearPageCache = (path) => {
+  pageCache.value.delete(path)
+}
+
+// 清理所有缓存
+const clearAllCache = () => {
+  pageCache.value.clear()
+  closeContextMenu()
+}
+
+// 标签页右键菜单方法
+const showTabContextMenu = (event, tabId) => {
+  event.preventDefault()
+  event.stopPropagation()
+  activeTab.value = tabId // 确保当前点击的标签页是激活的
+  contextMenuPosition.value = { x: event.clientX, y: event.clientY }
+  showContextMenu.value = true
+  showTabMenuDropdown.value = false // 关闭其他菜单
+}
+
+const showTabMenu = (event) => {
+  event.preventDefault()
+  event.stopPropagation()
+  showTabMenuDropdown.value = !showTabMenuDropdown.value
+  showContextMenu.value = false // 关闭右键菜单
+}
+
+const closeContextMenu = () => {
+  showContextMenu.value = false
+  showTabMenuDropdown.value = false
+}
+
+const closeCurrentTab = () => {
+  if (openTabs.value.length > 1) {
+    closeTab(activeTab.value)
+  }
+  closeContextMenu()
+}
+
+const closeOtherTabs = () => {
+  const currentTab = openTabs.value.find(tab => tab.id === activeTab.value)
+  if (currentTab) {
+    // 清理其他标签页的缓存
+    openTabs.value.forEach(tab => {
+      if (tab.id !== activeTab.value) {
+        clearPageCache(tab.path)
+      }
+    })
+    openTabs.value = [currentTab]
+  }
+  closeContextMenu()
+}
+
+const closeAllTabs = () => {
+  // 清理所有缓存
+  clearAllCache()
+  openTabs.value = [{ id: 'dashboard', title: '驾驶舱', path: '/dashboard' }]
+  activeTab.value = 'dashboard'
+  navigateTo('/dashboard')
+  closeContextMenu()
+}
+
+const reloadCurrentTab = () => {
+  const tab = openTabs.value.find(t => t.id === activeTab.value)
+  if (tab) {
+    // 清理当前标签页的缓存，强制重新加载
+    clearPageCache(tab.path)
+    // 刷新页面
+    window.location.reload()
+  }
+  closeContextMenu()
+}
+
+const reloadAllTabs = () => {
+  clearAllCache()
+  window.location.reload()
+  closeContextMenu()
+}
+
+const duplicateTab = () => {
+  const tab = openTabs.value.find(t => t.id === activeTab.value)
+  if (tab) {
+    const newTabId = `tab-${Date.now()}`
+    const newTab = {
+      id: newTabId,
+      title: tab.title + ' (副本)',
+      path: tab.path,
+    }
+    openTabs.value.push(newTab)
+    activeTab.value = newTabId
+    navigateTo(newTab.path)
+  }
+  closeContextMenu()
+}
+
+// 切换菜单展开状态
+const toggleMyApps = () => {
+  isMyAppsOpen.value = !isMyAppsOpen.value
+}
+const toggleImageLibrary = () => {
+  isImageLibraryOpen.value = !isImageLibraryOpen.value
+}
+const toggleProductManagement = () => {
+  isProductManagementOpen.value = !isProductManagementOpen.value
+}
+
+// 团队相关方法
+const toggleTeamModal = () => {
+  showTeamModal.value = !showTeamModal.value
+}
+
+const closeTeamModal = () => {
+  showTeamModal.value = false
+}
+
+const switchTeam = () => {
+  const selectedTeam = availableTeams.value.find(team => team.id === currentTeam.value.id)
+  if (selectedTeam) {
+    currentTeam.value = selectedTeam
+    console.log('切换到团队:', selectedTeam.name)
+    // 实际应用中这里会更新当前团队信息和权限
+  }
+}
+
+const joinNewTeam = () => {
+  console.log('加入新团队')
+  closeTeamModal()
+  // 实际应用中这里会打开加入团队的表单或页面
+}
+
+const createTeam = () => {
+  console.log('创建新团队')
+  closeTeamModal()
+  // 实际应用中这里会打开创建团队的表单或页面
 }
 
 // 退出登录
 const logout = () => {
-  // 这里可以添加退出登录的逻辑
-  console.log('退出登录')
-  closeDropdown()
-  // 可以跳转到登录页面
-  // await navigateTo('/login')
+  localStorage.removeItem('isLoggedIn')
+  localStorage.removeItem('userInfo')
+  navigateTo('/login')
 }
 
-// 监听点击事件
+// 监听路由变化，同步标签页状态和左侧导航状态
+watch(() => route.path, (newPath) => {
+  // 更新左侧导航激活状态
+  currentActivePath.value = newPath
+  
+  // 查找是否已有对应的标签页
+  const existingTab = openTabs.value.find(tab => tab.path === newPath)
+  
+  if (existingTab) {
+    // 如果已有标签页，激活它
+    activeTab.value = existingTab.id
+  } else {
+    // 如果是新页面，添加新标签页
+    const title = routeTitleMap[newPath] || '未知页面'
+    const newTabId = `tab-${Date.now()}`
+    const newTab = {
+      id: newTabId,
+      title,
+      path: newPath,
+    }
+    
+    openTabs.value.push(newTab)
+    activeTab.value = newTabId
+  }
+}, { immediate: true })
+
+// 点击外部关闭菜单
+const handleClickOutside = (event) => {
+  // 检查点击是否在菜单外部
+  if (showContextMenu.value || showTabMenuDropdown.value) {
+    const contextMenus = document.querySelectorAll('.fixed.bg-white.border.border-gray-200, .fixed[style*="backgroundColor: var(--bg-primary)"]')
+    let clickedInside = false
+    
+    contextMenus.forEach(menu => {
+      if (menu && menu.contains(event.target)) {
+        clickedInside = true
+      }
+    })
+    
+    // 检查是否点击了菜单按钮
+    const menuButton = event.target.closest('button')
+    if (menuButton && (menuButton.title === '标签页操作' || menuButton.getAttribute('title') === '标签页操作')) {
+      clickedInside = true
+    }
+    
+    if (!clickedInside) {
+      closeContextMenu()
+    }
+  }
+}
+
+// 键盘快捷键
+const handleKeydown = (event) => {
+  // Ctrl+W 关闭当前标签页
+  if (event.ctrlKey && event.key === 'w') {
+    event.preventDefault()
+    if (openTabs.value.length > 1) {
+      closeTab(activeTab.value)
+    }
+  }
+  
+  // Ctrl+T 新建标签页（跳转到驾驶舱）
+  if (event.ctrlKey && event.key === 't') {
+    event.preventDefault()
+    openInTab('/dashboard', '驾驶舱')
+  }
+  
+  // Ctrl+Shift+T 重新打开最近关闭的标签页
+  if (event.ctrlKey && event.shiftKey && event.key === 'T') {
+    event.preventDefault()
+    reloadCurrentTab()
+  }
+  
+  // ESC 关闭菜单
+  if (event.key === 'Escape') {
+    closeContextMenu()
+  }
+}
+
+// 初始化时设置默认标签页
 onMounted(() => {
+  // 根据当前路由设置活跃标签页
+  const currentPath = route.path
+  const existingTab = openTabs.value.find(tab => tab.path === currentPath)
+  
+  if (existingTab) {
+    activeTab.value = existingTab.id
+  } else {
+    // 如果当前路径没有标签页，添加新标签页
+    const title = routeTitleMap[currentPath] || '未知页面'
+    
+    // 如果是驾驶舱路径，保持默认ID
+    const newTabId = currentPath === '/dashboard' ? 'dashboard' : `tab-${Date.now()}`
+    const newTab = {
+      id: newTabId,
+      title,
+      path: currentPath,
+    }
+    
+    // 如果不是默认的驾驶舱路径，添加到现有标签页
+    if (currentPath !== '/dashboard') {
+      openTabs.value.push(newTab)
+    } else {
+      // 如果是驾驶舱路径，确保默认标签页正确
+      openTabs.value[0] = newTab
+    }
+    
+    activeTab.value = newTabId
+  }
+  
+  // 添加全局事件监听器
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleKeydown)
 })
 
-onUnmounted(() => {
+// 组件卸载时清理事件监听器
+onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>
+
+<style>
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+</style>
