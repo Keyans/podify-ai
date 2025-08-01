@@ -26,7 +26,13 @@
       
       <div class="hidden md:flex space-x-8">
         <a href="#" class="hover:text-blue-400 transition-colors">产品商城</a>
-        <NuxtLink to="/dashboard" class="hover:text-blue-400 transition-colors">工作台</NuxtLink>
+        <!-- 动态显示登录/工作台链接 -->
+        <NuxtLink 
+          :to="isLoggedIn ? '/dashboard' : '/login'" 
+          class="hover:text-blue-400 transition-colors"
+        >
+          {{ isLoggedIn ? '工作台' : '登录' }}
+        </NuxtLink>
         <a href="#" class="hover:text-blue-400 transition-colors">AI工具箱</a>
         <a href="#" class="hover:text-blue-400 transition-colors">案例库</a>
         <a href="#" class="hover:text-blue-400 transition-colors">合作中心</a>
@@ -34,8 +40,12 @@
       </div>
       
       <div class="flex items-center">
-        <NuxtLink to="/dashboard" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-md text-sm transition-colors">
-          进入工作台
+        <!-- 动态显示登录/工作台按钮 -->
+        <NuxtLink 
+          :to="isLoggedIn ? '/dashboard' : '/login'" 
+          class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-md text-sm transition-colors"
+        >
+          {{ isLoggedIn ? '进入工作台' : '立即登录' }}
         </NuxtLink>
       </div>
     </nav>
@@ -53,12 +63,16 @@
               </span>
             </h1>
             <p class="text-xl text-gray-300 mb-20">Less Design, More Creation.</p>
-            <NuxtLink to="/dashboard" class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium py-3 px-8 rounded-md text-lg transition-all transform hover:scale-105">
+            <!-- 动态显示登录/开始创作按钮 -->
+            <NuxtLink 
+              :to="isLoggedIn ? '/dashboard' : '/login'" 
+              class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium py-3 px-8 rounded-md text-lg transition-all transform hover:scale-105"
+            >
               <span class="flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
                 </svg>
-                开始创作
+                {{ isLoggedIn ? '开始创作' : '立即体验' }}
               </span>
             </NuxtLink>
           </div>
@@ -165,7 +179,10 @@
             <div class="md:w-1/3">
               <h3 class="text-3xl font-bold mb-4">AI模特</h3>
               <p class="text-gray-400 mb-6">服装上身更直观，营销转化更高效</p>
-              <button class="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors">
+              <button 
+                @click="handleTryNow"
+                class="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+              >
                 <span>马上试用</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
@@ -189,8 +206,12 @@
             <h3 class="text-xl font-medium">通用设计工作流</h3>
           </div>
           <div class="flex justify-center mt-4">
-            <NuxtLink to="/dashboard" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-3 rounded-md font-medium hover:from-blue-600 hover:to-cyan-600 transition-all duration-300">
-              马上进入
+            <!-- 动态按钮 -->
+            <NuxtLink 
+              :to="isLoggedIn ? '/dashboard' : '/login'" 
+              class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-3 rounded-md font-medium hover:from-blue-600 hover:to-cyan-600 transition-all duration-300"
+            >
+              {{ isLoggedIn ? '马上进入' : '立即注册' }}
             </NuxtLink>
           </div>
         </div>
@@ -231,7 +252,10 @@
                     placeholder="产品描述，创意需求，风格，背景等等"
                     class="w-full bg-black/50 border border-gray-700 rounded-full px-6 py-3 text-white focus:outline-none focus:border-blue-400"
                   />
-                  <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-full text-sm transition-colors">
+                  <button 
+                    @click="handleGenerate"
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-full text-sm transition-colors"
+                  >
                     生成
                   </button>
                 </div>
@@ -286,8 +310,12 @@
                 <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=600&auto=format&fit=crop" alt="高端抠图效果" class="w-full h-full object-cover" />
               </div>
               <div class="mt-4 text-center">
-                <NuxtLink to="/dashboard" class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white px-6 py-2 rounded-md text-sm hover:from-blue-700 hover:to-blue-500 transition-colors">
-                  开始创作
+                <!-- 动态按钮 -->
+                <NuxtLink 
+                  :to="isLoggedIn ? '/dashboard' : '/login'" 
+                  class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white px-6 py-2 rounded-md text-sm hover:from-blue-700 hover:to-blue-500 transition-colors"
+                >
+                  {{ isLoggedIn ? '开始创作' : '立即体验' }}
                 </NuxtLink>
               </div>
             </div>
@@ -399,8 +427,12 @@
         <p class="text-sm text-gray-500">Less Design More Creation</p>
         
         <div class="mt-12">
-          <NuxtLink to="/dashboard" class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white px-8 py-3 rounded-md font-medium hover:from-blue-700 hover:to-blue-500 transition-colors">
-            开始创作
+          <!-- 动态按钮 -->
+          <NuxtLink 
+            :to="isLoggedIn ? '/dashboard' : '/login'" 
+            class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white px-8 py-3 rounded-md font-medium hover:from-blue-700 hover:to-blue-500 transition-colors"
+          >
+            {{ isLoggedIn ? '开始创作' : '立即体验' }}
           </NuxtLink>
         </div>
       </div>
@@ -409,6 +441,51 @@
 </template>
 
 <script setup>
+// 登录状态管理
+const isLoggedIn = ref(false)
+
+// 检查登录状态
+const checkLoginStatus = () => {
+  if (process.client) {
+    isLoggedIn.value = localStorage.getItem('isLoggedIn') === 'true'
+  }
+}
+
+// 处理马上试用按钮点击
+const handleTryNow = () => {
+  if (isLoggedIn.value) {
+    navigateTo('/dashboard')
+  } else {
+    navigateTo('/login')
+  }
+}
+
+// 处理生成按钮点击
+const handleGenerate = () => {
+  if (isLoggedIn.value) {
+    navigateTo('/dashboard')
+  } else {
+    navigateTo('/login')
+  }
+}
+
+// 页面挂载时检查登录状态
+onMounted(() => {
+  checkLoginStatus()
+  
+  // 监听storage变化，实时更新登录状态
+  if (process.client) {
+    window.addEventListener('storage', checkLoginStatus)
+  }
+})
+
+// 组件卸载时清理监听器
+onUnmounted(() => {
+  if (process.client) {
+    window.removeEventListener('storage', checkLoginStatus)
+  }
+})
+
 // 页面元信息
 useHead({
   title: 'CUZCUZAI - 创造多元素材',
