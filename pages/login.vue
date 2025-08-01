@@ -234,7 +234,7 @@
       </div>
 
       <!-- 右侧登录表单区域 -->
-      <div class="w-[500px] relative overflow-hidden">
+      <div class="w-[500px] login-form-container relative overflow-hidden">
         <!-- 背景 -->
         <div class="absolute inset-0 bg-black/95 backdrop-blur-sm"></div>
         
@@ -304,6 +304,39 @@
                   placeholder="密码"
                 >
                 <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </div>
+              
+              <!-- 记住密码复选框 -->
+              <div class="flex items-center justify-between">
+                <label class="flex items-center space-x-3 cursor-pointer group">
+                  <div class="relative">
+                    <input 
+                      v-model="rememberPassword" 
+                      type="checkbox"
+                      class="sr-only"
+                    >
+                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400"
+                         :class="{ 'bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-400': rememberPassword }">
+                      <svg v-if="rememberPassword" class="w-3 h-3 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <span class="text-gray-300 text-sm group-hover:text-white transition-colors">记住密码</span>
+                </label>
+                
+                <a href="#" class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">忘记密码？</a>
+              </div>
+
+              <!-- 清除记住密码按钮 -->
+              <div v-if="hasRememberedPassword" class="text-center">
+                <button 
+                  type="button"
+                  @click="clearRememberedPassword"
+                  class="text-xs text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  清除记住的密码
+                </button>
               </div>
               
               <!-- 登录按钮 -->
@@ -377,9 +410,15 @@ const loginForm = ref({
 
 const isLoading = ref(false)
 
+// 记住密码状态
+const rememberPassword = ref(false)
+
+// 是否有记住的密码
+const hasRememberedPassword = ref(false)
+
 // 默认测试账号
 const defaultCredentials = {
-  email: 'admin@lingtu.ai',
+  email: 'admin@cuzcuz.ai',
   password: '123456'
 }
 
@@ -431,6 +470,19 @@ const handleLogin = async () => {
         name: '管理员',
         avatar: ''
       }))
+
+      // 如果记住密码，则保存到localStorage
+      if (rememberPassword.value) {
+        localStorage.setItem('rememberPassword', 'true')
+        localStorage.setItem('savedEmail', loginForm.value.email)
+        localStorage.setItem('savedPassword', loginForm.value.password)
+        hasRememberedPassword.value = true
+      } else {
+        localStorage.removeItem('rememberPassword')
+        localStorage.removeItem('savedEmail')
+        localStorage.removeItem('savedPassword')
+        hasRememberedPassword.value = false
+      }
       
       // 跳转到dashboard
       await navigateTo('/dashboard')
@@ -445,11 +497,34 @@ const handleLogin = async () => {
   }
 }
 
-// 页面加载时检查是否已登录
+// 清除记住的密码
+const clearRememberedPassword = () => {
+  rememberPassword.value = false
+  hasRememberedPassword.value = false
+  localStorage.removeItem('rememberPassword')
+  localStorage.removeItem('savedEmail')
+  localStorage.removeItem('savedPassword')
+  // 清空表单
+  loginForm.value.email = ''
+  loginForm.value.password = ''
+  alert('已清除记住的密码')
+}
+
+// 页面加载时检查是否已登录和是否有记住的密码
 onMounted(() => {
   const isLoggedIn = localStorage.getItem('isLoggedIn')
   if (isLoggedIn === 'true') {
     navigateTo('/dashboard')
+  }
+
+  // 尝试从localStorage加载记住的密码
+  if (localStorage.getItem('rememberPassword') === 'true') {
+    loginForm.value.email = localStorage.getItem('savedEmail') || ''
+    loginForm.value.password = localStorage.getItem('savedPassword') || ''
+    rememberPassword.value = true
+    hasRememberedPassword.value = true
+  } else {
+    hasRememberedPassword.value = false
   }
 })
 
@@ -880,7 +955,7 @@ useHead({
     min-height: 40vh;
   }
   
-  .w-[500px] {
+  .login-form-container {
     width: 100%;
   }
 }
