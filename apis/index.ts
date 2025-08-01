@@ -92,6 +92,7 @@ export const del = (url: string, config?: AxiosRequestConfig): Promise<any> => {
 // 导出业务API
 export * from './business/cropper'
 export * from './business/fission'
+export * from './business/gallery'
 
 export default {
   get,

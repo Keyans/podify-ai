@@ -17,7 +17,16 @@
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
               </svg>
-              上传商品图片
+              上传图片
+            </button>
+            <button 
+              @click="refreshProducts"
+              class="px-4 py-2 border border-dark-border rounded-md text-dark-text hover:bg-dark-hover flex items-center"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              刷新
             </button>
           </div>
         </div>
@@ -72,7 +81,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-dark-text-secondary">分类数量</p>
-                <p class="text-2xl font-bold text-dark-text">{{ getTotalCategories() }}</p>
+                <p class="text-2xl font-bold text-dark-text">{{ categories.length }}</p>
               </div>
               <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +194,7 @@
             <h3 class="font-medium text-dark-text">商品分类</h3>
             <button 
               @click="showAddCategoryModal = true"
-              class="p-1 text-dark-text-secondary hover:text-dark-text rounded"
+              class="p-1 text-dark-text-secondary hover:text-dark-text rounded transition-colors"
               title="添加分类"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +208,7 @@
         <div class="flex-1 overflow-y-auto">
           <!-- 全部 -->
           <div 
-            @click="selectCategory('')"
+            @click="selectCategory('all')"
             :class="selectedCategory === '' ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
             class="flex items-center px-4 py-3 cursor-pointer transition-colors"
           >
@@ -207,61 +216,158 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
             <span class="flex-1">全部</span>
-            <span class="text-xs bg-dark-input px-2 py-1 rounded">{{ getTotalCount() }}</span>
+            <span class="text-xs bg-dark-input px-2 py-1 rounded">{{ totalItems }}</span>
           </div>
 
           <!-- 用户自定义分类 -->
-          <div v-for="category in userCategories" :key="category.id" class="group">
-            <div 
-              @click="selectCategory(category.value)"
-              :class="selectedCategory === category.value ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
-              class="flex items-center px-4 py-3 cursor-pointer transition-colors"
-            >
-              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
-              </svg>
-              <span class="flex-1">{{ category.name }}</span>
-              <span class="text-xs bg-dark-input px-2 py-1 rounded mr-2">{{ category.count }}</span>
+          <div v-for="category in categories" :key="category.categoryId">
+            <!-- 顶级分类 -->
+            <div class="group">
+              <div 
+                @click="selectCategory(category.categoryId)"
+                :class="selectedCategory === category.categoryId ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
+                class="flex items-center px-4 py-3 cursor-pointer transition-colors"
+              >
+                <!-- 展开收缩箭头 -->
+                <button 
+                  v-if="category.categoryList && category.categoryList.length > 0"
+                  @click.stop="toggleCategoryExpansion(category.categoryId)"
+                  class="mr-1 p-1 rounded hover:bg-dark-hover transition-colors"
+                  :class="isCategoryExpanded(category.categoryId) ? 'rotate-90' : ''"
+                >
+                  <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+                
+                <!-- 分类图标 -->
+                <svg v-if="category.categoryList && category.categoryList.length > 0" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+                </svg>
+                <svg v-else class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+                </svg>
+                
+                <span class="flex-1">{{ category.categoryName }}</span>
+                <span class="text-xs bg-dark-input px-2 py-1 rounded mr-2">{{ category.count || 0 }}</span>
               
-              <!-- 分类操作按钮 -->
-              <div class="opacity-0 group-hover:opacity-100 flex items-center space-x-1">
-                <button 
-                  @click.stop="editCategory(category)"
-                  class="p-1 text-dark-text-secondary hover:text-dark-text rounded"
-                  title="编辑分类"
-                >
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                </button>
-                <button 
-                  @click.stop="deleteCategory(category)"
-                  class="p-1 text-red-400 hover:text-red-300 rounded"
-                  title="删除分类"
-                >
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </button>
+                <!-- 分类操作按钮 -->
+                <div class="opacity-0 group-hover:opacity-100 flex items-center space-x-1">
+                  <button 
+                    @click.stop="editCategory(category)"
+                    class="p-1 text-dark-text-secondary hover:text-dark-text rounded"
+                    title="编辑分类"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button 
+                    @click.stop="deleteCategory(category)"
+                    class="p-1 text-red-400 hover:text-red-300 rounded"
+                    title="删除分类"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- 默认系统分类 -->
-          <div class="px-4 py-2 text-xs text-dark-text-secondary border-t border-dark-border mt-2">
-            系统分类
-          </div>
-          <div v-for="category in systemCategories" :key="category.value">
-            <div 
-              @click="selectCategory(category.value)"
-              :class="selectedCategory === category.value ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
-              class="flex items-center px-4 py-3 cursor-pointer transition-colors"
-            >
-              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-              </svg>
-              <span class="flex-1">{{ category.name }}</span>
-              <span class="text-xs bg-dark-input px-2 py-1 rounded">{{ category.count }}</span>
+            <!-- 子分类 -->
+            <div v-if="category.categoryList && category.categoryList.length > 0 && isCategoryExpanded(category.categoryId)" class="pl-4">
+              <div v-for="subCategory in category.categoryList" :key="subCategory.categoryId" class="group">
+                <div 
+                  @click="selectCategory(subCategory.categoryId)"
+                  :class="selectedCategory === subCategory.categoryId ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
+                  class="flex items-center px-4 py-2 cursor-pointer transition-colors"
+                >
+                  <!-- 展开收缩箭头 -->
+                  <button 
+                    v-if="subCategory.categoryList && subCategory.categoryList.length > 0"
+                    @click.stop="toggleCategoryExpansion(subCategory.categoryId)"
+                    class="mr-1 p-1 rounded hover:bg-dark-hover transition-colors"
+                    :class="isCategoryExpanded(subCategory.categoryId) ? 'rotate-90' : ''"
+                  >
+                    <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                  
+                  <!-- 分类图标 -->
+                  <svg v-if="subCategory.categoryList && subCategory.categoryList.length > 0" class="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+                  </svg>
+                  <svg v-else class="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+                  </svg>
+                  
+                  <span class="flex-1 text-sm">{{ subCategory.categoryName }}</span>
+                  <span class="text-xs bg-dark-input px-2 py-1 rounded mr-2">{{ subCategory.count || 0 }}</span>
+                  
+                  <!-- 子分类操作按钮 -->
+                  <div class="opacity-0 group-hover:opacity-100 flex items-center space-x-1">
+                    <button 
+                      @click.stop="editCategory(subCategory)"
+                      class="p-1 text-dark-text-secondary hover:text-dark-text rounded"
+                      title="编辑分类"
+                    >
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <button 
+                      @click.stop="deleteCategory(subCategory)"
+                      class="p-1 text-red-400 hover:text-red-300 rounded"
+                      title="删除分类"
+                    >
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 三级分类 -->
+                <div v-if="subCategory.categoryList && subCategory.categoryList.length > 0 && isCategoryExpanded(subCategory.categoryId)" class="pl-4">
+                  <div v-for="thirdCategory in subCategory.categoryList" :key="thirdCategory.categoryId" class="group">
+                    <div 
+                      @click="selectCategory(thirdCategory.categoryId)"
+                      :class="selectedCategory === thirdCategory.categoryId ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
+                      class="flex items-center px-4 py-2 cursor-pointer transition-colors"
+                    >
+                      <svg class="w-3 h-3 mr-3 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                      <span class="flex-1 text-sm text-dark-text-secondary">{{ thirdCategory.categoryName }}</span>
+                      <span class="text-xs bg-dark-input px-2 py-1 rounded mr-2">{{ thirdCategory.count || 0 }}</span>
+                      
+                      <!-- 三级分类操作按钮 -->
+                      <div class="opacity-0 group-hover:opacity-100 flex items-center space-x-1">
+                        <button 
+                          @click.stop="editCategory(thirdCategory)"
+                          class="p-1 text-dark-text-secondary hover:text-dark-text rounded"
+                          title="编辑分类"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </button>
+                        <button 
+                          @click.stop="deleteCategory(thirdCategory)"
+                          class="p-1 text-red-400 hover:text-red-300 rounded"
+                          title="删除分类"
+                        >
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -273,9 +379,20 @@
         <div class="flex-1 overflow-auto">
           <!-- 网格视图 -->
           <div v-if="viewMode === 'grid'" class="p-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <!-- 加载状态 -->
+            <div v-if="loading" class="flex items-center justify-center py-12">
+              <div class="text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-dark-text-secondary">加载中...</p>
+              </div>
+            </div>
+            
+
+            
+            <!-- 商品网格 -->
+            <div v-if="!loading && products.length > 0" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div 
-                v-for="image in filteredImages" 
+                v-for="image in products" 
                 :key="image.id"
                 class="group relative bg-dark-input rounded-lg overflow-hidden border border-dark-border hover:shadow-md transition-all cursor-pointer"
                 @click="openImageDetail(image)"
@@ -294,8 +411,8 @@
                 <!-- 图片 -->
                 <div class="aspect-square overflow-hidden">
                   <img 
-                    :src="image.url" 
-                    :alt="image.name"
+                    :src="image.image" 
+                    :alt="image.title"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
@@ -303,14 +420,11 @@
 
                 <!-- 商品信息覆盖层 -->
                 <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
-                  <h3 class="text-white text-sm font-medium truncate">{{ image.productName }}</h3>
+                  <h3 class="text-white text-sm font-medium truncate">{{ image.title }}</h3>
                   <div class="flex items-center justify-between mt-1">
-                    <span class="text-white text-xs opacity-80">{{ image.dimensions }}</span>
-                    <span 
-                      class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                      :class="getCategoryClass(image.category)"
-                    >
-                      {{ getCategoryName(image.category) }}
+                    <span class="text-white text-xs font-medium">{{ image.price }}</span>
+                    <span class="text-white text-xs opacity-80">
+                      {{ getPlatformName(image.platform) }}
                     </span>
                   </div>
                 </div>
@@ -337,46 +451,74 @@
                 </div>
               </div>
             </div>
+
+            <!-- 空状态 -->
+            <div v-else-if="!loading && products.length === 0" class="p-12 text-center text-dark-text-secondary">
+              <div class="mb-6">
+                <svg class="w-16 h-16 mx-auto text-dark-text-secondary opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <h3 class="text-lg font-medium text-dark-text mb-2">暂无商品图片</h3>
+              <p class="text-dark-text-secondary mb-6">还没有上传任何商品图片，快来上传第一张吧！</p>
+              <button 
+                @click="showUploadModal = true"
+                class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center mx-auto"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                上传图片
+              </button>
+            </div>
           </div>
 
           <!-- 列表视图 -->
           <div v-if="viewMode === 'list'" class="border-t border-dark-border">
-            <table class="w-full">
+            <!-- 加载状态 -->
+            <div v-if="loading" class="flex items-center justify-center py-12">
+              <div class="text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-dark-text-secondary">加载中...</p>
+              </div>
+            </div>
+            
+            <!-- 商品列表 -->
+            <table v-else class="w-full">
               <thead class="bg-dark-border">
                 <tr>
                   <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
                     <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" class="rounded border-dark-border">
                   </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">名称</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">商品名称</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">分类</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">尺寸</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">大小</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">上传时间</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">商品标题</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">价格</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">平台</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">状态</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">分类ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">商品链接</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">操作</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-dark-border bg-dark-card">
-                <tr v-for="image in filteredImages" :key="image.id" class="hover:bg-dark-hover">
+                <tr v-for="image in products" :key="image.id" class="hover:bg-dark-hover">
                   <td class="px-4 py-3">
                     <input type="checkbox" v-model="selectedItems" :value="image.id" class="rounded border-dark-border">
                   </td>
                   <td class="px-4 py-3 flex items-center">
-                    <img :src="image.url" :alt="image.name" class="w-10 h-10 rounded object-cover mr-3">
-                    <span class="text-sm font-medium text-dark-text">{{ image.name }}</span>
+                    <img :src="image.image" :alt="image.title" class="w-10 h-10 rounded object-cover mr-3">
+                    <span class="text-sm font-medium text-dark-text">{{ image.title }}</span>
                   </td>
-                  <td class="px-4 py-3 text-sm text-dark-text">{{ image.productName }}</td>
+                  <td class="px-4 py-3 text-sm text-dark-text">{{ image.price }}</td>
                   <td class="px-4 py-3">
-                    <span 
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      :class="getCategoryClass(image.category)"
-                    >
-                      {{ getCategoryName(image.category) }}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {{ getPlatformName(image.platform) }}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.dimensions }}</td>
-                  <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.fileSize }}</td>
-                  <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.uploadedAt }}</td>
+                  <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.status === 0 ? '正常' : '异常' }}</td>
+                  <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.categoryId || '未分类' }}</td>
+                  <td class="px-4 py-3 text-sm text-dark-text-secondary">
+                    <a :href="image.url" target="_blank" class="text-blue-600 hover:text-blue-700">商品链接</a>
+                  </td>
                   <td class="px-4 py-3">
                     <div class="flex items-center space-x-2">
                       <button 
@@ -401,10 +543,15 @@
           <!-- 分页 -->
           <div class="p-6 border-t border-dark-border flex items-center justify-between">
             <div class="text-sm text-dark-text-secondary">
+              <span v-if="totalItems > 0">
               显示 {{ (currentPage - 1) * pageSize + 1 }} 到 {{ Math.min(currentPage * pageSize, totalItems) }} 条，共 {{ totalItems }} 条
+              </span>
+              <span v-else class="text-dark-text-secondary">
+                暂无商品数据
+              </span>
             </div>
             
-            <div class="flex items-center space-x-2">
+            <div v-if="totalItems > 0" class="flex items-center space-x-2">
               <button 
                 @click="goToPage(currentPage - 1)"
                 :disabled="currentPage === 1"
@@ -438,6 +585,14 @@
     @delete="deleteImage"
   />
 
+  <!-- 上传图片弹窗 -->
+  <GalleryUploadModal
+    :isOpen="showUploadModal"
+    :galleryType="1"
+    @close="showUploadModal = false"
+    @upload-success="handleUploadSuccess"
+  />
+
   <!-- 添加分类弹窗 -->
   <div v-if="showAddCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
     <div class="bg-dark-card rounded-lg w-full max-w-md text-dark-text">
@@ -453,6 +608,39 @@
             placeholder="请输入分类名称"
             class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
           />
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-dark-text mb-2">父级分类（可选）</label>
+          <select 
+            v-model="categoryForm.parentCategoryId"
+            class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
+          >
+            <option value="">-- 选择父级分类 --</option>
+            <!-- 递归渲染分类选项 -->
+            <template v-for="category in categories" :key="category.categoryId">
+              <option :value="category.categoryId">{{ category.categoryName }}</option>
+              <!-- 子分类 -->
+              <template v-if="category.categoryList && category.categoryList.length > 0">
+                <option 
+                  v-for="subCategory in category.categoryList" 
+                  :key="subCategory.categoryId" 
+                  :value="subCategory.categoryId"
+                >
+                  &nbsp;&nbsp;└─ {{ subCategory.categoryName }}
+                </option>
+                <!-- 三级分类 -->
+                <template v-if="subCategory.categoryList && subCategory.categoryList.length > 0">
+                  <option 
+                    v-for="thirdCategory in subCategory.categoryList" 
+                    :key="thirdCategory.categoryId" 
+                    :value="thirdCategory.categoryId"
+                  >
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ {{ thirdCategory.categoryName }}
+                  </option>
+                </template>
+              </template>
+            </template>
+          </select>
         </div>
         <div class="mb-4">
           <label class="block text-sm font-medium text-dark-text mb-2">描述（可选）</label>
@@ -481,11 +669,28 @@
       </div>
     </div>
   </div>
+
+  <!-- 通知提示 -->
+  <div 
+    v-if="notification.show"
+    :class="{
+      'bg-green-500': notification.type === 'success',
+      'bg-red-500': notification.type === 'error',
+      'bg-yellow-500': notification.type === 'warning',
+      'bg-blue-500': notification.type === 'info'
+    }"
+    class="fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce"
+  >
+    {{ notification.message }}
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import ImageDetailModal from '~/components/ImageDetailModal.vue'
+import GalleryUploadModal from '~/components/GalleryUploadModal.vue' // 导入上传弹窗组件
+import { getGalleryStats, getGalleryCategories, addGalleryCategory, GalleryType } from '~/apis/business/gallery'
+import { getProductSuccessList } from '~/apis/business/product'
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -505,160 +710,143 @@ const selectedItems = ref([])
 const selectAll = ref(false)
 const showBatchActions = ref(false)
 
-// 分页
-const currentPage = ref(1)
-const pageSize = ref(24)
-
 // 弹窗状态
 const showDetailModal = ref(false)
-const showUploadModal = ref(false)
-const showAddCategoryModal = ref(false)
+const showUploadModal = ref(false) // 添加上传弹窗状态
+const showAddCategoryModal = ref(false) // 添加分类弹窗状态
 const selectedImage = ref(null)
+
+// 分页相关
+const currentPage = ref(1)
+const pageSize = ref(24)
 
 // 分类管理
 const editingCategory = ref(null)
 const categoryForm = ref({
   name: '',
-  description: ''
+  description: '',
+  parentCategoryId: '' // 添加父分类ID字段
 })
+
+// 添加分类展开状态管理
+const expandedCategories = ref(new Set())
 
 // 统计数据
 const stats = ref({
-  totalImages: '2,456',
-  storageUsed: '15.6GB',
-  todayUploads: '24'
+  totalImages: '0',
+  storageUsed: '0GB',
+  todayUploads: '0'
 })
 
-// 用户自定义分类
-const userCategories = ref([
-  { id: 1, name: '春季新品', value: 'spring-new', count: 156, description: '2024春季新品图片' },
-  { id: 2, name: '促销活动', value: 'promotion', count: 89, description: '促销活动相关图片' },
-  { id: 3, name: '品牌宣传', value: 'brand', count: 234, description: '品牌宣传素材' },
-  { id: 4, name: '产品详情', value: 'product-detail', count: 445, description: '产品详情页图片' }
-])
+// 分类数据
+const categories = ref([])
+const categoriesLoading = ref(false)
 
-// 系统默认分类
-const systemCategories = ref([
-  { name: '服装', value: 'clothing', count: 256 },
-  { name: '电子产品', value: 'electronics', count: 189 },
-  { name: '家居用品', value: 'home', count: 432 },
-  { name: '美妆护肤', value: 'beauty', count: 178 },
-  { name: '运动户外', value: 'sports', count: 123 }
-])
+// 通知系统
+const notification = ref({
+  show: false,
+  type: 'success', // success, error, warning, info
+  message: ''
+})
 
-// 商品图片数据
-const images = ref([
-  {
-    id: 1,
-    name: 'product_001.jpg',
-    productName: '纯棉圆领T恤',
-    url: 'https://via.placeholder.com/300x300/4F46E5/ffffff?text=T恤',
-    category: 'clothing',
-    dimensions: '1024x1024',
-    fileSize: '2.5MB',
-    uploadedAt: '2025-01-15 14:30',
-    description: '高品质纯棉T恤商品图片'
-  },
-  {
-    id: 2,
-    name: 'product_002.jpg',
-    productName: '智能手机',
-    url: 'https://via.placeholder.com/300x300/059669/ffffff?text=手机',
-    category: 'electronics',
-    dimensions: '1200x1200',
-    fileSize: '3.2MB',
-    uploadedAt: '2025-01-15 13:45',
-    description: '最新款智能手机产品图片'
-  },
-  {
-    id: 3,
-    name: 'product_003.jpg',
-    productName: '陶瓷马克杯',
-    url: 'https://via.placeholder.com/300x300/DC2626/ffffff?text=杯子',
-    category: 'home',
-    dimensions: '800x800',
-    fileSize: '1.8MB',
-    uploadedAt: '2025-01-15 12:20',
-    description: '精美陶瓷马克杯商品图片'
-  },
-  {
-    id: 4,
-    name: 'product_004.jpg',
-    productName: '保湿面霜',
-    url: 'https://via.placeholder.com/300x300/7C3AED/ffffff?text=面霜',
-    category: 'beauty',
-    dimensions: '600x600',
-    fileSize: '1.5MB',
-    uploadedAt: '2025-01-15 11:15',
-    description: '高端保湿面霜产品图片'
-  },
-  {
-    id: 5,
-    name: 'product_005.jpg',
-    productName: '运动跑鞋',
-    url: 'https://via.placeholder.com/300x300/EA580C/ffffff?text=跑鞋',
-    category: 'sports',
-    dimensions: '1080x1080',
-    fileSize: '2.8MB',
-    uploadedAt: '2025-01-15 10:30',
-    description: '专业运动跑鞋商品图片'
-  },
-  {
-    id: 6,
-    name: 'product_006.jpg',
-    productName: '连帽卫衣',
-    url: 'https://via.placeholder.com/300x300/0891B2/ffffff?text=卫衣',
-    category: 'clothing',
-    dimensions: '1024x1024',
-    fileSize: '2.9MB',
-    uploadedAt: '2025-01-15 09:45',
-    description: '时尚连帽卫衣商品图片'
-  }
-])
-
-// 筛选后的图片
-const filteredImages = computed(() => {
-  let result = [...images.value]
-  
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(img => 
-      img.name.toLowerCase().includes(query) ||
-      img.productName.toLowerCase().includes(query) ||
-      img.description.toLowerCase().includes(query)
-    )
+// 显示通知
+const showNotification = (type, message) => {
+  notification.value = {
+    show: true,
+    type,
+    message
   }
   
-  if (selectedCategory.value) {
-    result = result.filter(img => img.category === selectedCategory.value)
-  }
-  
-  // 排序
-  result.sort((a, b) => {
-    switch (sortBy.value) {
-      case 'name':
-        return a.name.localeCompare(b.name)
-      case 'date':
-        return new Date(b.uploadedAt) - new Date(a.uploadedAt)
-      case 'size':
-        return parseFloat(b.fileSize) - parseFloat(a.fileSize)
-      default:
-        return 0
-    }
-  })
-  
-  return result
+  // 3秒后自动隐藏
+  setTimeout(() => {
+    notification.value.show = false
+  }, 3000)
+}
+
+// 商品数据和加载状态
+const products = ref([])
+const loading = ref(false)
+const pagination = ref({
+  current: 1,
+  size: 24,
+  pages: 1,
+  total: 0
 })
 
 // 分页计算
-const totalItems = computed(() => filteredImages.value.length)
-const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value))
+const totalItems = computed(() => parseInt(pagination.value.total))
+const totalPages = computed(() => parseInt(pagination.value.pages))
 
-// 获取分类名称
-const getCategoryName = (category) => {
-  const allCategories = [...userCategories.value, ...systemCategories.value]
-  const found = allCategories.find(cat => cat.value === category)
-  return found ? found.name : '其他'
+// 获取平台名称
+const getPlatformName = (platform) => {
+  const platformMap = {
+    1: 'Temu',
+    2: 'Amazon', 
+    3: 'eBay',
+    4: 'AliExpress'
+  }
+  return platformMap[platform] || '未知平台'
+  }
+
+// 选择分类
+const selectCategory = (category) => {
+  if (category === 'all') {
+    selectedCategory.value = ''
+  } else {
+    selectedCategory.value = category
+    
+    // 自动展开父分类
+    const expandParentCategories = (categories, targetId) => {
+      for (const cat of categories) {
+        if (cat.categoryId === targetId) {
+          return true
+        }
+        if (cat.categoryList && cat.categoryList.length > 0) {
+          if (expandParentCategories(cat.categoryList, targetId)) {
+            expandedCategories.value.add(cat.categoryId)
+            return true
+          }
+        }
+      }
+      return false
+    }
+    
+    expandParentCategories(categories.value, category)
+  }
+}
+
+// 获取分类显示名称
+const getCategoryName = (categoryValue) => {
+  if (!categoryValue) return '全部'
+  
+  const findCategory = (categories, value) => {
+    for (const cat of categories) {
+      if (cat.categoryId === value) return cat.categoryName
+      if (cat.categoryList && cat.categoryList.length > 0) {
+        const found = findCategory(cat.categoryList, value)
+        if (found) return found
+    }
+    }
+    return null
+  }
+  
+  return findCategory(categories.value, categoryValue) || categoryValue
+}
+
+// 获取分类数据
+const fetchCategories = async () => {
+  try {
+    categoriesLoading.value = true
+    const response = await getGalleryCategories({ galleryType: GalleryType.PRODUCTS })
+    
+    if (response.success && response.data) {
+      categories.value = response.data.categoryList
+    }
+  } catch (error) {
+    console.error('获取商品图库分类失败:', error)
+  } finally {
+    categoriesLoading.value = false
+  }
 }
 
 // 获取分类样式
@@ -673,61 +861,83 @@ const getCategoryClass = (category) => {
   return categoryClasses[category] || 'bg-gray-100 text-gray-800'
 }
 
-// 获取总数量
-const getTotalCount = () => {
-  return images.value.length
-}
 
-// 获取总分类数
-const getTotalCategories = () => {
-  return userCategories.value.length + systemCategories.value.length
-}
 
 // 分类操作
-const selectCategory = (category) => {
-  selectedCategory.value = category
-  currentPage.value = 1
-}
-
 const editCategory = (category) => {
   editingCategory.value = category
   categoryForm.value = {
-    name: category.name,
-    description: category.description || ''
+    name: category.categoryName,
+    description: category.description || '',
+    parentCategoryId: category.parentCategoryId || '' // 设置父分类ID
   }
   showAddCategoryModal.value = true
 }
 
+// 添加分类展开收缩功能
+const toggleCategoryExpansion = (categoryId) => {
+  if (expandedCategories.value.has(categoryId)) {
+    expandedCategories.value.delete(categoryId)
+  } else {
+    expandedCategories.value.add(categoryId)
+  }
+}
+
+// 检查分类是否展开
+const isCategoryExpanded = (categoryId) => {
+  return expandedCategories.value.has(categoryId)
+}
+
 const deleteCategory = (category) => {
-  if (confirm(`确定要删除分类"${category.name}"吗？`)) {
-    const index = userCategories.value.findIndex(cat => cat.id === category.id)
+  if (confirm(`确定要删除分类"${category.categoryName}"吗？`)) {
+    const index = categories.value.findIndex(cat => cat.categoryId === category.categoryId)
     if (index > -1) {
-      userCategories.value.splice(index, 1)
+      categories.value.splice(index, 1)
     }
   }
 }
 
-const saveCategoryEdit = () => {
+const saveCategoryEdit = async () => {
   if (!categoryForm.value.name.trim()) return
   
+  try {
   if (editingCategory.value) {
-    // 编辑现有分类
+      // 编辑现有分类 - 这里暂时只更新本地数据，因为没有编辑API
     const category = editingCategory.value
-    category.name = categoryForm.value.name
+      category.categoryName = categoryForm.value.name
     category.description = categoryForm.value.description
+      category.parentCategoryId = categoryForm.value.parentCategoryId // 更新父分类ID
   } else {
-    // 添加新分类
-    const newCategory = {
-      id: Date.now(),
-      name: categoryForm.value.name,
-      value: categoryForm.value.name.toLowerCase().replace(/\s+/g, '-'),
-      count: 0,
-      description: categoryForm.value.description
-    }
-    userCategories.value.push(newCategory)
+      // 添加新分类 - 调用API
+      const params = {
+        galleryType: GalleryType.PRODUCTS,
+        categoryName: categoryForm.value.name
+      }
+      
+      // 如果有父分类，添加到参数中
+      if (categoryForm.value.parentCategoryId) {
+        params.parentCategoryId = categoryForm.value.parentCategoryId
+      }
+      
+      const response = await addGalleryCategory(params)
+      
+      if (response.success && response.data) {
+        // 添加成功后刷新分类列表
+        await fetchCategories()
+        
+        // 显示成功提示
+        showNotification('success', '分类添加成功')
+      } else {
+        showNotification('error', response.message || '添加分类失败')
+        return
+      }
   }
   
   cancelCategoryEdit()
+  } catch (error) {
+    console.error('保存分类失败:', error)
+    showNotification('error', '保存分类失败，请重试')
+  }
 }
 
 const cancelCategoryEdit = () => {
@@ -735,7 +945,8 @@ const cancelCategoryEdit = () => {
   editingCategory.value = null
   categoryForm.value = {
     name: '',
-    description: ''
+    description: '',
+    parentCategoryId: ''
   }
 }
 
@@ -759,7 +970,7 @@ const deleteImage = (image) => {
 
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedItems.value = filteredImages.value.map(img => img.id)
+    selectedItems.value = products.value.map(img => img.id)
   } else {
     selectedItems.value = []
   }
@@ -783,11 +994,172 @@ const batchDelete = () => {
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
+    fetchProducts()
   }
 }
+
+// 格式化文件大小
+const formatFileSize = (sizeStr) => {
+  // 如果已经是格式化的字符串，直接返回
+  if (typeof sizeStr === 'string' && sizeStr.includes('B')) {
+    return sizeStr
+  }
+  
+  const bytes = parseInt(sizeStr) || 0
+  if (bytes === 0) return '0 B'
+  
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+// 获取商品列表数据
+const fetchProducts = async () => {
+  try {
+    loading.value = true
+    
+    const params = {
+      page: currentPage.value,
+      limit: pageSize.value
+    }
+    
+    // 添加搜索条件
+    if (searchQuery.value.trim()) {
+      params.title = searchQuery.value.trim()
+    }
+    
+    // 添加分类筛选
+    if (selectedCategory.value) {
+      params.categoryId = selectedCategory.value
+    }
+    
+    const response = await getProductSuccessList(params)
+    
+    if (response.success && response.data) {
+      const data = response.data
+      products.value = data.productList || []
+      
+      // 更新分页信息
+      pagination.value = {
+        current: parseInt(data.current || '1'),
+        size: parseInt(data.size || '24'),
+        pages: parseInt(data.pages || '1'),
+        total: parseInt(data.total || '0')
+      }
+    } else {
+      products.value = []
+      pagination.value = {
+        current: 1,
+        size: 24,
+        pages: 1,
+        total: 0
+      }
+    }
+  } catch (error) {
+    console.error('获取商品列表失败:', error)
+    products.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// 获取统计数据
+const fetchStats = async () => {
+  try {
+    const response = await getGalleryStats({ galleryType: GalleryType.PRODUCTS })
+    
+    if (response.success && response.data) {
+      const data = response.data
+      stats.value.totalImages = data.imageCount
+      stats.value.storageUsed = formatFileSize(data.fileSizeTotal)
+      stats.value.todayUploads = data.todayUploadCount
+    }
+  } catch (error) {
+    console.error('获取商品图库统计数据失败:', error)
+  }
+}
+
+// 刷新商品列表
+const refreshProducts = async () => {
+  await Promise.all([fetchStats(), fetchProducts(), fetchCategories()])
+}
+
+// 上传成功回调
+const handleUploadSuccess = () => {
+  showUploadModal.value = false
+  fetchProducts() // 刷新商品列表
+  fetchStats() // 同时刷新统计数据
+  fetchCategories() // 刷新分类数据
+}
+
+// 防抖定时器
+let searchTimer = null
+
+// 监听搜索和筛选变化
+watch([searchQuery, selectedCategory], () => {
+  currentPage.value = 1 // 重置到第一页
+  
+  // 清除之前的定时器
+  if (searchTimer) {
+    clearTimeout(searchTimer)
+  }
+  
+  // 设置新的定时器，减少频繁请求
+  searchTimer = setTimeout(() => {
+    fetchProducts()
+  }, 300) // 减少延迟时间，提升响应速度
+}, { deep: true })
 
 // 页面初始化
 onMounted(() => {
   console.log('商品图库页面初始化')
+  fetchStats()
+  fetchProducts()
+  fetchCategories()
 })
 </script>
+
+<style scoped>
+/* 分类展开收缩动画 */
+.category-enter-active,
+.category-leave-active {
+  transition: all 0.3s ease;
+}
+
+.category-enter-from,
+.category-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* 减少页面闪动 */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* 优化按钮点击效果 */
+button:active {
+  transform: scale(0.98);
+}
+
+/* 分类项悬停效果 */
+.category-item:hover {
+  background-color: var(--dark-hover);
+}
+
+/* 加载状态优化 */
+.loading-skeleton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+</style>

@@ -143,10 +143,20 @@
             </div>
 
     <!-- 图片网格视图 -->
-    <div v-if="viewMode === 'grid'" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <div v-if="viewMode === 'grid'">
+      <!-- 加载状态 -->
+      <div v-if="loading" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p class="mt-2 text-dark-text-secondary">加载中...</p>
+        </div>
+      </div>
+      
+      <!-- 图片网格 -->
+      <div v-else class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
       <div 
-        v-for="image in filteredImages" 
-        :key="image.id" 
+          v-for="image in images" 
+          :key="image.imageName + image.createTime" 
         class="relative group bg-dark-card rounded-lg overflow-hidden border border-dark-border hover:shadow-md transition-shadow cursor-pointer"
         @click="openImageDetail(image)"
       >
@@ -164,8 +174,8 @@
         <!-- 图片 -->
         <div class="aspect-square bg-gray-200 overflow-hidden">
           <img 
-            :src="image.url" 
-            :alt="image.name"
+              :src="image.imageUrl"
+              :alt="image.imageName"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
@@ -173,11 +183,8 @@
 
         <!-- 状态标识 -->
         <div class="absolute top-2 right-2">
-          <span 
-            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-            :class="getStatusClass(image.status)"
-          >
-            {{ getStatusText(image.status) }}
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              完成
           </span>
             </div>
 
@@ -204,10 +211,11 @@
 
         <!-- 图片信息 -->
         <div class="p-3">
-          <h3 class="text-sm font-medium text-dark-text truncate">{{ image.name }}</h3>
+            <h3 class="text-sm font-medium text-dark-text truncate">{{ image.imageName }}</h3>
           <div class="flex items-center justify-between mt-2 text-xs text-dark-text-secondary">
-            <span>{{ image.dimensions }}</span>
-            <span>{{ image.createdAt }}</span>
+              <span>{{ image.createBy }}</span>
+              <span>{{ image.createTime }}</span>
+            </div>
               </div>
             </div>
           </div>
@@ -215,7 +223,16 @@
 
     <!-- 列表视图 -->
     <div v-if="viewMode === 'list'" class="bg-dark-card rounded-lg border border-dark-border overflow-hidden">
-      <table class="w-full">
+      <!-- 加载状态 -->
+      <div v-if="loading" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p class="mt-2 text-dark-text-secondary">加载中...</p>
+        </div>
+      </div>
+      
+      <!-- 图片列表 -->
+      <table v-else class="w-full">
         <thead class="bg-dark-border">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
@@ -231,25 +248,21 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-dark-border">
-          <tr v-for="image in filteredImages" :key="image.id" class="hover:bg-dark-hover">
+          <tr v-for="image in images" :key="image.imageName + image.createTime" class="hover:bg-dark-hover">
             <td class="px-4 py-3">
               <input type="checkbox" v-model="selectedImages" :value="image.id" class="rounded border-dark-border">
             </td>
             <td class="px-4 py-3">
-              <img :src="image.url" :alt="image.name" class="w-12 h-12 rounded object-cover">
+              <img :src="image.imageUrl" :alt="image.imageName" class="w-12 h-12 rounded object-cover">
             </td>
-            <td class="px-4 py-3 text-sm font-medium text-dark-text">{{ image.name }}</td>
-            <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.category }}</td>
-            <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.dimensions }}</td>
+            <td class="px-4 py-3 text-sm font-medium text-dark-text">{{ image.imageName }}</td>
+                          <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.createBy }}</td>
+              <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.createTime }}</td>
             <td class="px-4 py-3">
-              <span 
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="getStatusClass(image.status)"
-              >
-                {{ getStatusText(image.status) }}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                完成
               </span>
             </td>
-            <td class="px-4 py-3 text-sm text-dark-text-secondary">{{ image.createdAt }}</td>
             <td class="px-4 py-3">
               <div class="flex items-center space-x-2">
                 <button 
@@ -307,11 +320,21 @@
     @download="downloadImage"
     @delete="deleteImage"
   />
+
+  <!-- 上传图片弹窗 -->
+  <GalleryUploadModal
+    :isOpen="showUploadModal"
+    :galleryType="3"
+    @close="showUploadModal = false"
+    @upload-success="handleUploadSuccess"
+  />
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import ImageDetailModal from '~/components/ImageDetailModal.vue'
+import GalleryUploadModal from '~/components/GalleryUploadModal.vue'
+import { getGalleryStats, getGalleryImageList, GalleryType } from '~/apis/business/gallery'
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -341,102 +364,59 @@ const showDetailModal = ref(false)
 const showUploadModal = ref(false)
 const selectedImage = ref(null)
 
-// 模拟图片数据
-const images = ref([
-  {
-    id: 1,
-    name: 'portrait_enhanced_001.jpg',
-    url: 'https://via.placeholder.com/300x300/4F46E5/ffffff?text=Portrait+1',
-    category: 'text-to-image',
-    status: 'completed',
-    dimensions: '1024x1024',
-    fileSize: '2.5MB',
-    createdAt: '2025-01-15 14:30',
-    description: 'AI生成的人像图片'
-  },
-  {
-    id: 2,
-    name: 'landscape_002.jpg',
-    url: 'https://via.placeholder.com/300x300/059669/ffffff?text=Landscape+2',
-    category: 'background-removal',
-    status: 'completed',
-    dimensions: '1920x1080',
-    fileSize: '3.2MB',
-    createdAt: '2025-01-15 13:45',
-    description: '风景图片背景移除'
-  },
-  {
-    id: 3,
-    name: 'product_003.jpg',
-    url: 'https://via.placeholder.com/300x300/DC2626/ffffff?text=Product+3',
-    category: 'image-enhancement',
-    status: 'processing',
-    dimensions: '800x800',
-    fileSize: '1.8MB',
-    createdAt: '2025-01-15 12:20',
-    description: '商品图片增强处理'
-  },
-  {
-    id: 4,
-    name: 'artwork_004.jpg',
-    url: 'https://via.placeholder.com/300x300/7C3AED/ffffff?text=Artwork+4',
-    category: 'style-transfer',
-    status: 'completed',
-    dimensions: '1536x1536',
-    fileSize: '4.1MB',
-    createdAt: '2025-01-15 11:15',
-    description: '艺术风格转换'
-  },
-  {
-    id: 5,
-    name: 'abstract_005.jpg',
-    url: 'https://via.placeholder.com/300x300/EA580C/ffffff?text=Abstract+5',
-    category: 'text-to-image',
-    status: 'failed',
-    dimensions: '1024x1024',
-    fileSize: '0MB',
-    createdAt: '2025-01-15 10:30',
-    description: '抽象艺术生成失败'
-  },
-  {
-    id: 6,
-    name: 'nature_006.jpg',
-    url: 'https://via.placeholder.com/300x300/0891B2/ffffff?text=Nature+6',
-    category: 'background-removal',
-    status: 'completed',
-    dimensions: '1200x800',
-    fileSize: '2.9MB',
-    createdAt: '2025-01-15 09:45',
-    description: '自然风景背景处理'
-  }
-])
-
-// 筛选后的图片
-const filteredImages = computed(() => {
-  let result = [...images.value]
-  
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(img => 
-      img.name.toLowerCase().includes(query) ||
-      img.description.toLowerCase().includes(query)
-    )
-  }
-  
-  if (selectedCategory.value) {
-    result = result.filter(img => img.category === selectedCategory.value)
-  }
-  
-  if (selectedStatus.value) {
-    result = result.filter(img => img.status === selectedStatus.value)
-  }
-  
-  return result
+// 图片数据和加载状态
+const images = ref([])
+const loading = ref(false)
+const pagination = ref({
+  current: 1,
+  size: 24,
+  pages: 1,
+  total: 0
 })
 
 // 分页计算
-const totalImages = computed(() => filteredImages.value.length)
-const totalPages = computed(() => Math.ceil(totalImages.value / pageSize.value))
+const totalImages = computed(() => parseInt(pagination.value.total))
+const totalPages = computed(() => parseInt(pagination.value.pages))
+
+// 获取结果图片列表数据
+const fetchImages = async () => {
+  try {
+    loading.value = true
+    const params = {
+      galleryType: GalleryType.RESULTS,
+      page: currentPage.value,
+      limit: pageSize.value
+    }
+    
+    // 添加搜索条件
+  if (searchQuery.value) {
+      params.imageName = searchQuery.value
+  }
+  
+    // 添加分类筛选
+  if (selectedCategory.value) {
+      params.categoryId = selectedCategory.value
+    }
+    
+    const response = await getGalleryImageList(params)
+    
+    if (response.success && response.data) {
+      const data = response.data
+      images.value = data.imageList
+      pagination.value = {
+        current: parseInt(data.current),
+        size: parseInt(data.size),
+        pages: parseInt(data.pages),
+        total: parseInt(data.total)
+      }
+    }
+  } catch (error) {
+    console.error('获取结果图片列表失败:', error)
+    images.value = []
+  } finally {
+    loading.value = false
+  }
+}
 
 // 状态处理
 const getStatusText = (status) => {
@@ -468,12 +448,12 @@ const previewImage = (image) => {
 }
 
 const downloadImage = (image) => {
-  console.log('下载图片:', image.name)
+  console.log('下载图片:', image.imageName)
   // 实际应用中应该调用下载API
 }
 
 const deleteImage = (image) => {
-  console.log('删除图片:', image.name)
+  console.log('删除图片:', image.imageName)
   // 实际应用中应该调用删除API
 }
 
@@ -484,7 +464,7 @@ const refreshImages = () => {
 
 const toggleSelectAll = () => {
   if (selectAll.value) {
-    selectedImages.value = filteredImages.value.map(img => img.id)
+    selectedImages.value = images.value.map(img => img.imageName + img.createTime)
   } else {
     selectedImages.value = []
   }
@@ -511,8 +491,34 @@ const goToPage = (page) => {
   }
 }
 
+// 防抖定时器
+let searchTimer = null
+
+// 监听搜索和筛选变化
+watch([searchQuery, selectedCategory], () => {
+  currentPage.value = 1 // 重置到第一页
+  
+  // 清除之前的定时器
+  if (searchTimer) {
+    clearTimeout(searchTimer)
+  }
+  
+  // 设置新的定时器
+  searchTimer = setTimeout(() => {
+    fetchImages()
+  }, 500)
+})
+
 // 页面初始化
 onMounted(() => {
   console.log('结果图库页面初始化')
+  fetchImages()
 })
+
+// 上传成功回调
+const handleUploadSuccess = (data) => {
+  console.log('上传成功:', data)
+  // 刷新图片列表
+  fetchImages()
+}
 </script> 

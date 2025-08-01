@@ -25,9 +25,9 @@
       :data="tableData" 
       :loading="loading"
       :pagination="pagination"
-      :virtualScroll="tableData.length > 100"
-      :totalItems="pagination.total"
-      :pageSize="pagination.limit"
+      :virtualScroll="tableData && tableData.length > 100"
+      :totalItems="pagination && pagination.total || 0"
+      :pageSize="pagination && pagination.limit || 10"
       :showNewButton="false"
       idLabel="采集"
       typeLabel="采集"
@@ -50,7 +50,7 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                  class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm border transition-colors flex items-center space-x-2"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -214,19 +214,18 @@
     </TaskTable>
     </div>
 
-    <!-- 新建采集任务弹窗 -->
+    <!-- 新建任务弹窗 -->
     <CollectionNewTaskModal 
       :isOpen="showCreateModal" 
       @close="showCreateModal = false"
       @submit="submitNewTask"
     />
     
-    <!-- 采集任务详情弹窗 -->
+    <!-- 任务详情弹窗 -->
     <CollectionDetailModal
       :isOpen="showDetailModal"
-      type="product"
+      :taskData="currentTaskData"
       @close="showDetailModal = false"
-      @download="handleDownloadItems"
       @page-change="handleDetailPageChange"
     />
     
@@ -251,16 +250,18 @@ import { usePageRefresh, createPageRefreshHandler } from '~/composables/usePageR
 import TaskTable from '~/components/TaskTable.vue'
 import CollectionNewTaskModal from '~/components/CollectionNewTaskModal.vue'
 import CollectionDetailModal from '~/components/CollectionDetailModal.vue'
+import { 
+  getCollectorStats, 
+  getTaskList, 
+  getTaskDetail, 
+  createCollector, 
+  deleteCollector 
+} from '~/apis/business/collector'
 
 // 使用 dashboard 布局
 definePageMeta({
   layout: 'dashboard'
 })
-
-// 注入API - 使用新的API结构
-const { $collector, $apiConfig } = useNuxtApp()
-
-
 
 // 页面状态
 const loading = ref(false)
@@ -309,7 +310,7 @@ const tableData = ref([])
 // 获取采集统计数据
 const fetchCollectionStats = async () => {
   try {
-    const response = await $collector.getCollectorStats()
+    const response = await getCollectorStats()
     
     // 更新统计数据
     if (response && response.data) {
@@ -355,8 +356,8 @@ const fetchCollectionStats = async () => {
 const fetchTaskList = async () => {
   try {
     const params = {
-      page: pagination.value.page,
-      limit: pagination.value.limit,
+      page: pagination.value?.page || 1,
+      limit: pagination.value?.limit || 10,
       ...filters.value
     }
     
@@ -367,7 +368,7 @@ const fetchTaskList = async () => {
       }
     })
     
-    const response = await $collector.getTaskList(params)
+    const response = await getTaskList(params)
     
     if (response && response.data) {
       const data = response.data
@@ -443,6 +444,13 @@ const fetchTaskList = async () => {
         total: 1
       }
     } else {
+      // 生产环境下，确保tableData不为undefined
+      tableData.value = []
+      pagination.value = {
+        page: 1,
+        limit: 10,
+        total: 0
+      }
       showNotification('error', '任务列表加载失败')
     }
   }
@@ -504,7 +512,7 @@ const openDetailModal = async (task) => {
   showDetailModal.value = true
     
     // 调用详情接口获取详细数据
-    const detailResponse = await $collector.getTaskDetail({
+    const detailResponse = await getTaskDetail({
       taskId: task.id,
       page: 1,
       limit: 10
@@ -606,7 +614,7 @@ const openDetailModal = async (task) => {
 const deleteTask = async (task) => {
   try {
     // 调用删除API
-    await $collector.deleteCollector(task.id)
+    await deleteCollector(task.id)
     
     // 更新本地数据
   const index = tableData.value.findIndex(item => item.id === task.id)
@@ -625,7 +633,7 @@ const deleteTask = async (task) => {
 const submitNewTask = async (formData) => {
   try {
     // 调用创建API
-    const response = await $collector.createCollector(formData)
+    const response = await createCollector(formData)
     
     // 创建本地任务对象
   const newTask = {
@@ -665,21 +673,27 @@ const submitNewTask = async (formData) => {
 
 // 处理分页变化
 const handlePageChange = (newPagination) => {
+  if (pagination.value) {
   pagination.value = { ...pagination.value, ...newPagination }
+  }
   fetchTaskList()
 }
 
 // 处理分页大小变化
 const handlePageSizeChange = (newPageSize) => {
+  if (pagination.value) {
   pagination.value.limit = newPageSize
   pagination.value.page = 1 // 重置到第一页
+  }
   fetchTaskList()
 }
 
 // 处理筛选条件变化
 const handleFilterChange = (newFilters) => {
   filters.value = { ...filters.value, ...newFilters }
+  if (pagination.value) {
   pagination.value.page = 1 // 筛选时重置到第一页
+  }
   fetchTaskList()
 }
 
@@ -696,7 +710,9 @@ const resetFilters = () => {
     endTime: '',
     userId: ''
   }
+  if (pagination.value) {
   pagination.value.page = 1
+  }
   fetchTaskList()
 }
 
@@ -712,7 +728,7 @@ const handleDetailPageChange = async (newPagination) => {
   }
   
   try {
-    const detailResponse = await $collector.getTaskDetail({
+    const detailResponse = await getTaskDetail({
       taskId: currentTaskData.value.id,
       page: newPagination.page || 1,
       limit: newPagination.limit || 10
@@ -804,8 +820,7 @@ const forceRefreshData = createPageRefreshHandler({
   resetStates: [
     { ref: loading, value: false },
     { ref: showCreateModal, value: false },
-    { ref: showDetailModal, value: false },
-    { ref: showNewTaskModal, value: false }
+    { ref: showDetailModal, value: false }
   ],
   resetFilters: resetFiltersFunc,
   resetPagination: resetPaginationFunc,
@@ -845,7 +860,7 @@ onMounted(() => {
     ])
   .then(() => {
     // 只在成功加载时显示通知
-    if (process.env.NODE_ENV !== 'development' || (tableData.value.length > 0)) {
+    if (process.env.NODE_ENV !== 'development' || (tableData.value && tableData.value.length > 0)) {
       showNotification('success', '数据加载成功')
     }
   })
