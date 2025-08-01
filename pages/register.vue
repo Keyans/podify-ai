@@ -26,10 +26,10 @@
               <div class="w-8 h-8 bg-green-500 rounded flex items-center justify-center">
                 <span class="text-black font-bold text-sm">灵</span>
               </div>
-              <span class="text-xl font-bold">PodifyAi</span>
+              <span class="text-xl font-bold">CUZCUZAI</span>
             </div>
             <h2 class="text-2xl font-bold mb-2">创建账户</h2>
-            <p class="text-gray-400 text-sm">加入PodifyAi，开启创作之旅</p>
+            <p class="text-gray-400 text-sm">加入CUZCUZAI，开启创作之旅</p>
           </div>
 
           <!-- 注册表单 -->
@@ -117,7 +117,7 @@
         <div class="max-w-md text-center">
           <!-- 特色功能展示 -->
           <div class="mb-8">
-            <h1 class="text-4xl font-bold mb-4">加入PodifyAi</h1>
+            <h1 class="text-4xl font-bold mb-4">加入CUZCUZAI</h1>
             <p class="text-xl text-gray-300 mb-8">解锁无限创作可能</p>
             
             <!-- 功能特点 -->
@@ -186,9 +186,9 @@ const handleRegister = () => {
 
 // 页面元数据
 useHead({
-  title: '注册 - PodifyAi',
+  title: '注册 - CUZCUZAI',
   meta: [
-    { name: 'description', content: '注册PodifyAi账户，开启您的AI创作之旅' }
+    { name: 'description', content: '注册CUZCUZAI账户，开启您的AI创作之旅' }
   ]
 })
 </script>

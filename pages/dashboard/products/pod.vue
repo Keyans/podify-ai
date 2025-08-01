@@ -512,9 +512,9 @@ definePageMeta({
 })
 
 useHead({
-  title: 'POD商品管理 - PodifyAi',
+  title: 'POD商品管理 - CUZCUZAI',
   meta: [
-    { name: 'description', content: 'PodifyAi POD商品管理页面' }
+    { name: 'description', content: 'CUZCUZAI POD商品管理页面' }
   ]
 })
 

@@ -1,296 +1,507 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-      <div class="p-5 border-b flex justify-between items-center">
-        <h3 class="font-medium">编辑子账号</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-600">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"></path>
-          </svg>
-        </button>
+  <div 
+    v-if="isOpen" 
+    class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center backdrop-blur-sm"
+    @click.self="$emit('close')"
+  >
+    <div 
+      class="rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl border relative"
+      :style="{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-color)'
+      }"
+    >
+      <!-- 科技感头部 -->
+      <div 
+        class="p-5 border-b flex justify-between items-center relative overflow-hidden"
+        :style="{
+          borderColor: 'var(--border-color)',
+          background: 'linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%)'
+        }"
+      >
+        <!-- 科技感装饰 -->
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute top-2 right-8 w-16 h-16 border border-white rounded-full animate-pulse"></div>
+          <div class="absolute bottom-3 left-6 w-8 h-8 border border-white rounded-full opacity-50"></div>
+          <div class="absolute top-5 left-1/3 w-2 h-2 bg-white rounded-full animate-ping"></div>
+          <div class="absolute bottom-2 right-1/4 w-1 h-1 bg-white rounded-full opacity-60"></div>
+        </div>
+        
+        <div class="relative z-10">
+          <h3 class="text-lg font-medium text-white">{{ subaccount.id ? '编辑子账号' : '添加子账号' }}</h3>
+          <p class="text-sm text-white opacity-80 mt-1">
+            {{ subaccount.id ? '修改子账号信息和权限设置' : '创建新的子账号并设置权限' }}
+          </p>
+        </div>
+        
+        <!-- 增强的关闭按钮 -->
+        <div class="relative z-10 flex items-center space-x-2">
+          <!-- ESC 提示 -->
+          <div class="hidden sm:flex items-center text-white opacity-70 text-xs">
+            <span class="mr-1">按</span>
+            <kbd class="px-2 py-1 bg-white bg-opacity-20 rounded text-xs">ESC</kbd>
+            <span class="ml-1">退出</span>
+          </div>
+          
+          <!-- 主关闭按钮 -->
+          <button 
+            @click="$emit('close')"
+            class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center hover:bg-opacity-30 transition-all duration-200 hover:scale-110 hover:rotate-90 group"
+            :title="'关闭对话框'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
-      
-      <div class="p-6">
-        <!-- 基本信息 -->
-        <div class="mb-6">
-          <h4 class="font-medium mb-4">基本信息</h4>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">姓名</label>
-              <input type="text" v-model="account.name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
+      <!-- 表单内容 -->
+      <div 
+        class="p-6"
+        :style="{
+          backgroundColor: 'var(--bg-secondary)'
+        }"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- 基本信息 -->
+          <div 
+            class="p-4 border rounded-lg"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-color)'
+            }"
+          >
+            <h4 
+              class="font-medium mb-4 flex items-center"
+              :style="{ color: 'var(--text-primary)' }"
+            >
+              <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'var(--accent-color)' }"></div>
+              基本信息
+            </h4>
+            
+            <div class="space-y-4">
+              <div>
+                <label 
+                  class="block text-sm font-medium mb-2"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
+                  用户名
+                </label>
+                <input 
+                  v-model="subaccount.username"
+                  type="text" 
+                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                  :style="{
+                    backgroundColor: 'var(--bg-input)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
+                    '--tw-ring-color': 'var(--accent-color)'
+                  }"
+                  placeholder="请输入用户名"
+                />
+              </div>
+              
+              <div>
+                <label 
+                  class="block text-sm font-medium mb-2"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
+                  邮箱
+                </label>
+                <input 
+                  v-model="subaccount.email"
+                  type="email" 
+                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                  :style="{
+                    backgroundColor: 'var(--bg-input)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
+                    '--tw-ring-color': 'var(--accent-color)'
+                  }"
+                  placeholder="请输入邮箱地址"
+                />
+              </div>
+              
+              <div>
+                <label 
+                  class="block text-sm font-medium mb-2"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
+                  手机号
+                </label>
+                <input 
+                  v-model="subaccount.phone"
+                  type="tel" 
+                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                  :style="{
+                    backgroundColor: 'var(--bg-input)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
+                    '--tw-ring-color': 'var(--accent-color)'
+                  }"
+                  placeholder="请输入手机号"
+                />
+              </div>
+              
+              <div>
+                <label 
+                  class="block text-sm font-medium mb-2"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
+                  状态
+                </label>
+                <select 
+                  v-model="subaccount.status"
+                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                  :style="{
+                    backgroundColor: 'var(--bg-input)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
+                    '--tw-ring-color': 'var(--accent-color)'
+                  }"
+                >
+                  <option value="active">激活</option>
+                  <option value="inactive">停用</option>
+                  <option value="pending">待激活</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">邮箱</label>
-              <input type="email" v-model="account.email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">手机号</label>
-              <input type="text" v-model="account.phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            <div>
-              <label class="block text-sm text-gray-600 mb-1">角色</label>
-              <select v-model="account.role" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="admin">管理员</option>
-                <option value="operator">操作员</option>
-                <option value="viewer">查看员</option>
-              </select>
+          </div>
+
+          <!-- 权限设置 -->
+          <div 
+            class="p-4 border rounded-lg"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-color)'
+            }"
+          >
+            <h4 
+              class="font-medium mb-4 flex items-center"
+              :style="{ color: 'var(--text-primary)' }"
+            >
+              <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'var(--accent-color)' }"></div>
+              权限设置
+            </h4>
+            
+            <div class="space-y-3">
+              <div>
+                <label 
+                  class="block text-sm font-medium mb-2"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
+                  角色
+                </label>
+                <select 
+                  v-model="subaccount.role"
+                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                  :style="{
+                    backgroundColor: 'var(--bg-input)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
+                    '--tw-ring-color': 'var(--accent-color)'
+                  }"
+                >
+                  <option value="admin">管理员</option>
+                  <option value="operator">操作员</option>
+                  <option value="viewer">查看员</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label 
+                  class="block text-sm font-medium"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
+                  功能权限
+                </label>
+                
+                <div class="space-y-2">
+                  <label class="flex items-center">
+                    <input 
+                      v-model="subaccount.permissions.canViewProducts" 
+                      type="checkbox" 
+                      class="mr-2 w-4 h-4 rounded"
+                    />
+                    <span 
+                      class="text-sm"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      查看产品
+                    </span>
+                  </label>
+                  
+                  <label class="flex items-center">
+                    <input 
+                      v-model="subaccount.permissions.canEditProducts" 
+                      type="checkbox" 
+                      class="mr-2 w-4 h-4 rounded"
+                    />
+                    <span 
+                      class="text-sm"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      编辑产品
+                    </span>
+                  </label>
+                  
+                  <label class="flex items-center">
+                    <input 
+                      v-model="subaccount.permissions.canViewImages" 
+                      type="checkbox" 
+                      class="mr-2 w-4 h-4 rounded"
+                    />
+                    <span 
+                      class="text-sm"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      查看图片库
+                    </span>
+                  </label>
+                  
+                  <label class="flex items-center">
+                    <input 
+                      v-model="subaccount.permissions.canUploadImages" 
+                      type="checkbox" 
+                      class="mr-2 w-4 h-4 rounded"
+                    />
+                    <span 
+                      class="text-sm"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      上传图片
+                    </span>
+                  </label>
+                  
+                  <label class="flex items-center">
+                    <input 
+                      v-model="subaccount.permissions.canManageWorkflows" 
+                      type="checkbox" 
+                      class="mr-2 w-4 h-4 rounded"
+                    />
+                    <span 
+                      class="text-sm"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      管理工作流
+                    </span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        
-        <!-- 权限设置 -->
-        <div class="mb-6">
-          <h4 class="font-medium mb-4">权限设置</h4>
-          <div class="space-y-3">
-            <div class="p-3 border rounded-md">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-system" v-model="permissions.system" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-system" class="font-medium">系统管理权限</label>
-                </div>
-                <button @click="toggleSection('system')" class="text-blue-500">
-                  {{ expandedSections.system ? '收起' : '展开' }}
-                </button>
-              </div>
-              <div v-if="expandedSections.system" class="mt-3 space-y-2 pl-6">
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-system-user" v-model="permissions.systemUser" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-system-user" class="text-sm">用户管理</label>
-                </div>
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-system-role" v-model="permissions.systemRole" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-system-role" class="text-sm">角色管理</label>
-                </div>
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-system-setting" v-model="permissions.systemSetting" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-system-setting" class="text-sm">系统设置</label>
-                </div>
-              </div>
-            </div>
-            
-            <div class="p-3 border rounded-md">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-product" v-model="permissions.product" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-product" class="font-medium">商品管理权限</label>
-                </div>
-                <button @click="toggleSection('product')" class="text-blue-500">
-                  {{ expandedSections.product ? '收起' : '展开' }}
-                </button>
-              </div>
-              <div v-if="expandedSections.product" class="mt-3 space-y-2 pl-6">
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-product-create" v-model="permissions.productCreate" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-product-create" class="text-sm">创建商品</label>
-                </div>
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-product-edit" v-model="permissions.productEdit" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-product-edit" class="text-sm">编辑商品</label>
-                </div>
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-product-delete" v-model="permissions.productDelete" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-product-delete" class="text-sm">删除商品</label>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 团队资源权限 -->
-            <div class="p-3 border rounded-md bg-yellow-50">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" id="perm-team-resources" v-model="permissions.teamResources" class="w-4 h-4 rounded mr-2">
-                  <label for="perm-team-resources" class="font-medium">团队资源权限</label>
-                </div>
-                <button @click="toggleSection('teamResources')" class="text-blue-500">
-                  {{ expandedSections.teamResources ? '收起' : '展开' }}
-                </button>
-              </div>
-              <div v-if="expandedSections.teamResources" class="mt-3 space-y-3 pl-6">
-                <!-- 工作流模板权限 -->
-                <div class="space-y-2">
-                  <h5 class="text-sm font-medium">工作流模板权限</h5>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-workflow-view" v-model="permissions.workflowView" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-workflow-view" class="text-sm">查看工作流模板</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-workflow-edit" v-model="permissions.workflowEdit" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-workflow-edit" class="text-sm">编辑工作流模板</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-workflow-delete" v-model="permissions.workflowDelete" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-workflow-delete" class="text-sm">删除工作流模板</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-workflow-create" v-model="permissions.workflowCreate" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-workflow-create" class="text-sm">创建工作流模板</label>
-                  </div>
-                </div>
-                
-                <!-- 产品模板权限 -->
-                <div class="space-y-2">
-                  <h5 class="text-sm font-medium">产品模板权限</h5>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-product-tpl-view" v-model="permissions.productTplView" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-product-tpl-view" class="text-sm">查看产品模板</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-product-tpl-edit" v-model="permissions.productTplEdit" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-product-tpl-edit" class="text-sm">编辑产品模板</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-product-tpl-delete" v-model="permissions.productTplDelete" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-product-tpl-delete" class="text-sm">删除产品模板</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-product-tpl-create" v-model="permissions.productTplCreate" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-product-tpl-create" class="text-sm">创建产品模板</label>
-                  </div>
-                </div>
-                
-                <!-- 资产库权限 -->
-                <div class="space-y-2">
-                  <h5 class="text-sm font-medium">团队资产库权限</h5>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-asset-view" v-model="permissions.assetView" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-asset-view" class="text-sm">查看资产库</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-asset-upload" v-model="permissions.assetUpload" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-asset-upload" class="text-sm">上传资产</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-asset-delete" v-model="permissions.assetDelete" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-asset-delete" class="text-sm">删除资产</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input type="checkbox" id="perm-asset-categorize" v-model="permissions.assetCategorize" class="w-4 h-4 rounded mr-2">
-                    <label for="perm-asset-categorize" class="text-sm">资产分类管理</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 其他权限区块可以继续添加... -->
-          </div>
-        </div>
-        
+
         <!-- 备注 -->
-        <div class="mb-6">
-          <h4 class="font-medium mb-4">备注</h4>
-          <textarea v-model="account.note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+        <div 
+          class="mt-6 p-4 border rounded-lg"
+          :style="{
+            backgroundColor: 'var(--bg-tertiary)',
+            borderColor: 'var(--border-color)'
+          }"
+        >
+          <label 
+            class="block text-sm font-medium mb-2 flex items-center"
+            :style="{ color: 'var(--text-primary)' }"
+          >
+            <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'var(--accent-color)' }"></div>
+            备注信息
+          </label>
+          <textarea 
+            v-model="subaccount.notes"
+            rows="3" 
+            class="w-full px-3 py-2 border rounded-md text-sm resize-none transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+            :style="{
+              backgroundColor: 'var(--bg-input)',
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-primary)',
+              '--tw-ring-color': 'var(--accent-color)'
+            }"
+            placeholder="请输入备注信息（可选）"
+          />
         </div>
       </div>
-      
-      <div class="p-5 border-t flex justify-end space-x-3">
-        <button @click="close" class="px-4 py-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50">取消</button>
-        <button @click="saveChanges" class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600">保存</button>
+
+      <!-- 底部操作栏 -->
+      <div 
+        class="p-6 border-t flex justify-between items-center"
+        :style="{
+          borderColor: 'var(--border-color)',
+          backgroundColor: 'var(--bg-secondary)'
+        }"
+      >
+        <div class="flex items-center text-sm" :style="{ color: 'var(--text-secondary)' }">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          保存后将立即生效
+        </div>
+        
+        <div class="flex space-x-3">
+          <button 
+            @click="$emit('close')"
+            class="px-4 py-2 border rounded-md text-sm transition-all duration-200 hover:opacity-80 hover:scale-105"
+            :style="{
+              borderColor: 'var(--border-color)',
+              color: 'var(--text-secondary)',
+              backgroundColor: 'var(--bg-tertiary)'
+            }"
+          >
+            取消
+          </button>
+          
+          <button 
+            @click="handleSave"
+            class="px-6 py-2 rounded-md text-sm text-white transition-all duration-200 hover:opacity-90 hover:scale-105 hover:shadow-lg transform"
+            :style="{
+              background: 'linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%)'
+            }"
+          >
+            {{ subaccount.id ? '保存修改' : '创建账号' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits, watch } from 'vue'
+import { ref, watch } from 'vue'
 
+// Props
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false
-  },
-  accountData: {
+  isOpen: Boolean,
+  subaccount: {
     type: Object,
-    default: () => ({})
+    default: () => ({
+      id: null,
+      username: '',
+      email: '',
+      phone: '',
+      role: 'viewer',
+      status: 'active',
+      notes: '',
+      permissions: {
+        canViewProducts: true,
+        canEditProducts: false,
+        canViewImages: true,
+        canUploadImages: false,
+        canManageWorkflows: false
+      }
+    })
   }
 })
 
-const emits = defineEmits(['close', 'save'])
+// Emits
+const emit = defineEmits(['close', 'save'])
 
-// 子账号信息
-const account = reactive({
-  name: '',
-  email: '',
-  phone: '',
-  role: 'operator',
-  note: ''
-})
+// 处理保存
+const handleSave = () => {
+  // 基本表单验证
+  if (!props.subaccount.username || !props.subaccount.email) {
+    alert('请填写用户名和邮箱')
+    return
+  }
+  
+  emit('save', props.subaccount)
+}
 
-// 权限控制
-const permissions = reactive({
-  // 系统权限
-  system: false,
-  systemUser: false,
-  systemRole: false,
-  systemSetting: false,
-  
-  // 商品管理权限
-  product: false,
-  productCreate: false,
-  productEdit: false,
-  productDelete: false,
-  
-  // 团队资源权限
-  teamResources: false,
-  
-  // 工作流模板权限
-  workflowView: false,
-  workflowEdit: false,
-  workflowDelete: false,
-  workflowCreate: false,
-  
-  // 产品模板权限
-  productTplView: false,
-  productTplEdit: false,
-  productTplDelete: false,
-  productTplCreate: false,
-  
-  // 资产库权限
-  assetView: false,
-  assetUpload: false,
-  assetDelete: false,
-  assetCategorize: false
-})
-
-// 控制权限区块的展开/收起
-const expandedSections = reactive({
-  system: false,
-  product: false,
-  teamResources: true // 默认展开团队资源权限
-})
-
-// 监听账号数据变化
-watch(() => props.accountData, (newVal) => {
-  if (newVal) {
-    // 填充账号信息
-    account.name = newVal.name || ''
-    account.email = newVal.email || ''
-    account.phone = newVal.phone || ''
-    account.role = newVal.role || 'operator'
-    account.note = newVal.note || ''
+// ESC 键关闭
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        emit('close')
+      }
+    }
+    document.addEventListener('keydown', handleEsc)
     
-    // 可以在这里根据后端返回的权限数据填充权限对象
+    // 清理事件监听器
+    return () => {
+      document.removeEventListener('keydown', handleEsc)
+    }
   }
-}, { immediate: true })
+})
+</script>
 
-// 切换展开/收起状态
-const toggleSection = (section) => {
-  expandedSections[section] = !expandedSections[section]
+<style scoped>
+/* 焦点状态样式 */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
 }
 
-// 关闭模态框
-const close = () => {
-  emits('close')
+/* 复选框样式 */
+input[type="checkbox"] {
+  accent-color: var(--accent-color);
 }
 
-// 保存更改
-const saveChanges = () => {
-  // 构建要保存的数据对象
-  const saveData = {
-    ...account,
-    permissions
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+/* 动画效果 */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
   }
-  
-  // 发送保存事件
-  emits('save', saveData)
+  50% {
+    opacity: .5;
+  }
 }
-</script> 
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* 响应式隐藏 */
+@media (max-width: 640px) {
+  .hidden.sm\:flex {
+    display: none !important;
+  }
+}
+
+/* Hover 效果 */
+button:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* 过渡效果 */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+</style> 

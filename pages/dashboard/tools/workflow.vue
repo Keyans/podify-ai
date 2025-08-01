@@ -272,8 +272,8 @@
 // 配置页面布局和元数据
 definePageMeta({
   layout: 'dashboard',
-  title: '工作流 - PodifyAi',
-  description: 'PodifyAi工作流页面'
+  title: '工作流 - CUZCUZAI',
+  description: 'CUZCUZAI工作流页面'
 })
 
 // 模拟数据
