@@ -2,40 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 黑色主题 */
+/* 科技感主题 - 与蓝色logo统一 */
 :root {
+  /* 主要背景色 */
   --bg-primary: #000000;
   --bg-secondary: #111111;
   --bg-tertiary: #1a1a1a;
+  --bg-input: #1e1e1e;
+  --bg-card: #0f0f0f;
+  
+  /* 文字颜色 */
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-tertiary: #808080;
-  --border-color: #333333;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #737373;
+  --text-muted: #525252;
+  
+  /* 边框颜色 */
+  --border-color: #2a2a2a;
+  --border-light: #404040;
+  --border-focus: #3366FF;
+  
+  /* 主题色 - 科技蓝 */
   --accent-color: #3366FF;
   --accent-hover: #2952CC;
+  --accent-light: #4d7fff;
+  --accent-dark: #1a4dff;
   --accent-secondary: #00CCFF;
   
-  /* 主要颜色 */
-  --color-primary: #3366FF;
-  --color-blue-600: #3366FF;
-  --color-blue-100: rgba(51, 102, 255, 0.1);
-  --color-blue-200: rgba(51, 102, 255, 0.2);
+  /* 科技感蓝色系 */
+  --tech-blue-50: rgba(51, 102, 255, 0.05);
+  --tech-blue-100: rgba(51, 102, 255, 0.1);
+  --tech-blue-200: rgba(51, 102, 255, 0.2);
+  --tech-blue-300: rgba(51, 102, 255, 0.3);
+  --tech-blue-500: #3366FF;
+  --tech-blue-600: #2952CC;
+  --tech-blue-700: #1e3d99;
+  --tech-blue-800: #142966;
+  --tech-blue-900: #0a1433;
   
-  /* 暗色主题颜色 */
+  /* 渐变色 */
+  --gradient-primary: linear-gradient(135deg, #3366FF 0%, #00CCFF 100%);
+  --gradient-secondary: linear-gradient(135deg, #3366FF 0%, #667eea 100%);
+  --gradient-tertiary: linear-gradient(135deg, #00CCFF 0%, #3366FF 100%);
+  
+  /* 状态颜色 */
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #3b82f6;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8);
+  --shadow-accent: 0 0 20px rgba(51, 102, 255, 0.3);
+  
+  /* 暗色主题辅助颜色 */
   --dark-text: #ffffff;
-  --dark-text-secondary: #b0b0b0;
-  --dark-text-tertiary: #808080;
-  --dark-input: #1a1a1a;
-  --dark-hover: #333333;
+  --dark-text-secondary: #a3a3a3;
+  --dark-text-tertiary: #737373;
+  --dark-input: #1e1e1e;
+  --dark-hover: #2a2a2a;
   --dark-card: #111111;
-  --dark-border: #333333;
+  --dark-border: #2a2a2a;
   --dark-accent: #3366FF;
+  
+  /* RGB值 - 用于透明度计算 */
+  --accent-color-rgb: 51, 102, 255;
+  --text-primary-rgb: 255, 255, 255;
+  --bg-primary-rgb: 0, 0, 0;
 }
 
 /* 全局样式 */
 body {
   @apply bg-black text-white;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* 平滑滚动 */
@@ -43,7 +86,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* 渐变动画 */
+/* 科技感渐变动画 */
 @keyframes gradientFlow {
   0% {
     background-position: 0% 50%;
@@ -61,6 +104,20 @@ html {
   animation: gradientFlow 6s ease infinite;
 }
 
+/* 科技感光效动画 */
+@keyframes techGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color), 0 0 15px var(--accent-color);
+  }
+  50% {
+    box-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color), 0 0 30px var(--accent-color);
+  }
+}
+
+.tech-glow {
+  animation: techGlow 2s ease-in-out infinite;
+}
+
 /* 页面过渡效果 */
 .page-enter-active,
 .page-leave-active {
@@ -74,24 +131,49 @@ html {
 
 /* CUZCUZAI特有的UI元素样式 */
 .cuzcuz-card {
-  @apply bg-gray-800/50 rounded-xl border border-gray-700 transition-all duration-300;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
 .cuzcuz-card:hover {
-  @apply border-gray-600 shadow-lg shadow-black/50;
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
 }
 
 .cuzcuz-button {
-  @apply bg-gradient-to-r from-blue-600 to-blue-400 text-white px-4 py-2 rounded-md font-medium 
-    hover:from-blue-700 hover:to-blue-500 transition-all duration-300 transform hover:scale-105;
+  background: var(--gradient-primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.cuzcuz-button:hover {
+  background: var(--gradient-secondary);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-accent);
 }
 
 .cuzcuz-input {
-  @apply bg-black/50 border border-gray-700 rounded-full px-4 py-2 text-white
-    focus:outline-none focus:border-blue-400 transition-colors;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 8px 16px;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
 }
 
-/* 为图片添加闪光效果 */
+.cuzcuz-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--tech-blue-200);
+}
+
+/* 科技感闪光效果 */
 .shine-effect {
   position: relative;
   overflow: hidden;
@@ -107,7 +189,7 @@ html {
   background: linear-gradient(
     to right,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(51, 102, 255, 0.3) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   transform: rotate(25deg);
@@ -143,37 +225,44 @@ html {
   @apply opacity-50;
 }
 
-/* 暗色主题微妙纹理 */
+/* 科技感微妙纹理 */
 .texture-bg {
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233366FF' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* 超现代化滚动条 */
+/* 科技感滚动条 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333333;
+  background: var(--bg-secondary);
   border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #444444;
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 3px;
+  opacity: 0.6;
 }
 
-/* 加载动画 */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+  opacity: 0.8;
+}
+
+/* 科技感加载动画 */
 .loading-dots {
   display: inline-flex;
 }
 
 .loading-dots div {
-  @apply w-2 h-2 bg-blue-500 rounded-full mx-1;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  margin: 0 4px;
   animation: loading 1.4s infinite ease-in-out both;
 }
 
@@ -192,6 +281,36 @@ html {
   40% { 
     transform: scale(1.0);
   }
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 闪烁动画 */
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* 页面加载动画 */
@@ -223,4 +342,86 @@ html {
 /* 主题相关 */
 .theme-updated {
   transition: none !important;
+}
+
+/* 科技感按钮样式 */
+.tech-button {
+  background: var(--gradient-primary);
+  border: none;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all 0.5s;
+}
+
+.tech-button:hover::before {
+  left: 100%;
+}
+
+.tech-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-accent);
+}
+
+/* 科技感输入框 */
+.tech-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tech-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--tech-blue-100);
+  outline: none;
+}
+
+/* 科技感卡片 */
+.tech-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tech-card:hover::before {
+  transform: scaleX(1);
+}
+
+.tech-card:hover {
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-lg);
 }

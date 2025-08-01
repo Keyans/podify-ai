@@ -3,13 +3,30 @@
     <!-- 顶部导航栏 -->
     <nav class="flex justify-between items-center px-8 py-4">
       <div class="flex items-center space-x-2">
-        <img src="/favicon.png" alt="CUZCUZAI" class="w-8 h-8" />
-        <span class="text-xl font-bold">CUZCUZAI</span>
+        <!-- 高科技感Logo -->
+        <div class="relative w-10 h-10">
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-lg p-0.5">
+            <div class="w-full h-full bg-black rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            CUZCUZAI
+          </span>
+          <span class="text-xs text-cyan-400/60 -mt-1">AI Powered</span>
+        </div>
       </div>
       
       <div class="hidden md:flex space-x-8">
         <a href="#" class="hover:text-blue-400 transition-colors">产品商城</a>
-        <a href="#" class="hover:text-blue-400 transition-colors">工作台</a>
+        <NuxtLink to="/dashboard" class="hover:text-blue-400 transition-colors">工作台</NuxtLink>
         <a href="#" class="hover:text-blue-400 transition-colors">AI工具箱</a>
         <a href="#" class="hover:text-blue-400 transition-colors">案例库</a>
         <a href="#" class="hover:text-blue-400 transition-colors">合作中心</a>
@@ -17,7 +34,7 @@
       </div>
       
       <div class="flex items-center">
-        <NuxtLink to="/login" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-md text-sm transition-colors">
+        <NuxtLink to="/dashboard" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-md text-sm transition-colors">
           进入工作台
         </NuxtLink>
       </div>
@@ -36,14 +53,14 @@
               </span>
             </h1>
             <p class="text-xl text-gray-300 mb-20">Less Design, More Creation.</p>
-            <button class="bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium py-3 px-8 rounded-md text-lg transition-all transform hover:scale-105">
+            <NuxtLink to="/dashboard" class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium py-3 px-8 rounded-md text-lg transition-all transform hover:scale-105">
               <span class="flex items-center">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
                 </svg>
                 开始创作
               </span>
-            </button>
+            </NuxtLink>
           </div>
 
           <!-- 右侧图像展示区 -->
@@ -172,9 +189,9 @@
             <h3 class="text-xl font-medium">通用设计工作流</h3>
           </div>
           <div class="flex justify-center mt-4">
-            <button class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-3 rounded-md font-medium hover:from-blue-600 hover:to-cyan-600 transition-all duration-300">
+            <NuxtLink to="/dashboard" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-3 rounded-md font-medium hover:from-blue-600 hover:to-cyan-600 transition-all duration-300">
               马上进入
-            </button>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -269,9 +286,9 @@
                 <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=600&auto=format&fit=crop" alt="高端抠图效果" class="w-full h-full object-cover" />
               </div>
               <div class="mt-4 text-center">
-                <button class="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-6 py-2 rounded-md text-sm hover:from-blue-700 hover:to-blue-500 transition-colors">
+                <NuxtLink to="/dashboard" class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white px-6 py-2 rounded-md text-sm hover:from-blue-700 hover:to-blue-500 transition-colors">
                   开始创作
-                </button>
+                </NuxtLink>
               </div>
             </div>
           </div>
@@ -361,18 +378,30 @@
     <footer class="py-16 bg-gradient-to-b from-gray-900 to-black">
       <div class="max-w-7xl mx-auto px-8 flex flex-col items-center">
         <div class="flex items-center mb-8">
-          <img src="/favicon.png" alt="CUZCUZAI" class="w-12 h-12 mr-4" />
+          <!-- 底部Logo也使用高科技感设计 -->
+          <div class="relative w-12 h-12 mr-4">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-xl p-0.5">
+              <div class="w-full h-full bg-black rounded-xl flex items-center justify-center">
+                <svg class="w-7 h-7 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+            </div>
+            <div class="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-pulse"></div>
+          </div>
           <div>
-            <h3 class="text-2xl font-bold">CUZCUZAI</h3>
+            <h3 class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">CUZCUZAI</h3>
             <p class="text-gray-400 text-sm">更懂创意的AI</p>
           </div>
         </div>
         <p class="text-sm text-gray-500">Less Design More Creation</p>
         
         <div class="mt-12">
-          <button class="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-8 py-3 rounded-md font-medium hover:from-blue-700 hover:to-blue-500 transition-colors">
+          <NuxtLink to="/dashboard" class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white px-8 py-3 rounded-md font-medium hover:from-blue-700 hover:to-blue-500 transition-colors">
             开始创作
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </footer>
@@ -407,5 +436,34 @@ useHead({
 .gradient-animate {
   background-size: 200% 200%;
   animation: gradientAnimation 5s ease infinite;
+}
+
+/* 高科技感脉冲动画 */
+@keyframes techPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Logo悬停效果 */
+.logo-hover:hover .logo-pulse {
+  animation: techPulse 1.5s ease-in-out infinite;
+}
+
+/* 渐变文字动画 */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-gradient-animate {
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
 }
 </style>

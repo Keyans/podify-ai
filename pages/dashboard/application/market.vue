@@ -274,9 +274,9 @@ definePageMeta({
 })
 
 useHead({
-  title: '应用市场 - PodifyAi',
+  title: '应用市场 - CUZCUZAI',
   meta: [
-    { name: 'description', content: 'PodifyAi 应用市场页面' }
+    { name: 'description', content: 'CUZCUZAI 应用市场页面' }
   ]
 })
 

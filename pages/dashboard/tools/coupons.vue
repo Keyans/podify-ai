@@ -221,8 +221,8 @@
 // 配置页面布局和元数据
 definePageMeta({
   layout: 'dashboard',
-  title: '热门趋势 - PodifyAi',
-  description: 'PodifyAi热门趋势页面'
+  title: '热门趋势 - CUZCUZAI',
+  description: 'CUZCUZAI热门趋势页面'
 })
 
 // 模拟数据

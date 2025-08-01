@@ -334,9 +334,9 @@ const handleLogout = () => {
 
 // 页面元数据
 useHead({
-  title: '仪表盘 - PodifyAi',
+  title: '仪表盘 - CUZCUZAI',
   meta: [
-    { name: 'description', content: 'PodifyAi管理仪表盘' }
+    { name: 'description', content: 'CUZCUZAI管理仪表盘' }
   ]
 })
 </script>

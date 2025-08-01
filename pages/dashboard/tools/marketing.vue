@@ -287,8 +287,8 @@
 // 配置页面布局和元数据
 definePageMeta({
   layout: 'dashboard',
-  title: '营销中心 - PodifyAi',
-  description: 'PodifyAi营销中心页面'
+  title: '营销中心 - CUZCUZAI',
+  description: 'CUZCUZAI营销中心页面'
 })
 
 // 模拟数据

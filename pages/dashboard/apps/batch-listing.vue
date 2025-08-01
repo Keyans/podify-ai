@@ -220,9 +220,9 @@ definePageMeta({
 })
 
 useHead({
-  title: '批量刊登 - PodifyAi',
+  title: '批量刊登 - CUZCUZAI',
   meta: [
-    { name: 'description', content: 'PodifyAi 批量刊登管理页面' }
+    { name: 'description', content: 'CUZCUZAI 批量刊登管理页面' }
   ]
 })
 
