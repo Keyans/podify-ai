@@ -466,9 +466,9 @@ definePageMeta({
 })
 
 useHead({
-  title: '白品管理 - PodifyAi',
+  title: '白品管理 - CUZCUZAI',
   meta: [
-    { name: 'description', content: 'PodifyAi 白品管理页面' }
+    { name: 'description', content: 'CUZCUZAI 白品管理页面' }
   ]
 })
 

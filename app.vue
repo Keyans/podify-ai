@@ -3,8 +3,6 @@
     <NuxtLayout>
     <NuxtPage />
     </NuxtLayout>
-    <!-- 环境指示器 -->
-    <EnvironmentIndicator />
   </div>
 </template>
 

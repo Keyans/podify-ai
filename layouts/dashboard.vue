@@ -16,12 +16,26 @@
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <span class="text-xl font-bold">
-              <span class="text-orange-500">CuzCuz</span>
-              <span class="text-green-400">AI</span>
-              <span class="text-xs text-gray-400 ml-1">Beta</span>
-            </span>
+          <div class="flex items-center space-x-3 logo-hover">
+            <!-- 统一的高科技感Logo -->
+            <div class="relative w-8 h-8 logo-pulse">
+              <div class="absolute inset-0 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-lg p-0.5">
+                <div class="w-full h-full bg-black rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></div>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-lg font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent text-gradient-animate">
+                CUZCUZAI
+              </span>
+              <span class="text-xs text-cyan-400/60 -mt-1">AI Powered</span>
+            </div>
           </div>
         </div>
         
@@ -1198,5 +1212,32 @@ onBeforeUnmount(() => {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: #555;
+}
+
+/* 高科技Logo动画样式 */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-gradient-animate {
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes techPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.logo-hover:hover .logo-pulse {
+  animation: techPulse 1.5s ease-in-out infinite;
 }
 </style>
