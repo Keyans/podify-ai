@@ -16,7 +16,8 @@
     "preview": "nuxt preview",
     "preview:test": "nuxt preview --dotenv .env.test",
     "preview:prod": "nuxt preview --dotenv .env.production",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
