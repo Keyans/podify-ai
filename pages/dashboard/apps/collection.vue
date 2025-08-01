@@ -1,18 +1,26 @@
 <template>
-  <div class="p-6">
+  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
-    <div class="grid grid-cols-4 gap-6 mb-6">
-      <div v-for="(stat, index) in statsData" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-6">
+    <div class="flex-shrink-0 p-4 border-b border-dark-border">
+      <div class="grid grid-cols-4 gap-4">
+        <div v-for="(stat, index) in statsData" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-4">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-dark-text-secondary">{{ stat.title }}</p>
             <p class="text-2xl font-bold text-dark-text mt-1">{{ stat.value }}</p>
+            </div>
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- 表格区域 -->
+    <!-- 任务表格区域 - 精确自适应高度 -->
+    <div class="flex-1 min-h-0 p-4">
     <TaskTable 
       :data="tableData" 
       :loading="loading"
@@ -33,21 +41,178 @@
       @page-size-change="handlePageSizeChange"
       @filter-change="handleFilterChange"
     >
-      <template #extra-buttons>
+        <!-- 自定义搜索栏设计 -->
+        <template #custom-filters>
+          <div class="p-4 rounded-lg border border-dark-border bg-dark-card">
+            <!-- 左右布局：左侧操作按钮，右侧搜索条件 -->
+            <div class="flex items-center justify-between">
+              <!-- 左侧：操作按钮组 -->
+              <div class="flex space-x-3">
+                <button 
+                  @click="showCreateModal = true"
+                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  <span>新建采集</span>
+                </button>
+                
         <button 
-          class="flex items-center space-x-2 px-4 py-2 rounded-md text-sm"
-          :style="{
-            backgroundColor: 'var(--accent-color)',
-            color: 'white'
-          }"
+                  class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
           <span>下载采集插件</span>
         </button>
+
+                <button 
+                  class="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <span>采集规则</span>
+                </button>
+            </div>
+
+              <!-- 右侧：搜索过滤区域 -->
+            <div class="flex items-center space-x-4">
+              <!-- 任务ID搜索 -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  v-model="filters.taskId" 
+                  @input="handleFilterChange"
+                  placeholder="搜索任务ID"
+                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+
+              <!-- 采集类型筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.collectorType" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部类型</option>
+                  <option value="product">商品采集</option>
+                  <option value="shop">店铺采集</option>
+                  <option value="category">分类采集</option>
+                  <option value="keyword">关键词采集</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 采集平台筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.collectorPlatform" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部平台</option>
+                  <option value="1688">1688</option>
+                  <option value="淘宝">淘宝网</option>
+                  <option value="天猫">天猫商城</option>
+                  <option value="京东">京东商城</option>
+                  <option value="拼多多">拼多多</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 任务状态筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.status" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部状态</option>
+                  <option value="waiting">等待中</option>
+                  <option value="processing">采集中</option>
+                  <option value="completed">已完成</option>
+                  <option value="failed">失败</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 开始日期 -->
+              <input 
+                type="date" 
+                v-model="filters.startDate"
+                @change="handleFilterChange"
+                class="px-4 py-2 rounded-lg border text-sm"
+                :style="{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border-color)'
+                }"
+              />
+
+              <!-- 结束日期 -->
+              <input 
+                type="date" 
+                v-model="filters.endDate"
+                  @change="handleFilterChange"
+                class="px-4 py-2 rounded-lg border text-sm"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+              />
+
+              <!-- 重置按钮 -->
+              <button 
+                @click="resetFilters"
+                class="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
+                :style="{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-secondary)',
+                  borderColor: 'var(--border-color)'
+                }"
+              >
+                重置
+              </button>
+              </div>
+            </div>
+          </div>
       </template>
     </TaskTable>
+    </div>
 
     <!-- 新建采集任务弹窗 -->
     <CollectionNewTaskModal 
@@ -59,7 +224,6 @@
     <!-- 采集任务详情弹窗 -->
     <CollectionDetailModal
       :isOpen="showDetailModal"
-      :taskData="currentTaskData"
       type="product"
       @close="showDetailModal = false"
       @download="handleDownloadItems"
@@ -70,23 +234,20 @@
     <div 
       v-if="notification.show"
       class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 px-5 py-4 rounded-md flex items-center shadow-lg"
-      :style="{
-        backgroundColor: notification.type === 'success' ? 'rgba(39, 174, 96, 0.9)' : 'rgba(235, 87, 87, 0.9)',
-        color: 'white'
-      }"
+      :class="notification.type === 'success' ? 'bg-green-600' : 'bg-red-600'"
     >
-      <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'white' }"></div>
-      <span>{{ notification.message }}</span>
-      <div v-if="notification.type === 'error'" class="text-xs ml-2">
+      <div class="w-2 h-2 rounded-full mr-2 bg-white"></div>
+      <span class="text-white">{{ notification.message }}</span>
+      <div v-if="notification.type === 'error'" class="text-xs ml-2 text-white">
         请检查下网络连接后再试
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
+import { usePageRefresh, createPageRefreshHandler } from '~/composables/usePageRefresh'
 import TaskTable from '~/components/TaskTable.vue'
 import CollectionNewTaskModal from '~/components/CollectionNewTaskModal.vue'
 import CollectionDetailModal from '~/components/CollectionDetailModal.vue'
@@ -119,6 +280,8 @@ const filters = ref({
   collectorType: null,
   collectorPlatform: null,
   status: null,
+  startDate: '',
+  endDate: '',
   startTime: '',
   endTime: '',
   userId: ''
@@ -520,6 +683,23 @@ const handleFilterChange = (newFilters) => {
   fetchTaskList()
 }
 
+// 重置筛选条件
+const resetFilters = () => {
+  filters.value = {
+    taskId: '',
+    collectorType: null,
+    collectorPlatform: null,
+    status: null,
+    startDate: '',
+    endDate: '',
+    startTime: '',
+    endTime: '',
+    userId: ''
+  }
+  pagination.value.page = 1
+  fetchTaskList()
+}
+
 // 处理下载项目
 const handleDownloadItems = (items) => {
   console.log('下载选中项目:', items)
@@ -601,29 +781,92 @@ const showNotification = (type, message) => {
   }, 3000)
 }
 
-// 页面加载时获取数据
-onMounted(async () => {
-  loading.value = true
-  try {
-    // 并行加载统计数据和任务列表
-    await Promise.all([
+// 重置筛选条件的函数
+const resetFiltersFunc = () => {
+  filterParams.value = {
+    taskId: '',
+    keyword: '',
+    platform: '',
+    status: '',
+    startTime: '',
+    endTime: ''
+  }
+}
+
+// 重置分页的函数
+const resetPaginationFunc = () => {
+  pagination.page = 1
+  pagination.limit = 10
+}
+
+// 创建强制刷新处理器
+const forceRefreshData = createPageRefreshHandler({
+  resetStates: [
+    { ref: loading, value: false },
+    { ref: showCreateModal, value: false },
+    { ref: showDetailModal, value: false },
+    { ref: showNewTaskModal, value: false }
+  ],
+  resetFilters: resetFiltersFunc,
+  resetPagination: resetPaginationFunc,
+  fetchFunctions: [fetchCollectionStats, fetchTaskList],
+  pageName: '商品采集'
+})
+
+// 使用页面刷新组合式函数
+usePageRefresh(forceRefreshData, '/dashboard/apps/collection')
+
+// 页面强制刷新监听
+const handleForceRefresh = (event) => {
+  if (event.detail?.path === route.path) {
+    console.log('页面强制刷新:', route.path)
+    loading.value = true
+    // 重新加载页面数据
+    Promise.all([
       fetchCollectionStats(),
       fetchTaskList()
     ])
-    
+    .catch(error => {
+      console.error('强制刷新数据加载失败:', error)
+    })
+    .finally(() => {
+      loading.value = false
+    })
+  }
+}
+
+// 页面加载时获取数据
+onMounted(() => {
+  loading.value = true
+  // 立即显示页面，后台异步获取数据（不等待完成）
+  Promise.all([
+      fetchCollectionStats(),
+      fetchTaskList()
+    ])
+  .then(() => {
     // 只在成功加载时显示通知
     if (process.env.NODE_ENV !== 'development' || (tableData.value.length > 0)) {
       showNotification('success', '数据加载成功')
     }
-  } catch (error) {
+  })
+  .catch(error => {
     console.error('页面数据加载失败:', error)
     
     // 开发环境下不显示错误通知，因为会使用模拟数据
     if (process.env.NODE_ENV !== 'development') {
       showNotification('error', '数据加载失败')
     }
-  } finally {
+  })
+  .finally(() => {
     loading.value = false
-  }
+  })
+  
+  // 监听页面强制刷新事件
+  window.addEventListener('page-force-refresh', handleForceRefresh)
+})
+
+onBeforeUnmount(() => {
+  // 清理事件监听
+  window.removeEventListener('page-force-refresh', handleForceRefresh)
 })
 </script>

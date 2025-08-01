@@ -1,37 +1,175 @@
 <template>
-  <div class="p-6">
+  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
-    <div class="grid grid-cols-4 gap-6 mb-6">
-      <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-dark-text-secondary">{{ stat.label }}</p>
-            <p class="text-2xl font-bold text-dark-text mt-1">{{ stat.value }}</p>
+    <div class="flex-shrink-0 p-4 border-b border-dark-border">
+      <div class="grid grid-cols-4 gap-4">
+        <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-dark-text-secondary">{{ stat.label }}</p>
+              <p class="text-2xl font-bold text-dark-text mt-1">{{ stat.value }}</p>
+            </div>
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center" :class="stat.iconBg">
+              <svg class="w-6 h-6" :class="stat.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="stat.iconPath"/>
+              </svg>
+            </div>
           </div>
-          <div class="w-12 h-12 rounded-lg flex items-center justify-center" :class="stat.iconBg">
-            <svg class="w-6 h-6" :class="stat.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="stat.iconPath"/>
-            </svg>
-      </div>
         </div>
       </div>
     </div>
 
-    <!-- 任务表格 -->
-    <TaskTable
-      :data="tableData"
-      :loading="loading"
-      idLabel="检测"
-      typeLabel="检测"
-      quantityLabel="风险"
-      statusLabel="任务"
-      newButtonText="新建检测"
-      :showType="false"
-      @view="showTaskDetail"
-      @newTask="showCreateModal = true"
-      @page-change="handlePageChange"
-      @filter-change="handleFilterChange"
-    />
+    <!-- 任务表格区域 - 精确自适应高度 -->
+    <div class="flex-1 min-h-0 p-4">
+      <TaskTable
+        :data="tableData"
+        :loading="loading"
+        idLabel="检测"
+        typeLabel="检测"
+        quantityLabel="检测"
+        statusLabel="任务"
+        newButtonText="新建检测"
+        :showType="false"
+        @view="showTaskDetail"
+        @newTask="showCreateModal = true"
+        @page-change="handlePageChange"
+        @filter-change="handleFilterChange"
+      >
+        <!-- 自定义搜索栏设计 -->
+        <template #custom-filters>
+          <div class="p-4 rounded-lg border border-dark-border bg-dark-card">
+            <!-- 左右布局：左侧操作按钮，右侧搜索条件 -->
+            <div class="flex items-center justify-between">
+              <!-- 左侧：新建按钮 -->
+              <div class="flex space-x-3">
+                <button 
+                  @click="showCreateModal = true"
+                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  <span>新建检测</span>
+                </button>
+            </div>
+
+              <!-- 右侧：搜索过滤区域 -->
+            <div class="flex items-center space-x-4">
+              <!-- 任务ID搜索 -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  v-model="filters.taskId" 
+                  @input="handleFilterChange"
+                  placeholder="搜索任务ID"
+                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+
+              <!-- 检测状态筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.status" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部状态</option>
+                  <option value="waiting">等待中</option>
+                  <option value="processing">检测中</option>
+                  <option value="completed">已完成</option>
+                  <option value="failed">失败</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 风险等级筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.riskLevel"
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部风险</option>
+                  <option value="high">高风险</option>
+                  <option value="medium">中风险</option>
+                  <option value="low">低风险</option>
+                  <option value="safe">安全</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 开始日期 -->
+              <div class="relative">
+                <input 
+                  type="date" 
+                  v-model="filters.startDate" 
+                  @change="handleFilterChange"
+                  placeholder="开始日期"
+                  class="px-4 py-2 rounded-lg border text-sm min-w-40"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+              </div>
+
+              <!-- 结束日期 -->
+              <div class="relative">
+                <input 
+                  type="date" 
+                  v-model="filters.endDate" 
+                  @change="handleFilterChange"
+                  placeholder="结束日期"
+                  class="px-4 py-2 rounded-lg border text-sm min-w-40"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+              </div>
+
+              <!-- 重置按钮 -->
+              <button 
+                @click="resetFilters"
+                class="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
+                :style="{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-secondary)',
+                  borderColor: 'var(--border-color)'
+                }"
+              >
+                重置
+              </button>
+              </div>
+        </div>
+      </div>
+    </template>
+      </TaskTable>
+    </div>
   </div>
 
   <!-- 新建侵权检测任务弹窗 -->
@@ -45,8 +183,9 @@
   <DetectionDetailModal
     :isOpen="showDetailModal"
     :taskData="currentTaskData"
+    :taskInfo="currentTaskInfo"
     @close="showDetailModal = false"
-    @download="handleDownloadResults"
+    @download="handleDownloadImages"
     @page-change="handleDetailPageChange"
   />
 </template>
@@ -134,6 +273,18 @@ const filterParams = ref({
   endTime: '',
   userId: ''
 })
+
+// 表单筛选器状态
+const filters = ref({
+  taskId: '',
+  status: '',
+  riskLevel: '',
+  startDate: '',
+  endDate: ''
+})
+
+// 当前任务信息（用于详情弹窗）
+const currentTaskInfo = ref(null)
 
 // 获取统计数据
 const fetchStats = async () => {
@@ -301,9 +452,22 @@ const handleDetailPageChange = async (pagination) => {
 }
 
 // 事件处理函数
-const handleFilterChange = (filters) => {
-  console.log('筛选条件变化:', filters)
-  filterParams.value = { ...filterParams.value, ...filters }
+const handleFilterChange = (newFilters) => {
+  console.log('筛选条件变化:', newFilters)
+  // 如果传入了新的筛选条件，更新filters
+  if (newFilters) {
+    filters.value = { ...filters.value, ...newFilters }
+  }
+  
+  // 将filters映射到filterParams
+  filterParams.value = {
+    taskId: filters.value.taskId || '',
+    status: filters.value.status || '',
+    startTime: filters.value.startDate || '',
+    endTime: filters.value.endDate || '',
+    userId: ''
+  }
+  
   pageParams.value.page = 1 // 重置到第一页
   fetchTaskList()
 }
@@ -350,13 +514,45 @@ const handleDownloadResults = (results) => {
   // 实际应用中应该调用下载API
 }
 
+// 处理图片下载（详情弹窗中使用）
+const handleDownloadImages = (images) => {
+  console.log('下载侵权检测图片:', images)
+  // 实际应用中应该调用下载API
+}
+
+// 重置筛选条件
+const resetFilters = () => {
+  filters.value = {
+    taskId: '',
+    status: '',
+    riskLevel: '',
+    startDate: '',
+    endDate: ''
+  }
+  handleFilterChange()
+}
+
 // 页面初始化
-onMounted(async () => {
-  // 并行获取统计数据和任务列表
-  await Promise.all([
+// 使用页面刷新组合式函数
+const refreshPageData = () => {
+  Promise.all([
     fetchStats(),
     fetchTaskList()
-  ])
+  ]).catch(error => {
+    console.error('强制刷新数据加载失败:', error)
+  })
+}
+
+usePageRefresh(refreshPageData, '/dashboard/apps/detection')
+
+onMounted(() => {
+  // 立即显示页面，后台异步获取数据（不等待完成）
+  Promise.all([
+    fetchStats(),
+    fetchTaskList()
+  ]).catch(error => {
+    console.error('数据加载失败:', error)
+  })
 })
 </script>
 

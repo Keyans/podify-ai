@@ -159,121 +159,142 @@
     </div>
 
     <!-- 工作流表格区域 -->
-    <div class="flex-1 overflow-auto p-6">
-      <div class="bg-dark-card rounded-lg border border-dark-border overflow-hidden">
-      <!-- 表格 -->
-        <table class="w-full">
-          <thead class="bg-dark-border">
-            <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider w-12">
-                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" class="rounded border-dark-border">
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                工作流ID
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                工作流名称
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                工作流流程
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                执行状态
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                创建人
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                创建时间
-              </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
-                操作
+    <div class="flex-1 min-h-0 overflow-hidden p-4">
+      <div class="h-full bg-dark-card rounded-lg border border-dark-border flex flex-col">
+        <!-- 表格头部 -->
+        <div class="flex-shrink-0">
+          <table class="w-full">
+            <thead class="bg-dark-border">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider w-12">
+                  <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" class="rounded border-dark-border">
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  工作流ID
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  工作流名称
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  工作流流程
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  执行状态
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  创建人
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  创建时间
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">
+                  操作
             </th>
           </tr>
         </thead>
-          <tbody class="divide-y divide-dark-border bg-dark-card">
-            <tr v-for="workflow in paginatedWorkflows" :key="workflow.id" class="hover:bg-dark-hover">
-              <td class="px-4 py-3">
-                <input type="checkbox" v-model="selectedItems" :value="workflow.id" class="rounded border-dark-border">
+          </table>
+              </div>
+        
+        <!-- 表格内容区域 - 精确自适应高度 -->
+        <div class="flex-1 min-h-0 overflow-auto">
+          <table class="w-full">
+            <tbody class="divide-y divide-dark-border bg-dark-card">
+              <tr v-for="workflow in paginatedWorkflows" :key="workflow.id" class="hover:bg-dark-hover">
+                <td class="px-4 py-3">
+                  <input type="checkbox" v-model="selectedItems" :value="workflow.id" class="rounded border-dark-border">
             </td>
-              <td class="px-4 py-3 text-sm font-medium text-dark-text">
-                {{ workflow.id }}
+                <td class="px-4 py-3 text-sm font-medium text-dark-text">
+                  {{ workflow.id }}
             </td>
-              <td class="px-4 py-3">
+                <td class="px-4 py-3">
               <div class="flex items-center">
-                  <div class="w-8 h-8 rounded-md flex items-center justify-center mr-3"
-                       :class="getWorkflowTypeClass(workflow.type)">
-                    <span class="text-xs font-medium">{{ getWorkflowTypeText(workflow.type) }}</span>
+                    <div class="w-8 h-8 rounded-md flex items-center justify-center mr-3"
+                         :class="getWorkflowTypeClass(workflow.type)">
+                      <span class="text-xs font-medium">{{ getWorkflowTypeText(workflow.type) }}</span>
                 </div>
-                  <span class="text-sm font-medium text-dark-text">{{ workflow.name }}</span>
+                    <span class="text-sm font-medium text-dark-text">{{ workflow.name }}</span>
               </div>
             </td>
-              <td class="px-4 py-3">
+                <td class="px-4 py-3">
                 <div class="flex items-center space-x-2">
-                  <div v-for="(step, index) in workflow.steps" :key="index" class="flex items-center">
-                    <div class="flex items-center space-x-1">
-                      <div class="w-2 h-2 rounded-full" :class="getStepStatusClass(step.status)"></div>
-                      <span class="text-xs text-dark-text-secondary">{{ step.name }}</span>
+                    <div v-for="(step, index) in workflow.steps" :key="index" class="flex items-center">
+                      <div class="flex items-center space-x-1">
+                        <div class="w-2 h-2 rounded-full" :class="getStepStatusClass(step.status)"></div>
+                        <span class="text-xs text-dark-text-secondary">{{ step.name }}</span>
                 </div>
-                    <svg v-if="index < workflow.steps.length - 1" class="w-3 h-3 mx-2 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
+                      <svg v-if="index < workflow.steps.length - 1" class="w-3 h-3 mx-2 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
                 </div>
               </div>
             </td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      :class="getStatusClass(workflow.status)">
-                  {{ getStatusText(workflow.status) }}
-                  <span v-if="workflow.status === 'processing'" class="ml-1">
-                    耗时: {{ workflow.executionTime }}
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        :class="getStatusClass(workflow.status)">
+                    {{ getStatusText(workflow.status) }}
+                    <span v-if="workflow.status === 'processing'" class="ml-1">
+                      耗时: {{ workflow.executionTime }}
+                    </span>
                   </span>
-                </span>
             </td>
-              <td class="px-4 py-3 text-sm text-dark-text">
-                {{ workflow.creator }}
+                <td class="px-4 py-3 text-sm text-dark-text">
+                  {{ workflow.creator }}
             </td>
-              <td class="px-4 py-3 text-sm text-dark-text-secondary">
-                {{ workflow.createdAt }}
+                <td class="px-4 py-3 text-sm text-dark-text-secondary">
+                  {{ workflow.createdAt }}
             </td>
-              <td class="px-4 py-3">
+                <td class="px-4 py-3">
                 <div class="flex items-center space-x-2">
-                  <button 
-                    @click="viewDetails(workflow)"
-                    class="text-blue-600 hover:text-blue-700 text-sm"
-                  >
-                    查看详情
-                  </button>
-                  <button 
-                    v-if="workflow.status === 'processing'"
-                    @click="cancelWorkflow(workflow)"
-                    class="text-red-600 hover:text-red-700 text-sm"
-                  >
-                    取消
-                  </button>
-                  <button 
-                    v-else-if="workflow.status === 'failed' || workflow.status === 'cancelled'"
-                    @click="retryWorkflow(workflow)"
-                    class="text-blue-600 hover:text-blue-700 text-sm"
-                  >
-                    重新执行
-                  </button>
-                  <button class="text-dark-text-secondary hover:text-dark-text">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                    <button 
+                      @click="viewDetails(workflow)"
+                      class="text-blue-600 hover:text-blue-700 text-sm"
+                    >
+                      查看详情
+                    </button>
+                    <button 
+                      v-if="workflow.status === 'processing'"
+                      @click="cancelWorkflow(workflow)"
+                      class="text-red-600 hover:text-red-700 text-sm"
+                    >
+                      取消
+                    </button>
+                    <button 
+                      v-else-if="workflow.status === 'failed' || workflow.status === 'cancelled'"
+                      @click="retryWorkflow(workflow)"
+                      class="text-blue-600 hover:text-blue-700 text-sm"
+                    >
+                      重新执行
+                    </button>
+                    <button class="text-dark-text-secondary hover:text-dark-text">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                      </svg>
+                    </button>
+              </div>
+            </td>
+          </tr>
+
+              <!-- 无数据时的占位内容 -->
+              <tr v-if="paginatedWorkflows.length === 0">
+                <td colspan="8" class="px-6 py-20">
+                  <div class="flex flex-col items-center justify-center text-center text-dark-text-secondary" style="min-height: 300px;">
+                    <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
                     </svg>
-                  </button>
+                    <p class="text-lg font-medium mb-2">暂无工作流</p>
+                    <p class="text-sm opacity-75">还没有创建任何工作流任务</p>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
+        </div>
 
-      <!-- 分页 -->
-        <div class="p-4 border-t border-dark-border flex items-center justify-between">
+        <!-- 分页区域 -->
+        <div class="flex-shrink-0 p-4 border-t border-dark-border flex items-center justify-between">
           <div class="text-sm text-dark-text-secondary">
             显示 {{ (currentPage - 1) * pageSize + 1 }} 到 {{ Math.min(currentPage * pageSize, totalWorkflows) }} 条，共 {{ totalWorkflows }} 条
-        </div>
+          </div>
           
         <div class="flex items-center space-x-2">
             <select 
@@ -302,17 +323,18 @@
             >
               下一页
           </button>
-
-            <div class="flex items-center ml-2">
-              <span class="text-sm text-dark-text-secondary mr-2">跳转</span>
+            
+            <div class="flex items-center space-x-2 ml-4">
+              <span class="text-sm text-dark-text-secondary">跳转</span>
               <input 
+                type="number" 
                 v-model="jumpPage"
                 @keyup.enter="jumpToPage"
-                type="number"
+                class="w-16 px-2 py-1 text-sm rounded border border-dark-border bg-dark-input text-dark-text text-center"
                 min="1"
                 :max="totalPages"
-                class="w-16 px-2 py-1 bg-dark-input border border-dark-border rounded text-sm text-dark-text"
-              />
+              >
+              <span class="text-sm text-dark-text-secondary">页</span>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@
     <div class="p-6 space-y-6">
       <!-- 页面标题和操作按钮 -->
       <div class="flex items-center justify-between">
-        <div>
+  <div>
           <h1 class="text-2xl font-bold text-dark-text mb-2">应用市场</h1>
           <p class="text-dark-text-secondary text-sm">安装、管理和使用各种AI工具应用</p>
         </div>
@@ -38,9 +38,9 @@
               <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
               </svg>
-            </div>
-          </div>
         </div>
+      </div>
+    </div>
 
         <!-- 可用应用 -->
         <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
@@ -55,7 +55,7 @@
               </svg>
             </div>
           </div>
-        </div>
+    </div>
 
         <!-- 今日更新 -->
         <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
@@ -69,13 +69,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
               </svg>
             </div>
-          </div>
-        </div>
+      </div>
+    </div>
 
         <!-- 热门应用 -->
         <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
           <div class="flex items-center justify-between">
-            <div>
+          <div>
               <p class="text-dark-text-secondary text-sm">热门应用</p>
               <p class="text-dark-text text-2xl font-bold">{{ stats.popularApps }}</p>
             </div>
@@ -559,7 +559,7 @@ const loadMore = () => {
 onMounted(() => {
   console.log('应用市场页面已加载')
 })
-</script>
+</script> 
 
 <style scoped>
 .line-clamp-1 {

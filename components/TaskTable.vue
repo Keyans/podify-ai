@@ -1,125 +1,99 @@
 <template>
-  <div>
-    <!-- 工具栏 -->
-    <div class="flex flex-wrap items-center gap-3 mb-6" :class="showNewButton ? 'justify-between' : 'justify-end'">
-      <!-- 左侧按钮 -->
-      <div v-if="showNewButton" class="flex items-center space-x-2">
-        <button 
-          @click="$emit('newTask')"
-          class="flex items-center space-x-1 px-4 py-2 rounded-md text-sm"
-          :style="{
-            backgroundColor: 'var(--bg-tertiary)',
-            color: 'var(--text-primary)'
-          }"
-        >
-          <span class="text-xl">+</span>
-          <span>{{ newButtonText }}</span>
-        </button>
+  <div class="flex flex-col h-full">
+    <!-- 自定义搜索栏区域 - 允许各页面插入自己的搜索栏设计 -->
+    <div v-if="$slots['custom-filters']" class="flex-shrink-0 mb-4">
+      <slot name="custom-filters"></slot>
       </div>
 
-      <!-- 右侧筛选和搜索 -->
-      <div class="flex flex-wrap items-center gap-2">
+    <!-- 默认过滤器栏 - 仅在没有自定义搜索栏时显示 -->
+    <div v-else class="flex-shrink-0 mb-4 p-4 rounded-lg border border-dark-border bg-dark-card">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <!-- 过滤器 -->
         <div class="relative">
-          <input 
-            type="text" 
-            placeholder="高级搜索" 
-            class="px-4 py-2 rounded-md text-sm w-36 focus:outline-none"
+            <select 
+              v-model="filters.status" 
+              @change="handleFilterChange"
+              class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm"
             :style="{
               backgroundColor: 'var(--bg-tertiary)',
               color: 'var(--text-primary)',
               borderColor: 'var(--border-color)'
             }"
-          />
+            >
+              <option value="all">全部状态</option>
+              <option value="waiting">等待中</option>
+              <option value="processing">处理中</option>
+              <option value="completed">已完成</option>
+              <option value="failed">失败</option>
+          </select>
+            <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
         </div>
 
-        <div 
-          class="relative inline-block"
-          :style="{
-            backgroundColor: 'var(--bg-tertiary)',
-            color: 'var(--text-primary)',
-            borderRadius: '0.375rem'
-          }"
-        >
-          <select 
-            class="block appearance-none px-4 py-2 pr-8 rounded-md text-sm focus:outline-none"
+          <div class="relative">
+            <select 
+              v-model="filters.date"
+              @change="handleFilterChange"
+              class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm"
             :style="{
-              backgroundColor: 'transparent',
-              color: 'inherit'
-            }"
-          >
-            <option>{{ statusLabel }}状态</option>
-            <option>进行中</option>
-            <option>已完成</option>
-            <option>失败</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
-            <svg class="w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              backgroundColor: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                borderColor: 'var(--border-color)'
+              }"
+            >
+              <option value="all">全部时间</option>
+              <option value="today">今天</option>
+              <option value="week">本周</option>
+              <option value="month">本月</option>
+            </select>
+            <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+
+          <!-- 搜索框 -->
+        <div class="relative">
+          <input 
+              type="text" 
+            v-model="filters.search"
+              @input="handleFilterChange"
+              placeholder="搜索任务ID"
+              class="pl-10 pr-4 py-2 rounded-lg border text-sm"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
+            }"
+            >
+            <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
         </div>
 
-        <div class="flex items-center">
-          <button 
-            class="px-4 py-2 rounded-md text-sm flex items-center space-x-1"
-            :style="{
-              backgroundColor: 'var(--bg-tertiary)',
-              color: 'var(--text-primary)'
-            }"
-          >
-            <span>开始日期</span>
-            <svg class="w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          <span class="mx-2" :style="{ color: 'var(--text-secondary)' }">~</span>
-          <button 
-            class="px-4 py-2 rounded-md text-sm flex items-center space-x-1"
-            :style="{
-              backgroundColor: 'var(--bg-tertiary)',
-              color: 'var(--text-primary)'
-            }"
-          >
-            <span>结束日期</span>
-            <svg class="w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-        </div>
-
-        <div class="relative">
-          <input 
-            v-model="filters.search"
-            type="text" 
-            :placeholder="idLabel + 'ID'"
-            class="px-4 py-2 rounded-md text-sm w-36 focus:outline-none"
-            :style="{
-              backgroundColor: 'var(--bg-tertiary)',
-              color: 'var(--text-primary)',
-              borderColor: 'var(--border-color)'
-            }"
-          />
-        </div>
-
+        <div class="flex items-center space-x-3">
         <button 
-          @click="applyFilters"
-          class="px-4 py-2 rounded-md text-sm"
-          :style="{
-            backgroundColor: 'var(--accent-color)',
-            color: 'white'
-          }"
-        >
-          <span>查询</span>
+            v-if="showNewButton"
+            @click="handleNewTask"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center text-sm"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            {{ newButtonText }}
         </button>
 
         <slot name="extra-buttons"></slot>
+        </div>
       </div>
     </div>
 
     <!-- 大数据量性能提示 -->
     <div 
       v-if="totalItems > 1000 && !props.virtualScroll" 
-      class="mb-4 p-3 rounded-lg border-l-4"
+      class="flex-shrink-0 mb-4 p-3 rounded-lg border-l-4"
       :style="{ 
         backgroundColor: 'rgba(245, 158, 11, 0.1)',
         borderLeftColor: '#f59e0b',
@@ -139,10 +113,12 @@
       </div>
     </div>
 
-    <!-- 数据表格 -->
-    <div class="overflow-hidden rounded-lg border" :style="{ borderColor: 'var(--border-color)' }">
-      <table class="min-w-full divide-y" :style="{ borderColor: 'var(--border-color)' }">
-        <thead :style="{ backgroundColor: 'var(--bg-tertiary)' }">
+    <!-- 数据表格区域 - 精确计算高度 -->
+    <div class="flex-1 min-h-0 flex flex-col rounded-lg border overflow-hidden" :style="{ borderColor: 'var(--border-color)' }">
+      <!-- 表格头部 - 固定高度 -->
+      <div class="flex-shrink-0" :style="{ backgroundColor: 'var(--bg-tertiary)' }">
+        <table class="w-full">
+          <thead>
           <tr>
             <th class="px-6 py-3 text-left" :style="{ color: 'var(--text-secondary)' }">
               <input type="checkbox" class="rounded border-gray-300" v-model="selectAll" @change="toggleSelectAll">
@@ -156,13 +132,19 @@
             <th class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" :style="{ color: 'var(--text-secondary)' }">操作</th>
           </tr>
         </thead>
+        </table>
+      </div>
+      
+      <!-- 表格内容区域 - 精确自适应高度，确保内部滚动 -->
+      <div class="flex-1 min-h-0 overflow-auto" :style="{ backgroundColor: 'var(--bg-secondary)' }">
+        <table class="w-full">
         <tbody class="divide-y" :style="{ 
           backgroundColor: 'var(--bg-secondary)',
           borderColor: 'var(--border-color)'
         }">
           <tr 
             v-for="(item, index) in paginatedData" 
-            :key="index" 
+              :key="item.id"
             class="hover:bg-opacity-50" 
             :style="{ backgroundColor: 'var(--bg-secondary)' }"
           >
@@ -202,58 +184,56 @@
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <span class="px-3 py-1 rounded-md text-xs"
-                  :style="{
-                    backgroundColor: getStatusBgColor(item),
-                    color: 'white'
-                  }"
+                <span 
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  :class="getStatusClass(item)"
                 >
                   {{ getStatusText(item) }}
                 </span>
-                <span v-if="getStatus(item) === 'failed'" class="ml-2 text-xs underline cursor-pointer" :style="{ color: 'var(--text-secondary)' }">查看</span>
-              </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm" :style="{ color: 'var(--text-primary)' }">
-              {{ getCreator(item) }}
+                {{ item.创建人 || item.creator || '-' }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm" :style="{ color: 'var(--text-primary)' }">
-              {{ getCreatedTime(item) }}
+              <td class="px-6 py-4 whitespace-nowrap text-sm" :style="{ color: 'var(--text-secondary)' }">
+                {{ item.创建时间 || item.createdAt || '-' }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                <div class="flex items-center justify-center space-x-2">
               <button 
-                @click.stop="viewTaskDetail(item)"
-                class="px-3 py-1 text-sm" 
-                :style="{ color: 'var(--accent-color)' }"
+                    @click="handleView(item)"
+                    class="text-blue-600 hover:text-blue-700 font-medium"
               >
                 查看详情
               </button>
-              <div class="relative inline-block text-left ml-2">
+                  <span class="text-gray-300">|</span>
                 <button 
-                  @click.stop="showMoreOptions(item)"
-                  class="inline-flex items-center text-sm rounded-md"
-                  :style="{ color: 'var(--text-secondary)' }"
+                    @click="handleDelete(item)"
+                    class="text-red-600 hover:text-red-700 font-medium"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                  </svg>
+                    删除
                 </button>
               </div>
             </td>
           </tr>
           
-          <!-- 无数据展示 -->
+            <!-- 无数据时的占位内容 - 使用最小高度确保填充 -->
           <tr v-if="filteredData.length === 0">
-            <td :colspan="showType ? 8 : 7" class="py-8 text-center text-sm" :style="{ color: 'var(--text-secondary)' }">
-              暂无数据
+              <td :colspan="showType ? 8 : 7" class="px-6 py-20">
+                <div class="flex flex-col items-center justify-center text-center" :style="{ color: 'var(--text-secondary)', minHeight: '300px' }">
+                  <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <p class="text-lg font-medium mb-2">暂无数据</p>
+                  <p class="text-sm opacity-75">还没有任何任务记录</p>
+                </div>
             </td>
           </tr>
         </tbody>
       </table>
+      </div>
       
-      <!-- 分页 -->
-      <div class="px-6 py-4 flex items-center justify-between" :style="{ 
-        borderTop: '1px solid',
+      <!-- 分页区域 - 固定高度 -->
+      <div class="flex-shrink-0 px-6 py-4 flex items-center justify-between border-t" :style="{ 
         borderColor: 'var(--border-color)',
         backgroundColor: 'var(--bg-secondary)'
       }">
@@ -287,13 +267,13 @@
           <!-- 首页 -->
           <button 
             @click="goToPage(1)"
-            class="px-3 py-1 text-sm rounded border"
-            :style="{ 
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-secondary)',
-              opacity: pagination.currentPage === 1 ? 0.5 : 1
-            }"
             :disabled="pagination.currentPage === 1"
+            class="px-3 py-1.5 text-sm rounded border disabled:opacity-50 disabled:cursor-not-allowed"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
+            }"
           >
             首页
           </button>
@@ -301,106 +281,67 @@
           <!-- 上一页 -->
           <button 
             @click="goToPage(pagination.currentPage - 1)"
-            class="px-3 py-1 text-sm rounded border"
-            :style="{ 
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-secondary)',
-              opacity: pagination.currentPage === 1 ? 0.5 : 1
-            }"
             :disabled="pagination.currentPage === 1"
+            class="px-3 py-1.5 text-sm rounded border disabled:opacity-50 disabled:cursor-not-allowed"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
+            }"
           >
             上一页
           </button>
 
           <!-- 页码 -->
-          <div class="flex items-center space-x-1">
-            <div 
-              v-for="page in visiblePages" 
-              :key="page"
-              @click="goToPage(page)"
-              class="px-3 py-1 text-sm rounded cursor-pointer"
-              :style="{ 
-                backgroundColor: pagination.currentPage === page ? 'var(--accent-color)' : 'transparent',
-                color: pagination.currentPage === page ? 'white' : 'var(--text-secondary)',
-                border: '1px solid',
-                borderColor: pagination.currentPage === page ? 'var(--accent-color)' : 'var(--border-color)'
-              }"
-            >
-              {{ page }}
-            </div>
-            
-            <!-- 省略号和跳转 -->
-            <div v-if="totalPages > 5" class="flex items-center space-x-1">
-              <span v-if="!visiblePages.includes(totalPages)" class="px-2" :style="{ color: 'var(--text-secondary)' }">...</span>
-              <div 
-                v-if="!visiblePages.includes(totalPages)"
-                @click="goToPage(totalPages)"
-                class="px-3 py-1 text-sm rounded cursor-pointer border"
-                :style="{ 
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-secondary)',
-                  borderColor: 'var(--border-color)'
-                }"
-              >
-                {{ totalPages }}
-              </div>
-            </div>
-          </div>
+          <span class="px-3 py-1.5 text-sm rounded border bg-blue-600 text-white">
+            {{ pagination.currentPage }}
+          </span>
 
           <!-- 下一页 -->
           <button 
             @click="goToPage(pagination.currentPage + 1)"
-            class="px-3 py-1 text-sm rounded border"
+            :disabled="pagination.currentPage >= totalPages"
+            class="px-3 py-1.5 text-sm rounded border disabled:opacity-50 disabled:cursor-not-allowed"
             :style="{ 
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-secondary)',
-              opacity: pagination.currentPage === totalPages ? 0.5 : 1
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
             }"
-            :disabled="pagination.currentPage === totalPages"
           >
             下一页
           </button>
           
-          <!-- 尾页 -->
+          <!-- 末页 -->
           <button 
             @click="goToPage(totalPages)"
-            class="px-3 py-1 text-sm rounded border"
+            :disabled="pagination.currentPage >= totalPages"
+            class="px-3 py-1.5 text-sm rounded border disabled:opacity-50 disabled:cursor-not-allowed"
             :style="{ 
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-secondary)',
-              opacity: pagination.currentPage === totalPages ? 0.5 : 1
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
             }"
-            :disabled="pagination.currentPage === totalPages"
           >
-            尾页
+            末页
           </button>
           
-          <!-- 跳转到指定页 -->
+          <!-- 跳转 -->
           <div class="flex items-center space-x-2 ml-4">
-            <span class="text-sm" :style="{ color: 'var(--text-secondary)' }">跳转到</span>
+            <span class="text-sm" :style="{ color: 'var(--text-secondary)' }">跳转</span>
             <input 
               type="number" 
-              v-model="jumpToPage"
-              @keyup.enter="handleJumpToPage"
-              :min="1"
-              :max="totalPages"
-              class="w-16 px-2 py-1 text-sm text-center rounded border"
+              v-model="jumpPage"
+              @keyup.enter="handleJumpPage"
+              class="w-16 px-2 py-1 text-sm rounded border text-center"
               :style="{
                 backgroundColor: 'var(--bg-tertiary)',
                 color: 'var(--text-primary)',
                 borderColor: 'var(--border-color)'
               }"
-            />
-            <button 
-              @click="handleJumpToPage"
-              class="px-2 py-1 text-sm rounded border"
-              :style="{ 
-                borderColor: 'var(--border-color)',
-                color: 'var(--text-secondary)'
-              }"
+              min="1"
+              :max="totalPages"
             >
-              确定
-            </button>
+            <span class="text-sm" :style="{ color: 'var(--text-secondary)' }">页</span>
           </div>
         </div>
       </div>
@@ -708,7 +649,7 @@ watch(selectedItems, (newVal) => {
 }, { deep: true })
 
 // 跳转页面状态
-const jumpToPage = ref(1)
+const jumpPage = ref('')
 
 // 页码跳转
 const goToPage = (page) => {
@@ -724,10 +665,11 @@ const handlePageSizeChange = () => {
 }
 
 // 处理跳转到指定页
-const handleJumpToPage = () => {
-  const page = parseInt(jumpToPage.value)
+const handleJumpPage = () => {
+  const page = parseInt(jumpPage.value)
   if (page >= 1 && page <= totalPages.value) {
     goToPage(page)
+    jumpPage.value = ''
   }
 }
 
@@ -738,12 +680,32 @@ const applyFilters = () => {
 }
 
 // 查看任务详情
-const viewTaskDetail = (item) => {
+const handleView = (item) => {
   emit('view', item)
 }
 
-// 显示更多选项
-const showMoreOptions = (item) => {
-  console.log('显示更多选项:', item)
+// 删除任务
+const handleDelete = (item) => {
+  emit('delete', item)
+}
+
+// 处理新任务点击
+const handleNewTask = () => {
+  emit('newTask')
+}
+
+// 处理过滤器变化
+const handleFilterChange = () => {
+  applyFilters()
+}
+
+// 获取状态类
+const getStatusClass = (item) => {
+  const status = getStatus(item)
+  if (status === 'processing') return 'bg-blue-100 text-blue-800'
+  if (status === 'completed') return 'bg-green-100 text-green-800'
+  if (status === 'failed') return 'bg-red-100 text-red-800'
+  if (status === 'partial-failed') return 'bg-yellow-100 text-yellow-800'
+  return 'bg-gray-100 text-gray-800'
 }
 </script> 

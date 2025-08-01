@@ -355,7 +355,7 @@ const downloadImage = (item) => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    console.log('下载抠图图片:', item)
+  console.log('下载抠图图片:', item)
   } else {
     console.warn('该项目没有可下载的抠图结果')
   }

@@ -1,8 +1,9 @@
 <template>
-  <div class="p-6">
+  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
-    <div class="grid grid-cols-4 gap-6 mb-6">
-      <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-6">
+    <div class="flex-shrink-0 p-4 border-b border-dark-border">
+      <div class="grid grid-cols-4 gap-4">
+        <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-4">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-dark-text-secondary">{{ stat.label }}</p>
@@ -12,12 +13,14 @@
             <svg class="w-6 h-6" :class="stat.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="stat.iconPath"/>
             </svg>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 任务表格 -->
+    <!-- 任务表格区域 - 精确自适应高度 -->
+    <div class="flex-1 min-h-0 p-4">
     <TaskTable
       :data="tableData"
       :loading="loading"
@@ -32,21 +35,153 @@
       @page-change="handlePageChange"
       @filter-change="handleFilterChange"
     >
-      <template #extra-buttons>
+        <!-- 自定义搜索栏设计 -->
+        <template #custom-filters>
+          <div class="p-4 rounded-lg border border-dark-border bg-dark-card">
+            <!-- 操作按钮区域 - POD合成特有的按钮布局 -->
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex space-x-3">
+                <!-- 新建合成按钮 - 左侧 -->
+                <button 
+                  @click="showCreateModal = true"
+                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  <span>新建合成</span>
+                </button>
+                
+                <!-- 下载合成插件按钮 -->
         <button 
-          class="flex items-center space-x-2 px-4 py-2 rounded-md text-sm"
-          :style="{
-            backgroundColor: 'var(--accent-color)',
-            color: 'white'
-          }"
+                  class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
           <span>下载合成插件</span>
         </button>
+
+                <!-- 产品模板管理 -->
+                <button 
+                  class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                  </svg>
+                  <span>产品模板</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 搜索过滤区域 - POD合成特有的过滤条件 -->
+            <div class="flex items-center space-x-4">
+              <!-- 任务ID搜索 -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  v-model="filters.taskId" 
+                  @input="handleFilterChange"
+                  placeholder="搜索任务ID"
+                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+
+              <!-- 产品类型筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.productType" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部类型</option>
+                  <option value="tshirt">T恤</option>
+                  <option value="hoodie">卫衣</option>
+                  <option value="mug">马克杯</option>
+                  <option value="canvas">帆布包</option>
+                  <option value="pillow">抱枕</option>
+                  <option value="phone_case">手机壳</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 合成状态筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.status" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部状态</option>
+                  <option value="waiting">等待中</option>
+                  <option value="processing">合成中</option>
+                  <option value="completed">已完成</option>
+                  <option value="failed">失败</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 时间筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.dateRange"
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部时间</option>
+                  <option value="today">今天</option>
+                  <option value="week">本周</option>
+                  <option value="month">本月</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 重置按钮 -->
+              <button 
+                @click="resetFilters"
+                class="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
+                :style="{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-secondary)',
+                  borderColor: 'var(--border-color)'
+                }"
+              >
+                重置
+              </button>
+            </div>
+          </div>
       </template>
     </TaskTable>
+    </div>
   </div>
 
   <!-- 新建合成任务弹窗 -->
@@ -173,6 +308,25 @@ const tableData = ref([
   }
 ])
 
+// 过滤器状态
+const filters = ref({
+  taskId: '',
+  productType: '',
+  status: '',
+  dateRange: ''
+})
+
+// 重置过滤器
+const resetFilters = () => {
+  filters.value = {
+    taskId: '',
+    productType: '',
+    status: '',
+    dateRange: ''
+  }
+  handleFilterChange()
+}
+
 // 显示任务详情
 const showTaskDetail = (task) => {
   currentTaskData.value = task
@@ -206,8 +360,8 @@ const handlePageChange = (page) => {
 }
 
 // 处理筛选变化
-const handleFilterChange = (filters) => {
-  console.log('筛选条件变化:', filters)
+const handleFilterChange = () => {
+  console.log('筛选条件变化:', filters.value)
   // 这里添加筛选逻辑
 }
 

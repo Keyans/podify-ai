@@ -43,13 +43,18 @@ export const getTextToImageTaskDetail = async (params: { taskId: string; page?: 
 
 // 创建文生图任务参数
 export interface CreateTextToImageTaskParams {
-  prompt: string               // 生图提示词
-  negativePrompt?: string      // 负面提示词
-  width: number               // 图片宽度
-  height: number              // 图片高度
-  count: number               // 生成数量
-  style?: string              // 生成风格
-  seed?: number               // 随机种子
+  promptWord: string          // 生图提示词
+  creatorSize: number         // 生图尺寸 (0:自定义 1:16:9 2:4:3 3:3:2 4:1:1 5:2:3 6:3:4 7:9:16)
+  creatorWidth: number        // 图片宽度
+  creatorHeight: number       // 图片高度
+  creatorNum: number          // 生成数量
+  uploadType?: number         // 上传类型 (1:本地上传 2:图库上传) - 可选，仅有示例图时传递
+  imageName?: string          // 图片名称 - 可选，仅有示例图时传递
+  imageUrl?: string           // 图片URL - 可选，仅有示例图时传递
+  fileSize?: number           // 文件大小 - 可选，仅有示例图时传递
+  width?: number              // 示例图宽度 - 可选，仅有示例图时传递
+  height?: number             // 示例图高度 - 可选，仅有示例图时传递
+  format?: string             // 图片格式 - 可选，仅有示例图时传递
 }
 
 // 创建文生图任务

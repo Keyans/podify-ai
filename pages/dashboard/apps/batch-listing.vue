@@ -1,83 +1,218 @@
 <template>
-  <DataTableLayout
-    title="批量刊登"
-    description="智能批量商品刊登和发布管理工具"
-    :stats="stats"
-    :action-buttons="actionButtons"
-    table-title="批量刊登任务列表"
-    table-description="管理您的商品批量刊登任务和发布状态"
-    :columns="columns"
-    :table-data="tableData"
-    :total-items="tableData.length"
-    :current-page="1"
-    :page-size="20"
-    :badge-config="badgeConfig"
-    @action-click="handleActionClick"
-    @batch-export="handleBatchExport"
-    @row-action="handleRowAction"
-    @page-change="handlePageChange"
-  >
-    <!-- 刊登数量列自定义渲染 -->
-    <template #column-刊登数量="{ item }">
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-        {{ item.刊登数量 }}
-      </span>
-    </template>
-    
-    <!-- 成功率列自定义渲染 -->
-    <template #column-成功率="{ item }">
-      <div class="flex items-center space-x-2">
-        <div class="w-16 bg-gray-200 rounded-full h-2">
-          <div 
-            class="h-2 rounded-full transition-all duration-300"
-            :class="{
-              'bg-green-500': parseFloat(item.成功率) >= 80,
-              'bg-yellow-500': parseFloat(item.成功率) >= 60 && parseFloat(item.成功率) < 80,
-              'bg-red-500': parseFloat(item.成功率) < 60
-            }"
-            :style="{ width: item.成功率 }"
-          ></div>
+  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+    <!-- 统计卡片 -->
+    <div class="flex-shrink-0 p-4 border-b border-dark-border">
+      <div class="grid grid-cols-4 gap-4">
+        <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-dark-text-secondary">{{ stat.title }}</p>
+              <p class="text-2xl font-bold text-dark-text mt-1">{{ stat.value }}</p>
+            </div>
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center" :class="stat.iconBg">
+              <svg class="w-6 h-6" :class="stat.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="stat.iconPath"/>
+              </svg>
+            </div>
+          </div>
         </div>
-        <span class="text-sm text-gray-600">{{ item.成功率 }}</span>
       </div>
-    </template>
-    
-    <!-- 操作人列自定义渲染 -->
-    <template #column-操作人="{ item }">
-      <div class="flex items-center">
-        <div class="h-6 w-6 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white text-xs font-medium">
-          {{ item.操作人.charAt(0) }}
-        </div>
-        <span class="ml-2 text-sm text-gray-900">{{ item.操作人 }}</span>
-      </div>
-    </template>
+    </div>
 
-    <!-- 平台列自定义渲染 -->
-    <template #column-目标平台="{ item }">
-      <div class="flex flex-wrap gap-1">
-        <span 
-          v-for="platform in item.目标平台.split(',')"
-          :key="platform"
-          class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-          :class="{
-            'bg-orange-100 text-orange-800': platform.trim() === '淘宝',
-            'bg-red-100 text-red-800': platform.trim() === '天猫',
-            'bg-blue-100 text-blue-800': platform.trim() === '京东',
-            'bg-purple-100 text-purple-800': platform.trim() === '拼多多',
-            'bg-green-100 text-green-800': platform.trim() === '抖音',
-            'bg-gray-100 text-gray-800': !['淘宝', '天猫', '京东', '拼多多', '抖音'].includes(platform.trim())
+    <!-- 任务表格区域 - 精确自适应高度 -->
+    <div class="flex-1 min-h-0 p-4">
+      <TaskTable
+        :data="tableData"
+        :loading="loading"
+        idLabel="刊登"
+        typeLabel="刊登"
+        quantityLabel="刊登"
+        statusLabel="任务"
+        newButtonText="新建刊登"
+        :showType="true"
+        @view="showTaskDetail"
+        @newTask="showCreateModal = true"
+        @page-change="handlePageChange"
+        @filter-change="handleFilterChange"
+      >
+        <!-- 自定义搜索栏设计 -->
+        <template #custom-filters>
+          <div class="p-4 rounded-lg border border-dark-border bg-dark-card">
+            <!-- 左右布局：左侧操作按钮，右侧搜索条件 -->
+            <div class="flex items-center justify-between">
+              <!-- 左侧：操作按钮组 -->
+              <div class="flex space-x-3">
+                <button 
+                  @click="showCreateModal = true"
+                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  <span>新建刊登</span>
+                </button>
+                
+                <button 
+                  class="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm"
+                  @click="handleBatchExport"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>批量导出</span>
+                </button>
+
+                <button 
+                  class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <span>模板管理</span>
+                </button>
+            </div>
+
+              <!-- 右侧：搜索过滤区域 -->
+            <div class="flex items-center space-x-4">
+              <!-- 任务ID搜索 -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  v-model="filters.taskId" 
+                  @input="handleFilterChange"
+                  placeholder="搜索任务ID"
+                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+
+              <!-- 目标平台筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.platform" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部平台</option>
+                  <option value="淘宝">淘宝</option>
+                  <option value="天猫">天猫</option>
+                  <option value="京东">京东</option>
+                  <option value="拼多多">拼多多</option>
+                  <option value="抖音">抖音</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 任务状态筛选 -->
+              <div class="relative">
+                <select 
+                  v-model="filters.status" 
+                  @change="handleFilterChange"
+                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                  <option value="">全部状态</option>
+                  <option value="waiting">等待中</option>
+                  <option value="processing">刊登中</option>
+                  <option value="completed">已完成</option>
+                  <option value="failed">失败</option>
+                </select>
+                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+        </div>
+
+              <!-- 开始日期 -->
+              <div class="relative">
+                <input 
+                  type="date" 
+                  v-model="filters.startDate" 
+                  @change="handleFilterChange"
+                  placeholder="开始日期"
+                  class="px-4 py-2 rounded-lg border text-sm min-w-40"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+              </div>
+
+              <!-- 结束日期 -->
+              <div class="relative">
+                <input 
+                  type="date" 
+                  v-model="filters.endDate" 
+                  @change="handleFilterChange"
+                  placeholder="结束日期"
+                  class="px-4 py-2 rounded-lg border text-sm min-w-40"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+      </div>
+
+              <!-- 重置按钮 -->
+              <button 
+                @click="resetFilters"
+                class="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
+                :style="{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-secondary)',
+                  borderColor: 'var(--border-color)'
           }"
         >
-          {{ platform.trim() }}
-        </span>
+                重置
+              </button>
+              </div>
+            </div>
       </div>
     </template>
-  </DataTableLayout>
+      </TaskTable>
+    </div>
+  </div>
+
+  <!-- 新建刊登任务弹窗 -->
+  <BatchListingNewTaskModal 
+    :isOpen="showCreateModal" 
+    @close="showCreateModal = false"
+    @submit="handleTaskSubmit"
+  />
+
+  <!-- 刊登任务详情弹窗 -->
+  <BatchListingDetailModal
+    :isOpen="showDetailModal"
+    :taskData="currentTaskData"
+    @close="showDetailModal = false"
+    @download="handleDownloadResults"
+    @page-change="handleDetailPageChange"
+  />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import DataTableLayout from '~/components/DataTableLayout.vue'
+import { usePageRefresh, createPageRefreshHandler } from '~/composables/usePageRefresh'
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -272,6 +407,28 @@ const badgeConfig = ref({
   '暂停': { class: 'bg-orange-100 text-orange-800', text: '暂停' }
 })
 
+// 筛选器状态
+const filters = ref({
+  taskId: '',
+  platform: '',
+  status: '',
+  startDate: '',
+  endDate: ''
+})
+
+// 重置筛选条件
+const resetFilters = () => {
+  filters.value = {
+    taskId: '',
+    platform: '',
+    status: '',
+    startDate: '',
+    endDate: ''
+  }
+  // 这里可以触发数据重新加载
+  console.log('筛选条件已重置')
+}
+
 // 事件处理函数
 const handleActionClick = (action) => {
   console.log('Action clicked:', action)
@@ -306,4 +463,21 @@ const handlePageChange = (page) => {
   console.log('Page changed:', page)
   // 处理分页变化
 }
+
+// 创建强制刷新处理器
+const forceRefreshData = createPageRefreshHandler([
+  // 这里可以添加数据获取函数
+  () => {
+    console.log('刷新批量刊登数据')
+    // 重新获取数据
+  }
+])
+
+// 使用页面刷新组合式函数
+usePageRefresh(forceRefreshData, '/dashboard/apps/batch-listing')
+
+// 页面初始化
+onMounted(() => {
+  console.log('批量刊登页面已加载')
+})
 </script>

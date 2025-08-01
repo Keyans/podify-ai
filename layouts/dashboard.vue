@@ -640,12 +640,17 @@ import ThemeSelector from '~/components/ThemeSelector.vue'
 const themeStore = useThemeStore()
 const activeTheme = computed(() => themeStore.activeTheme)
 const route = useRoute()
+const router = useRouter()
 
 // 菜单状态
 const isMyAppsOpen = ref(true)
 const isImageLibraryOpen = ref(false)
 const isProductManagementOpen = ref(false)
 const showTeamModal = ref(false)
+
+// 导航状态管理
+const isNavigating = ref(false)
+const pendingNavigation = ref(null)
 
 // 标签页管理
 const openTabs = ref([
@@ -695,28 +700,142 @@ const routeTitleMap = {
 // 左侧导航当前激活路径
 const currentActivePath = ref(route.path)
 
-// 标签页管理方法
-const openInTab = (path, title) => {
-  const existingTab = openTabs.value.find(tab => tab.path === path)
-  
-  if (existingTab) {
-    // 如果标签页已存在，直接切换到该标签页
-    activeTab.value = existingTab.id
-  } else {
-    // 创建新标签页
-    const newTabId = `tab-${Date.now()}`
-    const newTab = {
-      id: newTabId,
-      title,
-      path,
+// 防抖延迟时间（毫秒）
+const DEBOUNCE_DELAY = 150
+
+// 防抖导航函数
+const debouncedNavigate = debounce((path) => {
+  executeNavigation(path)
+}, DEBOUNCE_DELAY)
+
+// 防抖工具函数
+function debounce(func, wait) {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
+
+// 执行导航的核心函数
+const executeNavigation = async (path) => {
+  if (isNavigating.value) {
+    // 如果正在导航，保存待处理的导航请求
+    pendingNavigation.value = path
+    return
+  }
+
+  try {
+    console.log('开始执行导航:', path)
+    isNavigating.value = true
+    pendingNavigation.value = null
+    
+    // 清理目标页面的缓存，确保重新加载
+    clearPageCache(path)
+    
+    // 等待当前渲染完成
+    await nextTick()
+    
+    // 执行导航
+    await navigateTo(path)
+    
+    // 等待路由切换完成
+    await nextTick()
+    
+    // 强制刷新页面内容
+    await refreshPageContent()
+    
+    console.log('导航完成:', path)
+    
+  } catch (error) {
+    console.error('导航失败:', error)
+  } finally {
+    isNavigating.value = false
+    
+    // 处理待处理的导航请求
+    if (pendingNavigation.value && pendingNavigation.value !== path) {
+      const nextPath = pendingNavigation.value
+      pendingNavigation.value = null
+      await nextTick()
+      executeNavigation(nextPath)
+    }
+  }
+}
+
+// 强制刷新页面内容
+const refreshPageContent = async () => {
+  try {
+    // 通过重新渲染来强制更新页面内容
+    const currentRoute = router.currentRoute.value
+    console.log('刷新页面内容:', { currentRoute: currentRoute.path, routePath: route.path })
+    
+    if (currentRoute.path !== route.path) {
+      console.log('路由不匹配，跳过刷新')
+      return // 路由已经改变，无需刷新
     }
     
-    openTabs.value.push(newTab)
-    activeTab.value = newTabId
+    // 触发页面组件重新渲染
+    await nextTick()
+    
+    // 发送自定义事件通知页面更新
+    const event = new CustomEvent('page-force-refresh', {
+      detail: { path: currentRoute.path }
+    })
+    window.dispatchEvent(event)
+    console.log('发送强制刷新事件:', currentRoute.path)
+    
+  } catch (error) {
+    console.error('刷新页面内容失败:', error)
   }
-  
-  // 导航到目标页面
-  navigateTo(path)
+}
+
+// 标签页管理方法
+const openInTab = async (path, title) => {
+  try {
+    console.log('openInTab 被调用:', { path, title, currentPath: route.path })
+    
+    // 如果当前路径已经是目标路径，只更新标签页状态
+    if (route.path === path) {
+      const existingTab = openTabs.value.find(tab => tab.path === path)
+      if (existingTab) {
+        activeTab.value = existingTab.id
+        currentActivePath.value = path
+      }
+      return
+    }
+    
+    const existingTab = openTabs.value.find(tab => tab.path === path)
+    
+    if (existingTab) {
+      // 如果标签页已存在，直接切换到该标签页
+      console.log('切换到现有标签页:', existingTab.title)
+      activeTab.value = existingTab.id
+      currentActivePath.value = path
+    } else {
+      // 创建新标签页
+      const newTabId = `tab-${Date.now()}`
+      const newTab = {
+        id: newTabId,
+        title,
+        path,
+      }
+      
+      console.log('创建新标签页:', title)
+      openTabs.value.push(newTab)
+      activeTab.value = newTabId
+      currentActivePath.value = path
+    }
+    
+    // 使用防抖导航
+    debouncedNavigate(path)
+    
+  } catch (error) {
+    console.error('打开标签页失败:', error)
+  }
 }
 
 const closeTab = (tabId) => {
@@ -735,16 +854,23 @@ const closeTab = (tabId) => {
     const newActiveIndex = Math.max(0, tabIndex - 1)
     const newActiveTab = openTabs.value[newActiveIndex]
     activeTab.value = newActiveTab.id
-    navigateTo(newActiveTab.path)
+    currentActivePath.value = newActiveTab.path
+    debouncedNavigate(newActiveTab.path)
   }
 }
 
-const switchToTab = (tabId) => {
-  const tab = openTabs.value.find(t => t.id === tabId)
-  if (tab) {
-    activeTab.value = tabId
-    // 导航到对应页面
-    navigateTo(tab.path)
+const switchToTab = async (tabId) => {
+  try {
+    const tab = openTabs.value.find(t => t.id === tabId)
+    if (tab && activeTab.value !== tabId) {
+      activeTab.value = tabId
+      currentActivePath.value = tab.path
+      
+      // 使用防抖导航
+      debouncedNavigate(tab.path)
+    }
+  } catch (error) {
+    console.error('切换标签页失败:', error)
   }
 }
 
@@ -802,24 +928,38 @@ const closeOtherTabs = () => {
   closeContextMenu()
 }
 
-const closeAllTabs = () => {
-  // 清理所有缓存
-  clearAllCache()
-  openTabs.value = [{ id: 'dashboard', title: '驾驶舱', path: '/dashboard' }]
-  activeTab.value = 'dashboard'
-  navigateTo('/dashboard')
-  closeContextMenu()
+const closeAllTabs = async () => {
+  try {
+    // 清理所有缓存
+    clearAllCache()
+    openTabs.value = [{ id: 'dashboard', title: '驾驶舱', path: '/dashboard' }]
+    activeTab.value = 'dashboard'
+    currentActivePath.value = '/dashboard'
+    
+    // 使用防抖导航
+    debouncedNavigate('/dashboard')
+    closeContextMenu()
+  } catch (error) {
+    console.error('关闭所有标签页失败:', error)
+    closeContextMenu()
+  }
 }
 
-const reloadCurrentTab = () => {
-  const tab = openTabs.value.find(t => t.id === activeTab.value)
-  if (tab) {
-    // 清理当前标签页的缓存，强制重新加载
-    clearPageCache(tab.path)
-    // 刷新页面
-    window.location.reload()
+const reloadCurrentTab = async () => {
+  try {
+    const tab = openTabs.value.find(t => t.id === activeTab.value)
+    if (tab) {
+      // 清理当前标签页的缓存，强制重新加载
+      clearPageCache(tab.path)
+      
+      // 使用导航重新加载而不是整页刷新
+      await executeNavigation(tab.path)
+    }
+    closeContextMenu()
+  } catch (error) {
+    console.error('重新加载标签页失败:', error)
+    closeContextMenu()
   }
-  closeContextMenu()
 }
 
 const reloadAllTabs = () => {
@@ -828,20 +968,28 @@ const reloadAllTabs = () => {
   closeContextMenu()
 }
 
-const duplicateTab = () => {
-  const tab = openTabs.value.find(t => t.id === activeTab.value)
-  if (tab) {
-    const newTabId = `tab-${Date.now()}`
-    const newTab = {
-      id: newTabId,
-      title: tab.title + ' (副本)',
-      path: tab.path,
+const duplicateTab = async () => {
+  try {
+    const tab = openTabs.value.find(t => t.id === activeTab.value)
+    if (tab) {
+      const newTabId = `tab-${Date.now()}`
+      const newTab = {
+        id: newTabId,
+        title: tab.title + ' (副本)',
+        path: tab.path,
+      }
+      openTabs.value.push(newTab)
+      activeTab.value = newTabId
+      currentActivePath.value = tab.path
+      
+      // 使用防抖导航
+      debouncedNavigate(newTab.path)
     }
-    openTabs.value.push(newTab)
-    activeTab.value = newTabId
-    navigateTo(newTab.path)
+    closeContextMenu()
+  } catch (error) {
+    console.error('复制标签页失败:', error)
+    closeContextMenu()
   }
-  closeContextMenu()
 }
 
 // 切换菜单展开状态
@@ -893,7 +1041,17 @@ const logout = () => {
 }
 
 // 监听路由变化，同步标签页状态和左侧导航状态
-watch(() => route.path, (newPath) => {
+watch(() => route.path, (newPath, oldPath) => {
+  // 防止无效的路由变化处理
+  if (!newPath || newPath === oldPath) return
+  
+  // 如果正在导航中，跳过路由监听器的处理，避免竞态条件
+  if (isNavigating.value) {
+    return
+  }
+  
+  console.log('路由变化:', { oldPath, newPath, currentActivePath: currentActivePath.value })
+  
   // 更新左侧导航激活状态
   currentActivePath.value = newPath
   
@@ -902,7 +1060,10 @@ watch(() => route.path, (newPath) => {
   
   if (existingTab) {
     // 如果已有标签页，激活它
-    activeTab.value = existingTab.id
+    if (activeTab.value !== existingTab.id) {
+      console.log('激活现有标签页:', existingTab.title)
+      activeTab.value = existingTab.id
+    }
   } else {
     // 如果是新页面，添加新标签页
     const title = routeTitleMap[newPath] || '未知页面'
@@ -913,9 +1074,15 @@ watch(() => route.path, (newPath) => {
       path: newPath,
     }
     
+    console.log('创建新标签页:', title)
     openTabs.value.push(newTab)
     activeTab.value = newTabId
   }
+  
+  // 延迟触发页面内容刷新，确保路由切换完成
+  nextTick(() => {
+    refreshPageContent()
+  })
 }, { immediate: true })
 
 // 点击外部关闭菜单
