@@ -96,10 +96,10 @@
         <button 
           @click="submit" 
           :disabled="submitting || !canSubmit"
-          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
           <div v-if="submitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-          {{ submitting ? '提交中...' : `提交任务 (5积分)` }}
+          {{ submitting ? '提交中...' : `提交任务` }}
         </button>
       </div>
     </div>

@@ -77,7 +77,7 @@
             >
               <div class="relative h-36 mb-2">
                 <img :src="product.image" alt="产品图片" class="h-full w-full object-cover rounded-md">
-                <div v-if="product.selected" class="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
+                <div v-if="product.selected" class="absolute top-2 right-2 bg-cyan-400 text-white rounded-full p-1">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -144,7 +144,7 @@
             >
               <div class="relative h-36 mb-2">
                 <img :src="pattern.image" alt="图案图片" class="h-full w-full object-cover rounded-md">
-                <div v-if="pattern.selected" class="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
+                <div v-if="pattern.selected" class="absolute top-2 right-2 bg-cyan-400 text-white rounded-full p-1">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -231,7 +231,7 @@
         <button v-if="currentStep < 3" @click="nextStep" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
           下一步
         </button>
-        <button v-if="currentStep === 3" @click="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+        <button v-if="currentStep === 3" @click="submit" class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500">
           提交任务 (5秒内)
         </button>
         <button @click="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">

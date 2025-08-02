@@ -37,7 +37,7 @@
                   </div>
                   <!-- 上传成功指示器 -->
                   <div v-else-if="image.url" class="absolute top-1 right-1">
-                    <div class="w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-cyan-400 rounded-full flex items-center justify-center">
                       <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                       </svg>
@@ -215,10 +215,10 @@
         <button 
           @click="submit" 
           :disabled="submitting || !formData.promptWord.trim()"
-          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
           <div v-if="submitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-          {{ submitting ? '提交中...' : '提交任务 (5积分)' }}
+          {{ submitting ? '提交中...' : '提交任务' }}
         </button>
       </div>
     </div>
@@ -268,6 +268,7 @@
 import { ref, reactive, defineProps, defineEmits, watch, onMounted, onUnmounted } from 'vue'
 import { createTextToImageTask } from '~/apis/business/text-to-image'
 import { getTencentCosCredentials } from '~/apis/business/oss'
+import tencentCOS from '~/utils/tencentCOS'
 
 const props = defineProps({
   isOpen: {
@@ -406,33 +407,46 @@ const generateFileName = (originalName) => {
   return `${timestamp}_${random}.${extension}`
 }
 
+// 生成AI项目专用的文件路径
+const generateAiFilePath = (fileName) => {
+  // 获取当前日期，格式：YYYYMMDD
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const dateStr = `${year}${month}${day}`
+  
+  // 构建AI项目路径：pathPrefix/application/YYYYMMDD/filename (使用application目录)
+  const aiPath = `application/${dateStr}/${fileName}`
+  
+  console.log('文生图 - 生成AI项目路径:', {
+    dateStr,
+    fileName,
+    aiPath,
+    fullPath: `${credentials.value.pathPrefix}/${aiPath}`
+  })
+  
+  return aiPath
+}
+
 // 上传文件到COS（只在提交时调用）
 const uploadFileToCos = async (file) => {
-  if (!cosInstance.value || !credentials.value) {
-    await initCOS()
-  }
-
-  return new Promise((resolve, reject) => {
-    const fileName = generateFileName(file.name)
-    const key = `${credentials.value.pathPrefix}/${fileName}`
-    
-    cosInstance.value.uploadFile({
-      Bucket: credentials.value.bucketName,
-      Region: credentials.value.region,
-      Key: key,
-      Body: file
-    }, (err, data) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve({
-          url: `https://${data.Location}`,
-          key: key,
-          fileName: fileName
-        })
-      }
+  try {
+    const result = await tencentCOS.uploadFile(file, {
+      galleryType: 'application'
     })
-  })
+
+    console.log('文生图 - COS上传成功:', result)
+    
+    return {
+      url: result.url,
+      key: result.key,
+      fileName: result.fileName
+    }
+  } catch (error) {
+    console.error('文生图 - COS上传失败:', error)
+    throw error
+  }
 }
 
 // 选择预设尺寸

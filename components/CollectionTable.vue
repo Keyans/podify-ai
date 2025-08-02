@@ -211,7 +211,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-center">
               <button 
                 @click.stop="viewTaskDetail(item)"
-                class="px-3 py-1 text-sm" 
+                class="px-3 py-1 text-sm cursor-pointer" 
                 :style="{ color: 'var(--accent-color)' }"
               >
                 查看详情
@@ -219,13 +219,116 @@
               <div class="relative inline-block text-left ml-2">
                 <button 
                   @click.stop="showMoreOptions(item)"
-                  class="inline-flex items-center text-sm rounded-md"
+                  class="inline-flex items-center text-sm rounded-md relative cursor-pointer"
                   :style="{ color: 'var(--text-secondary)' }"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                   </svg>
                 </button>
+                
+                <!-- 下拉菜单 -->
+                <div 
+                  v-if="showMoreMenu === item.id"
+                  @click.stop
+                  class="absolute right-0 mt-1 w-48 rounded-md shadow-lg z-50"
+                  :style="{ 
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-color)',
+                    border: '1px solid'
+                  }"
+                >
+                  <div class="py-1">
+                    <button
+                      v-if="props.currentApp !== 'cropping'"
+                      @click="quickAction('cropping', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      智能裁图
+                    </button>
+                    <button
+                      v-if="props.currentApp !== 'cutout'"
+                      @click="quickAction('cutout', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      一键抠图
+                    </button>
+                    <button
+                      v-if="props.currentApp !== 'text-to-image'"
+                      @click="quickAction('text-to-image', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      文生图
+                    </button>
+                    <button
+                      v-if="props.currentApp !== 'transform'"
+                      @click="quickAction('transform', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      超级裂变
+                    </button>
+                    <button
+                      v-if="props.currentApp !== 'detection'"
+                      @click="quickAction('detection', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      侵权检测
+                    </button>
+                    <button
+                      v-if="props.currentApp !== 'pod-synthesis'"
+                      @click="quickAction('pod-synthesis', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                      </svg>
+                      POD合成
+                    </button>
+                    <button
+                      v-if="props.currentApp !== 'title-generation'"
+                      @click="quickAction('title-generation', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-dark-hover transition-colors cursor-pointer"
+                      :style="{ color: 'var(--text-primary)' }"
+                    >
+                      <svg class="w-4 h-4 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18 7l-6 6-1-1" />
+                      </svg>
+                      标题生成
+                    </button>
+                    <hr class="my-1" :style="{ borderColor: 'var(--border-color)' }">
+                    <button
+                      @click="quickAction('delete', item)"
+                      class="flex items-center px-4 py-2 text-sm w-full text-left hover:bg-red-500/10 transition-colors text-red-400 cursor-pointer"
+                    >
+                      <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1v3M4 7h16" />
+                      </svg>
+                      删除
+                    </button>
+                  </div>
+                </div>
               </div>
             </td>
           </tr>
@@ -302,7 +405,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 
 // 定义props和emits
 const props = defineProps({
@@ -313,14 +416,36 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  currentApp: {
+    type: String,
+    default: 'collection' // 当前应用类型，用于隐藏对应的菜单项
   }
 })
 
-const emit = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'newTask'])
+const emits = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'quick-action'])
 
-// 选中项
+// 响应式数据
 const selectAll = ref(false)
 const selectedItems = ref([])
+const showMoreMenu = ref(null) // 添加更多菜单控制变量
+
+// 事件监听器
+const handleClickOutside = (event) => {
+  // 检查点击是否在菜单外部
+  if (showMoreMenu.value && !event.target.closest('.relative.inline-block.text-left')) {
+    showMoreMenu.value = null
+  }
+}
+
+// 生命周期钩子
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 // 过滤器状态
 const filters = ref({
@@ -458,22 +583,64 @@ watch(selectedItems, (newVal) => {
 const goToPage = (page) => {
   if (page < 1 || page > totalPages.value) return
   pagination.value.currentPage = page
-  emit('page-change', pagination.value)
+  emits('page-change', pagination.value)
 }
 
 // 应用过滤器
 const applyFilters = () => {
   pagination.value.currentPage = 1
-  emit('filter-change', filters.value)
+  emits('filter-change', filters.value)
 }
 
 // 查看任务详情
 const viewTaskDetail = (item) => {
-  emit('view', item)
+  emits('view', item)
 }
 
 // 显示更多选项
 const showMoreOptions = (item) => {
-  console.log('显示更多选项:', item)
+  // 切换显示状态
+  if (showMoreMenu.value === item.id) {
+    showMoreMenu.value = null
+  } else {
+    showMoreMenu.value = item.id
+  }
+}
+
+// 快捷操作
+const quickAction = (action, item) => {
+  showMoreMenu.value = null // 关闭菜单
+  
+  switch (action) {
+    case 'cropping':
+      console.log('跳转到智能裁图，处理项目:', item)
+      // 这里可以发射事件或者使用路由跳转
+      emits('quick-action', { action: 'cropping', item })
+      break
+    case 'cutout':
+      console.log('跳转到一键抠图，处理项目:', item)
+      emits('quick-action', { action: 'cutout', item })
+      break
+    case 'transform':
+      console.log('跳转到超级裂变，处理项目:', item)
+      emits('quick-action', { action: 'transform', item })
+      break
+    case 'detection':
+      console.log('跳转到侵权检测，处理项目:', item)
+      emits('quick-action', { action: 'detection', item })
+      break
+    case 'pod-synthesis':
+      console.log('跳转到POD合成，处理项目:', item)
+      emits('quick-action', { action: 'pod-synthesis', item })
+      break
+    case 'title-generation':
+      console.log('跳转到标题生成，处理项目:', item)
+      emits('quick-action', { action: 'title-generation', item })
+      break
+    case 'delete':
+      console.log('删除项目:', item)
+      emits('delete', item)
+      break
+  }
 }
 </script> 

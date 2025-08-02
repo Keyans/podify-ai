@@ -23,27 +23,27 @@
   --border-focus: #3366FF;
   
   /* 主题色 - 科技蓝 */
-  --accent-color: #3366FF;
-  --accent-hover: #2952CC;
-  --accent-light: #4d7fff;
-  --accent-dark: #1a4dff;
-  --accent-secondary: #00CCFF;
+  --accent-color: #22d3ee;
+  --accent-hover: #06b6d4;
+  --accent-light: #67e8f9;
+  --accent-dark: #0891b2;
+  --accent-secondary: #3b82f6;
   
   /* 科技感蓝色系 */
-  --tech-blue-50: rgba(51, 102, 255, 0.05);
-  --tech-blue-100: rgba(51, 102, 255, 0.1);
-  --tech-blue-200: rgba(51, 102, 255, 0.2);
-  --tech-blue-300: rgba(51, 102, 255, 0.3);
-  --tech-blue-500: #3366FF;
-  --tech-blue-600: #2952CC;
-  --tech-blue-700: #1e3d99;
-  --tech-blue-800: #142966;
-  --tech-blue-900: #0a1433;
+  --tech-blue-50: rgba(34, 211, 238, 0.05);
+  --tech-blue-100: rgba(34, 211, 238, 0.1);
+  --tech-blue-200: rgba(34, 211, 238, 0.2);
+  --tech-blue-300: rgba(34, 211, 238, 0.3);
+  --tech-blue-500: #22d3ee;
+  --tech-blue-600: #06b6d4;
+  --tech-blue-700: #0891b2;
+  --tech-blue-800: #155e75;
+  --tech-blue-900: #164e63;
   
   /* 渐变色 */
-  --gradient-primary: linear-gradient(135deg, #3366FF 0%, #00CCFF 100%);
-  --gradient-secondary: linear-gradient(135deg, #3366FF 0%, #667eea 100%);
-  --gradient-tertiary: linear-gradient(135deg, #00CCFF 0%, #3366FF 100%);
+  --gradient-primary: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+  --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #1d4ed8 100%);
+  --gradient-tertiary: linear-gradient(135deg, #67e8f9 0%, #22d3ee 100%);
   
   /* 状态颜色 */
   --success-color: #10b981;
@@ -65,7 +65,7 @@
   --dark-hover: #2a2a2a;
   --dark-card: #111111;
   --dark-border: #2a2a2a;
-  --dark-accent: #3366FF;
+  --dark-accent: #22d3ee;
   
   /* RGB值 - 用于透明度计算 */
   --accent-color-rgb: 51, 102, 255;

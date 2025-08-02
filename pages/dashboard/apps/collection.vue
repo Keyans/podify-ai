@@ -29,6 +29,7 @@
       :totalItems="pagination && pagination.total || 0"
       :pageSize="pagination && pagination.limit || 10"
       :showNewButton="false"
+      :currentApp="'collection'"
       idLabel="采集"
       typeLabel="采集"
       quantityLabel="采集"
@@ -470,8 +471,8 @@ const getCollectorTypeText = (type) => {
 // 转换采集器平台数字为文字
 const getCollectorPlatformText = (platform) => {
   const platformMap = {
-    1: '亚马逊',
-    2: 'TEMU',
+    1: 'TEMU',
+    2: '亚马逊',
     3: 'Shein',
     4: '1688',
     5: '淘宝'

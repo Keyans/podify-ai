@@ -66,9 +66,9 @@
                 <a 
                   href="#" 
                   @click.prevent="openInTab('/dashboard', '驾驶舱')"
-                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent" 
-                  :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard' }"
-                  :style="{ color: currentActivePath === '/dashboard' ? 'var(--text-primary)' : 'var(--text-secondary)' }"
+                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-cyan-400" 
+                  :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard' }"
+                  :style="{ color: currentActivePath === '/dashboard' ? '#22d3ee' : 'var(--text-secondary)' }"
                 >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
@@ -108,40 +108,40 @@
               </svg>
             </div>
             <div v-show="isMyAppsOpen" class="ml-6 space-y-1">
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/collection' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input hover:text-cyan-400" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/collection' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/collection' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>商品采集</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/cropping' }">
-                <div class="w-1.5 h-1.5 bg-dark-accent rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/cropping' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/cropping' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>智能裁图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/cutout' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/cutout' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/cutout' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>一键抠图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/text-to-image' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/text-to-image' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/text-to-image' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>文生图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/transform' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/transform' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/transform' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>超级裂变</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/detection' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/detection' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/detection' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>侵权检测</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/pod-synthesis' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/pod-synthesis' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/pod-synthesis' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>POD合成</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/title-generation' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/title-generation' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/title-generation' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>标题生成</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/apps/batch-listing' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/batch-listing' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/batch-listing' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>批量刊登</span>
               </a>
             </div>
@@ -150,7 +150,7 @@
           <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                                 <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/workflow' }">
+                                 <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-cyan-400 hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/workflow' }">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
                   </svg>
@@ -174,20 +174,20 @@
               </svg>
             </div>
             <div v-show="isImageLibraryOpen" class="ml-6 space-y-1">
-                             <a href="#" @click.prevent="openInTab('/dashboard/images/overview', '图库概览')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/overview' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+                             <a href="#" @click.prevent="openInTab('/dashboard/images/overview', '图库概览')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/images/overview' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/images/overview' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>图库概览</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/images/products', '商品图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/products' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/images/products', '商品图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/images/products' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/images/products' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>商品图库</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/images/materials', '素材图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/materials' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/images/materials', '素材图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/images/materials' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/images/materials' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>素材图库</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/images/processing-results', '结果图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/images/processing-results' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/images/processing-results', '结果图库')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/images/processing-results' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/images/processing-results' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>结果图库</span>
               </a>
             </div>
@@ -207,12 +207,12 @@
               </svg>
             </div>
             <div v-show="isProductManagementOpen" class="ml-6 space-y-1">
-              <a href="#" @click.prevent="openInTab('/dashboard/products/white', '白品管理')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/products/white' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/products/white', '白品管理')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/products/white' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/products/white' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>白品管理</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/products/pod', 'POD商品')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-dark-text transition-all duration-200" :class="{ 'bg-dark-input text-dark-text': currentActivePath === '/dashboard/products/pod' }">
-                <div class="w-1.5 h-1.5 bg-dark-text-tertiary rounded-full"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/products/pod', 'POD商品')" class="flex items-center space-x-2 text-dark-text-secondary px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/products/pod' }">
+                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/products/pod' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
                 <span>POD商品</span>
               </a>
             </div>
@@ -222,7 +222,7 @@
           <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                                 <a href="#" @click.prevent="openInTab('/dashboard/application/market', '应用市场')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/application/market' }">
+                                 <a href="#" @click.prevent="openInTab('/dashboard/application/market', '应用市场')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-cyan-400 hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/application/market' }">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
                   </svg>
@@ -242,7 +242,7 @@
           <div class="mb-2">
             <ul class="space-y-1">
               <li>
-                                 <a href="#" @click.prevent="openInTab('/dashboard/settings', '账号设置')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/settings' }">
+                                 <a href="#" @click.prevent="openInTab('/dashboard/settings', '账号设置')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-cyan-400 hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/settings' }">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
                   </svg>
@@ -256,7 +256,7 @@
           <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                                 <a href="#" @click.prevent="openInTab('/dashboard/help', '帮助中心')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-dark-accent transition-all duration-200" :class="{ 'bg-dark-input text-dark-text border-r-2 border-dark-accent': currentActivePath === '/dashboard/help' }">
+                                 <a href="#" @click.prevent="openInTab('/dashboard/help', '帮助中心')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-cyan-400 hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/help' }">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
                   </svg>

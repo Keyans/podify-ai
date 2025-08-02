@@ -60,10 +60,10 @@
         <button 
           @click="submit" 
           :disabled="submitting"
-          class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
           <div v-if="submitting" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-          {{ submitting ? '上传中...' : '提交任务 (5秒内)' }}
+          {{ submitting ? '上传中...' : '提交任务' }}
         </button>
       </div>
     </div>
@@ -107,7 +107,7 @@
               @click="toggleSelectImage(index)"
             >
               <img :src="image.url" alt="图库图片" class="h-full w-full object-cover">
-              <div v-if="image.selected" class="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                              <div v-if="image.selected" class="absolute top-1 right-1 bg-cyan-400 rounded-full p-1">
                 <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
@@ -141,7 +141,7 @@
       
       <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
         <button @click="closeLibrarySelector" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
-        <button @click="confirmLibrarySelection" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">确定选择 (5秒内)</button>
+        <button @click="confirmLibrarySelection" class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500">确定选择 (5秒内)</button>
       </div>
     </div>
   </div>
@@ -311,10 +311,11 @@ const submit = async () => {
   try {
     submitting.value = true
     
-    // 1. 先上传所有文件到 COS
+    // 1. 先上传所有文件到 COS（自动上传，无需用户手动操作）
     let cosImageList = []
     if (cosUploadRef.value) {
-      await cosUploadRef.value.uploadAllFilesToCos()
+      // 自动上传所有未上传的文件
+      await cosUploadRef.value.uploadAllFiles()
       cosImageList = cosUploadRef.value.getImageInfoList()
     }
     
