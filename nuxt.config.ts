@@ -29,8 +29,8 @@ export default defineNuxtConfig({
       apiProxyTarget: process.env.NUXT_PUBLIC_API_PROXY_TARGET || envConfig.apiProxyTarget,
       apiProxyPrefix: process.env.NUXT_PUBLIC_API_PROXY_PREFIX || envConfig.apiProxyPrefix,
       apiHeaders: {
-        'x-client-type': process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType,
-        'authorization': process.env.NUXT_PUBLIC_API_AUTH_TOKEN || envConfig.apiAuthToken
+        'x-client-type': process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType
+        // authorization 现在在客户端动态设置
       },
       // 业务配置
       microPodUrl: process.env.NUXT_PUBLIC_MICRO_POD_URL || envConfig.microPodUrl,
@@ -59,8 +59,8 @@ export default defineNuxtConfig({
           ws: false,
           configure: (proxy, options) => {
             proxy.on('proxyReq', (proxyReq) => {
+              // 基本的client-type头部，认证头部由客户端请求添加
               proxyReq.setHeader('x-client-type', process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType)
-              proxyReq.setHeader('authorization', process.env.NUXT_PUBLIC_API_AUTH_TOKEN || envConfig.apiAuthToken)
             })
           }
         }

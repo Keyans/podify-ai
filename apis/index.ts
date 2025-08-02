@@ -11,11 +11,26 @@ const axiosInstance: AxiosInstance = axios.create({
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   (config) => {
-    // 合并默认请求头
-    const headers = getDefaultHeaders()
-    Object.keys(headers).forEach(key => {
-      config.headers.set(key, headers[key])
-    })
+    // 添加认证请求头（如果存在）
+    if (process.client) {
+      const accessToken = localStorage.getItem('access_token')
+      const userId = localStorage.getItem('user_id')
+      const tenantId = localStorage.getItem('tenant_id')
+      
+      // 设置Authorization header（使用动态token）
+      if (accessToken) {
+        config.headers.set('Authorization', accessToken)
+      }
+      
+      // 设置其他必要的头部字段
+      if (userId && tenantId) {
+        config.headers.set('X-Tenant-Id', tenantId)
+        config.headers.set('X-Auth-User-Id', userId)
+        config.headers.set('X-Auth-Platform-Type', 'web')
+        config.headers.set('X-Client-Type', 'pod-admin')
+      }
+    }
+    
     return config
   },
   (error: any) => {
@@ -26,10 +41,45 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    // 如果返回的状态码为200，说明接口请求成功，可以正常拿到数据
+    // 如果返回的状态码为200，说明HTTP请求成功
     if (response.status === 200) {
-      // 这里可以根据实际业务场景进行数据处理
-      return response.data
+      const data = response.data
+      
+      // 检查业务错误码
+      if (data && typeof data === 'object') {
+        // 如果存在code字段，检查是否为成功状态
+        if ('code' in data) {
+          const code = Number(data.code)
+          // 成功的业务状态码通常是 0, 200, 或 10000
+          if (code === 0 || code === 200 || code === 10000) {
+            return data
+          } else {
+            // 业务错误，创建错误对象并包含完整的响应信息
+            const error = new Error(data.message || '操作失败')
+            ;(error as any).response = {
+              data: data,
+              status: response.status,
+              statusText: response.statusText
+            }
+            ;(error as any).code = code
+            return Promise.reject(error)
+          }
+        }
+        
+        // 如果没有code字段但有success字段
+        if ('success' in data && !data.success) {
+          const error = new Error(data.message || '操作失败')
+          ;(error as any).response = {
+            data: data,
+            status: response.status,
+            statusText: response.statusText
+          }
+          return Promise.reject(error)
+        }
+      }
+      
+      // 默认返回数据
+      return data
     }
     
     return Promise.reject(new Error('请求失败'))

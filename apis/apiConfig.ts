@@ -5,7 +5,7 @@ interface EnvironmentConfig {
   apiBaseUrl: string;
   apiHeaders: {
     'x-client-type': string;
-    'authorization': string;
+    // authorization 现在在客户端动态设置，不再作为静态配置
   };
 }
 
@@ -22,22 +22,19 @@ export const environments: Record<string, EnvironmentConfig> = {
   development: {
     apiBaseUrl: '', // 开发环境使用代理
     apiHeaders: {
-      'x-client-type': 'pod-admin',
-      'authorization': 'hpod_tk_25b2c6a0691694b0f52770b0'
+      'x-client-type': 'cuzcuz-ai-web'
     }
   },
   test: {
     apiBaseUrl: '', // 测试环境使用代理
     apiHeaders: {
-      'x-client-type': 'test-client',
-      'authorization': 'test_token'
+      'x-client-type': 'cuzcuz-ai-web'
     }
   },
   production: {
     apiBaseUrl: '', // 生产环境使用代理
     apiHeaders: {
-      'x-client-type': 'prod-client',
-      'authorization': 'prod_token'
+      'x-client-type': 'cuzcuz-ai-web'
     }
   }
 }
@@ -108,23 +105,24 @@ export const getDefaultHeaders = (): Record<string, string> => {
   return getApiConfig().apiHeaders
 }
 
-// 设置认证令牌
+// 设置认证令牌（已废弃，现在使用localStorage中的动态token）
 export const setAuthToken = (token: string): void => {
-  const env = getCurrentEnv()
-  if (environments[env]) {
-    environments[env].apiHeaders.authorization = token
-  }
+  // 已废弃：现在认证token通过localStorage动态管理
+  console.warn('setAuthToken is deprecated. Auth tokens are now managed via localStorage.')
 }
 
-// 清除认证令牌
+// 清除认证令牌（已废弃，现在使用logout函数）
 export const clearAuthToken = (): void => {
-  setAuthToken('')
+  // 已废弃：现在使用logout函数清除认证信息
+  console.warn('clearAuthToken is deprecated. Use logout function instead.')
 }
 
-// 是否已认证
+// 是否已认证（现在检查localStorage中的token）
 export const isAuthenticated = (): boolean => {
-  const env = getCurrentEnv()
-  return !!environments[env]?.apiHeaders.authorization
+  if (process.client) {
+    return !!localStorage.getItem('access_token')
+  }
+  return false
 }
 
 export default {

@@ -1,5 +1,46 @@
 <template>
   <div class="min-h-screen overflow-hidden relative">
+    <!-- Toast 通知组件 -->
+    <div 
+      v-if="toast.show" 
+      class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500"
+      :class="toast.show ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'"
+    >
+      <div 
+        class="px-6 py-4 rounded-xl backdrop-blur-sm border shadow-lg flex items-center space-x-3 min-w-80"
+        :class="[
+          toast.type === 'error' 
+            ? 'bg-red-900/80 border-red-500/50 text-red-100' 
+            : toast.type === 'success'
+            ? 'bg-green-900/80 border-green-500/50 text-green-100'
+            : 'bg-blue-900/80 border-blue-500/50 text-blue-100'
+        ]"
+      >
+        <div class="flex-shrink-0">
+          <svg v-if="toast.type === 'error'" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <svg v-else-if="toast.type === 'success'" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium">{{ toast.message }}</p>
+        </div>
+        <button 
+          @click="hideToast" 
+          class="flex-shrink-0 ml-4 text-current opacity-70 hover:opacity-100 transition-opacity"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
     <!-- 科技感动态背景 -->
     <div class="absolute inset-0 bg-black">
       <!-- 动态网格背景 -->
@@ -234,7 +275,7 @@
       </div>
 
       <!-- 右侧登录表单区域 -->
-      <div class="w-[500px] relative overflow-hidden">
+      <div class="w-[500px] login-form-container relative overflow-hidden">
         <!-- 背景 -->
         <div class="absolute inset-0 bg-black/95 backdrop-blur-sm"></div>
         
@@ -273,49 +314,232 @@
             <!-- 登录标题 -->
             <div class="text-center mb-8">
               <h2 class="text-3xl font-bold bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent mb-2">
-                欢迎回来
+                {{ isRegisterMode ? '创建账户' : '欢迎回来' }}
               </h2>
-              <p class="text-gray-400">登录您的账户，开启AI智能之旅</p>
+              <p class="text-gray-400">{{ isRegisterMode ? '注册您的账户，开启AI智能之旅' : '登录您的账户，开启AI智能之旅' }}</p>
             </div>
 
-            <!-- 登录表单 -->
-            <form @submit.prevent="handleLogin" class="space-y-6">
-              <!-- 用户名输入 -->
-              <div class="relative">
+            <!-- 登录/注册表单 -->
+            <form @submit.prevent="handleSubmit" class="space-y-6">
+              <!-- 注册/登录方式选择 -->
+              <div class="flex bg-gray-900/30 rounded-xl p-1 mb-6">
+                <button
+                  type="button"
+                  @click="authMethod = 'email'"
+                  :class="[
+                    'flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all',
+                    authMethod === 'email' 
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  ]"
+                >
+                  邮箱{{ isRegisterMode ? '注册' : '登录' }}
+                </button>
+                <button
+                  type="button"
+                  @click="authMethod = 'phone'"
+                  :class="[
+                    'flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all',
+                    authMethod === 'phone' 
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  ]"
+                >
+                  手机{{ isRegisterMode ? '注册' : '登录' }}
+                </button>
+              </div>
+
+              <!-- 邮箱输入（邮箱模式） -->
+              <div v-if="authMethod === 'email'" class="relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl blur-sm"></div>
                 <input 
                   v-model="loginForm.email"
-                  type="text" 
+                  type="email" 
                   required
                   class="relative w-full px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-white placeholder-gray-400 transition-all backdrop-blur-sm"
-                  placeholder="用户名"
+                  placeholder="邮箱地址"
                 >
                 <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
               </div>
+
+              <!-- 手机号输入（手机模式） -->
+              <div v-if="authMethod === 'phone'" class="relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl blur-sm"></div>
+                <input 
+                  v-model="loginForm.phone"
+                  type="tel" 
+                  required
+                  class="relative w-full px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-white placeholder-gray-400 transition-all backdrop-blur-sm"
+                  placeholder="手机号码"
+                >
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </div>
+
+
               
               <!-- 密码输入 -->
-              <div class="relative">
+              <div v-if="authMethod === 'email' || (authMethod === 'phone' && (isRegisterMode || phoneLoginMethod === 'password'))" class="relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl blur-sm"></div>
                 <input 
                   v-model="loginForm.password"
                   type="password" 
-                  required
+                  :required="authMethod === 'email' || (authMethod === 'phone' && (isRegisterMode || phoneLoginMethod === 'password'))"
                   class="relative w-full px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-white placeholder-gray-400 transition-all backdrop-blur-sm"
                   placeholder="密码"
                 >
                 <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
               </div>
+
+              <!-- 手机登录验证码输入（登录模式且手机验证码方式） -->
+              <div v-if="!isRegisterMode && authMethod === 'phone' && phoneLoginMethod === 'sms'" class="relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl blur-sm"></div>
+                <div class="relative flex space-x-3">
+                  <input 
+                    v-model="loginForm.loginSmsCode"
+                    type="text" 
+                    required
+                    maxlength="6"
+                    class="flex-1 px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-white placeholder-gray-400 transition-all backdrop-blur-sm"
+                    placeholder="登录验证码"
+                  >
+                  <button
+                    type="button"
+                    @click="sendLoginVerificationCode"
+                    :disabled="isLoginCodeSending || loginCountdown > 0 || !loginForm.phone"
+                    class="px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:from-blue-400 hover:to-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {{ getLoginCodeButtonText }}
+                  </button>
+                </div>
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </div>
+
+              <!-- 验证码输入（注册模式且手机方式） -->
+              <div v-if="isRegisterMode && authMethod === 'phone'" class="relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl blur-sm"></div>
+                <div class="relative flex space-x-3">
+                  <input 
+                    v-model="loginForm.smsCode"
+                    type="text" 
+                    required
+                    maxlength="6"
+                    class="flex-1 px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-white placeholder-gray-400 transition-all backdrop-blur-sm"
+                    placeholder="注册验证码"
+                  >
+                  <button
+                    type="button"
+                    @click="sendVerificationCode"
+                    :disabled="isCodeSending || countdown > 0 || !loginForm.phone"
+                    class="px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:from-blue-400 hover:to-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {{ getCodeButtonText }}
+                  </button>
+                </div>
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </div>
+
+
+
+              <!-- 记住密码复选框（仅登录模式） -->
+              <div v-if="!isRegisterMode" class="flex items-center justify-between">
+                <label class="flex items-center space-x-3 cursor-pointer group">
+                  <div class="relative">
+                    <input 
+                      v-model="rememberPassword" 
+                      type="checkbox"
+                      class="sr-only"
+                    >
+                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400"
+                         :class="{ 'bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-400': rememberPassword }">
+                      <svg v-if="rememberPassword" class="w-3 h-3 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <span class="text-gray-300 text-sm group-hover:text-white transition-colors">记住密码</span>
+                </label>
+                
+                <!-- 邮箱登录时显示忘记密码 -->
+                <div v-if="authMethod === 'email'">
+                  <a href="#" class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors">忘记密码？</a>
+                </div>
+                
+                <!-- 手机登录时显示登录方式选择 -->
+                <div v-if="authMethod === 'phone'" class="flex bg-gray-900/30 rounded-lg p-1">
+                  <button
+                    type="button"
+                    @click="phoneLoginMethod = 'password'"
+                    :class="[
+                      'px-3 py-1 rounded text-xs font-medium transition-all',
+                      phoneLoginMethod === 'password' 
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' 
+                        : 'text-gray-400 hover:text-white'
+                    ]"
+                  >
+                    密码
+                  </button>
+                  <button
+                    type="button"
+                    @click="phoneLoginMethod = 'sms'"
+                    :class="[
+                      'px-3 py-1 rounded text-xs font-medium transition-all',
+                      phoneLoginMethod === 'sms' 
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white' 
+                        : 'text-gray-400 hover:text-white'
+                    ]"
+                  >
+                    验证码
+                  </button>
+                </div>
+              </div>
+
+              <!-- 注册协议复选框（仅注册模式） -->
+              <div v-if="isRegisterMode" class="flex items-center space-x-3">
+                <label class="flex items-center space-x-3 cursor-pointer group">
+                  <div class="relative">
+                    <input 
+                      v-model="agreeToTerms" 
+                      type="checkbox"
+                      class="sr-only"
+                      required
+                    >
+                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400"
+                         :class="{ 'bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-400': agreeToTerms }">
+                      <svg v-if="agreeToTerms" class="w-3 h-3 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <span class="text-gray-300 text-sm group-hover:text-white transition-colors">
+                    我已阅读并同意
+                    <a href="#" class="text-cyan-400 hover:text-cyan-300 transition-colors">用户协议</a>
+                    和
+                    <a href="#" class="text-cyan-400 hover:text-cyan-300 transition-colors">隐私政策</a>
+                  </span>
+                </label>
+              </div>
+
+              <!-- 清除记住密码按钮（仅登录模式） -->
+              <div v-if="!isRegisterMode && hasRememberedPassword" class="text-center">
+                <button 
+                  type="button"
+                  @click="clearRememberedPassword"
+                  class="text-xs text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  清除记住的密码
+                </button>
+              </div>
               
-              <!-- 登录按钮 -->
+              <!-- 提交按钮 -->
               <button 
                 type="submit"
-                :disabled="isLoading"
+                :disabled="isLoading || (isRegisterMode && !agreeToTerms)"
                 class="w-full relative group overflow-hidden"
               >
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl transition-all group-hover:from-blue-400 group-hover:to-cyan-400"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="relative px-6 py-4 text-white font-semibold text-lg flex items-center justify-center space-x-2">
-                  <span v-if="!isLoading">登录</span>
+                  <span v-if="!isLoading">{{ getSubmitButtonText }}</span>
                   <span v-else class="loading-dots">
                     <div></div>
                     <div></div>
@@ -325,6 +549,17 @@
                 <!-- 闪光效果 -->
                 <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
               </button>
+
+              <!-- 切换登录/注册模式 -->
+              <div class="text-center">
+                <button
+                  type="button"
+                  @click="toggleMode"
+                  class="text-cyan-400 hover:text-cyan-300 text-sm transition-colors"
+                >
+                  {{ isRegisterMode ? '已有账户？立即登录' : '没有账户？立即注册' }}
+                </button>
+              </div>
               
               <!-- 分割线 -->
               <div class="relative my-8">
@@ -372,16 +607,54 @@
 // 登录表单数据
 const loginForm = ref({
   email: '',
-  password: ''
+  password: '',
+  phone: '', // 新增手机号
+  smsCode: '', // 新增验证码
+  loginSmsCode: '' // 新增登录验证码
 })
 
 const isLoading = ref(false)
 
-// 默认测试账号
-const defaultCredentials = {
-  email: 'admin@lingtu.ai',
-  password: '123456'
-}
+// 记住密码状态
+const rememberPassword = ref(false)
+
+// 是否有记住的密码
+const hasRememberedPassword = ref(false)
+
+// 注册模式
+const isRegisterMode = ref(false)
+
+// 验证码发送状态
+const isCodeSending = ref(false)
+
+// 验证码倒计时
+const countdown = ref(0)
+
+
+
+// 手机登录方式选择
+const phoneLoginMethod = ref('password') // 'password' 或 'sms'
+
+// 登录验证码发送状态
+const isLoginCodeSending = ref(false)
+
+// 登录验证码倒计时
+const loginCountdown = ref(0)
+
+// 同意用户协议和隐私政策
+const agreeToTerms = ref(false)
+
+// 当前选择的认证方式
+const authMethod = ref('email') // 'email' 或 'phone'
+
+// Toast通知状态
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'info' // 'success', 'error', 'info'
+})
+
+// 注意：现在使用真实的API登录，不再需要硬编码的测试账号
 
 // 生成粒子样式
 const getParticleStyle = (index) => {
@@ -412,44 +685,523 @@ const getRandomChar = () => {
   return chars[Math.floor(Math.random() * chars.length)]
 }
 
-// 处理登录
-const handleLogin = async () => {
-  isLoading.value = true
+// Toast 提示方法
+const showToast = (message, type = 'info') => {
+  toast.value = {
+    show: true,
+    message: message,
+    type: type
+  }
   
+  // 自动隐藏（3秒后）
+  setTimeout(() => {
+    hideToast()
+  }, 3000)
+}
+
+const hideToast = () => {
+  toast.value.show = false
+}
+
+// 获取验证码按钮文本
+const getCodeButtonText = computed(() => {
+  if (countdown.value > 0) {
+    return `${countdown.value}s`
+  }
+  if (isCodeSending.value) {
+    return '发送中...'
+  }
+  return '获取验证码'
+})
+
+
+
+// 获取登录验证码按钮文本
+const getLoginCodeButtonText = computed(() => {
+  if (loginCountdown.value > 0) {
+    return `${loginCountdown.value}s`
+  }
+  if (isLoginCodeSending.value) {
+    return '发送中...'
+  }
+  return '获取验证码'
+})
+
+// 发送验证码
+const sendVerificationCode = async () => {
+  if (!loginForm.value.phone) {
+    showToast('请先输入手机号码', 'error')
+    return
+  }
+  if (!/^1[3-9]\d{9}$/.test(loginForm.value.phone)) {
+    showToast('请输入正确的手机号码', 'error')
+    return
+  }
+  if (isCodeSending.value || countdown.value > 0) {
+    return
+  }
+
+  isCodeSending.value = true
+  countdown.value = 60
+
   try {
-    // 验证账号密码
-    if (loginForm.value.email === defaultCredentials.email && 
-        loginForm.value.password === defaultCredentials.password) {
-      
-      // 模拟登录延迟
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // 保存登录状态到localStorage
-      localStorage.setItem('isLoggedIn', 'true')
-      localStorage.setItem('userInfo', JSON.stringify({
-        email: loginForm.value.email,
-        name: '管理员',
-        avatar: ''
-      }))
-      
-      // 跳转到dashboard
-      await navigateTo('/dashboard')
-    } else {
-      alert('账号或密码错误，请重试')
-    }
+    const { $auth } = useNuxtApp()
+    await $auth.sendSmsCode(loginForm.value.phone, 'register')
+    showToast('验证码已发送至您的手机，请注意查收', 'success')
+    
+    // 开始倒计时
+    const timer = setInterval(() => {
+      countdown.value--
+      if (countdown.value <= 0) {
+        clearInterval(timer)
+        isCodeSending.value = false
+      }
+    }, 1000)
   } catch (error) {
-    console.error('登录失败:', error)
-    alert('登录失败，请重试')
-  } finally {
-    isLoading.value = false
+    console.error('发送验证码失败:', error)
+    let errorMessage = '发送验证码失败，请重试'
+    
+    if (error.response) {
+      switch (error.response.status) {
+        case 400:
+          errorMessage = '手机号格式不正确'
+          break
+        case 429:
+          errorMessage = '发送过于频繁，请稍后再试'
+          break
+        case 500:
+          errorMessage = '服务器错误，请稍后再试'
+          break
+        default:
+          errorMessage = error.response.data?.message || '发送验证码失败，请重试'
+      }
+    } else if (error.request) {
+      errorMessage = '网络连接失败，请检查网络设置'
+    }
+    
+    showToast(errorMessage, 'error')
+    isCodeSending.value = false
+    countdown.value = 0
   }
 }
 
-// 页面加载时检查是否已登录
+
+
+// 发送登录验证码
+const sendLoginVerificationCode = async () => {
+  if (!loginForm.value.phone) {
+    showToast('请先输入手机号码', 'error')
+    return
+  }
+  if (!/^1[3-9]\d{9}$/.test(loginForm.value.phone)) {
+    showToast('请输入正确的手机号码', 'error')
+    return
+  }
+  if (isLoginCodeSending.value || loginCountdown.value > 0) {
+    return
+  }
+
+  isLoginCodeSending.value = true
+  loginCountdown.value = 60
+
+  try {
+    const { $auth } = useNuxtApp()
+    await $auth.sendSmsCode(loginForm.value.phone, 'login')
+    showToast('登录验证码已发送至您的手机，请注意查收', 'success')
+    
+    // 开始倒计时
+    const timer = setInterval(() => {
+      loginCountdown.value--
+      if (loginCountdown.value <= 0) {
+        clearInterval(timer)
+        isLoginCodeSending.value = false
+      }
+    }, 1000)
+  } catch (error) {
+    console.error('发送登录验证码失败:', error)
+    let errorMessage = '发送登录验证码失败，请重试'
+    
+    if (error.response) {
+      switch (error.response.status) {
+        case 400:
+          errorMessage = '手机号格式不正确'
+          break
+        case 429:
+          errorMessage = '发送过于频繁，请稍后再试'
+          break
+        case 500:
+          errorMessage = '服务器错误，请稍后再试'
+          break
+        default:
+          errorMessage = error.response.data?.message || '发送登录验证码失败，请重试'
+      }
+    } else if (error.request) {
+      errorMessage = '网络连接失败，请检查网络设置'
+    }
+    
+    showToast(errorMessage, 'error')
+    isLoginCodeSending.value = false
+    loginCountdown.value = 0
+  }
+}
+
+// 处理登录/注册
+const handleSubmit = async () => {
+  if (isRegisterMode.value) {
+    // ===== 注册逻辑 =====
+    if (!agreeToTerms.value) {
+      showToast('请先同意用户协议和隐私政策', 'error')
+      return
+    }
+    
+    // 验证注册信息
+    if (!loginForm.value.password) {
+      showToast('请输入密码', 'error')
+      return
+    }
+    
+    if (loginForm.value.password.length < 6) {
+      showToast('密码长度不能少于6位', 'error')
+      return
+    }
+    
+    let registerData = {
+      password: loginForm.value.password
+    }
+    
+          if (authMethod.value === 'email') {
+        // 邮箱注册
+        if (!loginForm.value.email) {
+          showToast('请填写邮箱地址', 'error')
+          return
+        }
+        
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.value.email)) {
+          showToast('请输入正确的邮箱地址', 'error')
+          return
+        }
+        
+        registerData.email = loginForm.value.email
+      } else {
+        // 手机号注册
+        if (!loginForm.value.phone || !loginForm.value.smsCode) {
+          showToast('请填写手机号码和验证码', 'error')
+          return
+        }
+        
+        if (!/^1[3-9]\d{9}$/.test(loginForm.value.phone)) {
+          showToast('请输入正确的手机号码', 'error')
+          return
+        }
+        
+        if (!/^\d{6}$/.test(loginForm.value.smsCode)) {
+          showToast('请输入6位数字验证码', 'error')
+          return
+        }
+      
+      registerData.phone = loginForm.value.phone
+      registerData.smsCode = loginForm.value.smsCode
+    }
+    
+    // 执行注册
+    isLoading.value = true
+    try {
+      const { $auth } = useNuxtApp()
+      const registerResult = await $auth.register(registerData)
+      
+      // 修复：检查success字段和data.accessToken
+      if (registerResult && registerResult.success && registerResult.data && registerResult.data.accessToken) {
+        const userData = registerResult.data
+        
+        // 保存登录状态到localStorage (兼容现有逻辑)
+        localStorage.setItem('isLoggedIn', 'true')
+        
+        // 保存认证相关信息（用于API调用）
+        localStorage.setItem('access_token', userData.accessToken)
+        localStorage.setItem('user_id', userData.userId)
+        localStorage.setItem('tenant_id', userData.tenantId)
+        
+        // 保存完整用户信息
+        localStorage.setItem('userInfo', JSON.stringify({
+          email: userData.email || userData.username, // 处理email/username字段差异
+          name: userData.nickname || '用户',
+          avatar: userData.avatar || '',
+          userId: userData.userId,
+          tenantId: userData.tenantId,
+          tenantCode: userData.tenantCode,
+          tenantName: userData.tenantName,
+          permissions: userData.permissions || []
+        }))
+
+        showToast('注册成功，欢迎使用CUZCUZAI！', 'success')
+        await navigateTo('/dashboard')
+      } else {
+        showToast('注册失败，请检查信息', 'error')
+      }
+    } catch (error) {
+      console.error('注册失败:', error)
+      let errorMessage = '注册失败，请重试'
+      
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            errorMessage = '注册信息不完整或格式错误'
+            break
+          case 409:
+            errorMessage = authMethod.value === 'email' ? '该邮箱已被注册' : '该手机号已被注册'
+            break
+          case 422:
+            errorMessage = '验证码错误或已过期'
+            break
+          case 429:
+            errorMessage = '注册尝试次数过多，请稍后再试'
+            break
+          case 500:
+            errorMessage = '服务器错误，请稍后再试'
+            break
+          default:
+            errorMessage = error.response.data?.message || '注册失败，请重试'
+        }
+      } else if (error.request) {
+        errorMessage = '网络连接失败，请检查网络设置'
+      }
+      
+      showToast(errorMessage, 'error')
+    } finally {
+      isLoading.value = false
+    }
+  } else {
+    // ===== 登录逻辑 =====
+    if (!loginForm.value.password && phoneLoginMethod.value === 'password') {
+      showToast('请输入密码', 'error')
+      return
+    }
+    
+    if (authMethod.value === 'phone' && phoneLoginMethod.value === 'sms' && !loginForm.value.loginSmsCode) {
+      showToast('请输入登录验证码', 'error')
+      return
+    }
+    
+    // 执行登录
+    isLoading.value = true
+    try {
+      const { $auth } = useNuxtApp()
+      let loginResult
+      
+      // 统一登录接口 - 使用account字段
+      let account = ''
+      let loginData = {}
+      
+      if (authMethod.value === 'email') {
+        // 邮箱登录
+        if (!loginForm.value.email) {
+          showToast('请输入邮箱地址', 'error')
+          return
+        }
+        
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.value.email)) {
+          showToast('请输入正确的邮箱地址', 'error')
+          return
+        }
+        
+        account = loginForm.value.email
+        loginData = {
+          account: account,
+          password: loginForm.value.password
+        }
+      } else {
+        // 手机号登录
+        if (!loginForm.value.phone) {
+          showToast('请输入手机号码', 'error')
+          return
+        }
+        
+        if (!/^1[3-9]\d{9}$/.test(loginForm.value.phone)) {
+          showToast('请输入正确的手机号码', 'error')
+          return
+        }
+        
+        account = loginForm.value.phone
+        
+        if (phoneLoginMethod.value === 'sms') {
+          // 手机号验证码登录
+          if (!/^\d{6}$/.test(loginForm.value.loginSmsCode)) {
+            showToast('请输入6位数字登录验证码', 'error')
+            return
+          }
+          
+          loginData = {
+            account: account,
+            captcha: loginForm.value.loginSmsCode
+          }
+        } else {
+          // 手机号密码登录
+          loginData = {
+            account: account,
+            password: loginForm.value.password
+          }
+        }
+      }
+      
+      // 统一调用login接口
+      loginResult = await $auth.login(loginData)
+      
+      // 修复：检查success字段和data.accessToken
+      if (loginResult && loginResult.success && loginResult.data && loginResult.data.accessToken) {
+        const userData = loginResult.data
+        
+        // 保存登录状态到localStorage (兼容现有逻辑)
+        localStorage.setItem('isLoggedIn', 'true')
+        
+        // 保存认证相关信息（用于API调用）
+        localStorage.setItem('access_token', userData.accessToken)
+        localStorage.setItem('user_id', userData.userId)
+        localStorage.setItem('tenant_id', userData.tenantId)
+        
+        // 保存完整用户信息
+        localStorage.setItem('userInfo', JSON.stringify({
+          email: userData.email || userData.username, // 处理email/username字段差异
+          name: userData.nickname || '用户',
+          avatar: userData.avatar || '',
+          userId: userData.userId,
+          tenantId: userData.tenantId,
+          tenantCode: userData.tenantCode,
+          tenantName: userData.tenantName,
+          permissions: userData.permissions || []
+        }))
+
+        // 如果记住密码，则保存到localStorage (密码登录时，包括邮箱和手机号)
+        if (rememberPassword.value && (authMethod.value === 'email' || phoneLoginMethod.value === 'password')) {
+          localStorage.setItem('rememberPassword', 'true')
+          if (authMethod.value === 'email') {
+            localStorage.setItem('savedEmail', loginForm.value.email)
+          } else {
+            localStorage.setItem('savedPhone', loginForm.value.phone)
+          }
+          localStorage.setItem('savedPassword', loginForm.value.password)
+          localStorage.setItem('savedAuthMethod', authMethod.value)
+          hasRememberedPassword.value = true
+        } else {
+          localStorage.removeItem('rememberPassword')
+          localStorage.removeItem('savedEmail')
+          localStorage.removeItem('savedPhone')
+          localStorage.removeItem('savedPassword')
+          localStorage.removeItem('savedAuthMethod')
+          hasRememberedPassword.value = false
+        }
+        
+        await navigateTo('/dashboard')
+      } else {
+        showToast('登录失败，请检查账号或密码', 'error')
+      }
+    } catch (error) {
+      console.error('登录失败:', error)
+      
+      let errorMessage = '登录失败，请重试'
+      
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            if (authMethod.value === 'email') {
+              errorMessage = '邮箱或密码错误'
+            } else if (phoneLoginMethod.value === 'sms') {
+              errorMessage = '手机号或验证码错误'
+            } else {
+              errorMessage = '手机号或密码错误'
+            }
+            break
+          case 403:
+            errorMessage = '账号被禁用，请联系管理员'
+            break
+          case 422:
+            errorMessage = '验证码错误或已过期'
+            break
+          case 429:
+            errorMessage = '登录尝试次数过多，请稍后再试'
+            break
+          case 500:
+            errorMessage = '服务器错误，请稍后再试'
+            break
+          default:
+            errorMessage = error.response.data?.message || '登录失败，请重试'
+        }
+      } else if (error.request) {
+        errorMessage = '网络连接失败，请检查网络设置'
+      }
+      
+      showToast(errorMessage, 'error')
+    } finally {
+      isLoading.value = false
+    }
+  }
+}
+
+// 切换登录/注册模式
+const toggleMode = () => {
+  isRegisterMode.value = !isRegisterMode.value
+  rememberPassword.value = false // 切换模式时重置记住密码
+  hasRememberedPassword.value = false
+  loginForm.value.email = ''
+  loginForm.value.password = ''
+  loginForm.value.phone = ''
+  loginForm.value.smsCode = ''
+  loginForm.value.loginSmsCode = '' // 切换模式时重置登录验证码
+  agreeToTerms.value = false
+  countdown.value = 0
+  loginCountdown.value = 0 // 重置登录验证码倒计时
+  isCodeSending.value = false
+  isLoginCodeSending.value = false // 重置登录验证码发送状态
+  authMethod.value = 'email' // 切换模式时重置认证方式
+  phoneLoginMethod.value = 'password' // 重置手机登录方式
+}
+
+// 清除记住的密码
+const clearRememberedPassword = () => {
+  rememberPassword.value = false
+  hasRememberedPassword.value = false
+  localStorage.removeItem('rememberPassword')
+  localStorage.removeItem('savedEmail')
+  localStorage.removeItem('savedPhone')
+  localStorage.removeItem('savedPassword')
+  localStorage.removeItem('savedAuthMethod')
+  loginForm.value.email = '' // Clear form fields
+  loginForm.value.password = ''
+  loginForm.value.phone = ''
+  showToast('已清除记住的密码', 'info')
+}
+
+// 获取提交按钮文本
+const getSubmitButtonText = computed(() => {
+  if (isRegisterMode.value) {
+    return '创建账户'
+  }
+  return '登录'
+})
+
+// 页面加载时检查是否已登录和是否有记住的密码
 onMounted(() => {
+  // 检查是否已登录
   const isLoggedIn = localStorage.getItem('isLoggedIn')
   if (isLoggedIn === 'true') {
     navigateTo('/dashboard')
+    return
+  }
+  
+  // 尝试从localStorage加载记住的密码
+  if (localStorage.getItem('rememberPassword') === 'true') {
+    const savedAuthMethod = localStorage.getItem('savedAuthMethod') || 'email'
+    authMethod.value = savedAuthMethod
+    
+    if (savedAuthMethod === 'email') {
+      loginForm.value.email = localStorage.getItem('savedEmail') || ''
+    } else {
+      loginForm.value.phone = localStorage.getItem('savedPhone') || ''
+    }
+    loginForm.value.password = localStorage.getItem('savedPassword') || ''
+    rememberPassword.value = true
+    hasRememberedPassword.value = true
+  } else {
+    hasRememberedPassword.value = false
   }
 })
 
@@ -880,7 +1632,7 @@ useHead({
     min-height: 40vh;
   }
   
-  .w-[500px] {
+  .login-form-container {
     width: 100%;
   }
 }

@@ -9,10 +9,13 @@
             <p class="text-dark-text-secondary text-sm mb-1">今日任务</p>
             <p class="text-2xl font-bold text-dark-text">{{ dashboardStats.today.taskCount }}</p>
             <div class="flex items-center mt-2">
-              <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              <svg class="w-4 h-4 mr-1" :class="taskPercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" fill="currentColor" viewBox="0 0 20 20">
+                <path v-if="taskPercentageChange.isPositive" fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path v-else fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span class="text-green-500 text-sm">+12.5%</span>
+              <span :class="taskPercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" class="text-sm">
+                {{ taskPercentageChange.isPositive ? '+' : '-' }}{{ taskPercentageChange.percentage }}%
+              </span>
             </div>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -30,10 +33,13 @@
             <p class="text-dark-text-secondary text-sm mb-1">处理中</p>
             <p class="text-2xl font-bold text-dark-text">{{ dashboardStats.today.processedCount }}</p>
             <div class="flex items-center mt-2">
-              <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              <svg class="w-4 h-4 mr-1" :class="processedPercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" fill="currentColor" viewBox="0 0 20 20">
+                <path v-if="processedPercentageChange.isPositive" fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path v-else fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span class="text-green-500 text-sm">+12.5%</span>
+              <span :class="processedPercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" class="text-sm">
+                {{ processedPercentageChange.isPositive ? '+' : '-' }}{{ processedPercentageChange.percentage }}%
+              </span>
             </div>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -51,10 +57,13 @@
             <p class="text-dark-text-secondary text-sm mb-1">已完成</p>
             <p class="text-2xl font-bold text-dark-text">{{ dashboardStats.today.completeCount }}</p>
             <div class="flex items-center mt-2">
-              <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              <svg class="w-4 h-4 mr-1" :class="completePercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" fill="currentColor" viewBox="0 0 20 20">
+                <path v-if="completePercentageChange.isPositive" fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path v-else fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span class="text-green-500 text-sm">+12.5%</span>
+              <span :class="completePercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" class="text-sm">
+                {{ completePercentageChange.isPositive ? '+' : '-' }}{{ completePercentageChange.percentage }}%
+              </span>
             </div>
           </div>
           <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -72,10 +81,13 @@
             <p class="text-dark-text-secondary text-sm mb-1">今日支出</p>
             <p class="text-2xl font-bold text-dark-text">¥ 3,44.53</p>
             <div class="flex items-center mt-2">
-              <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              <svg class="w-4 h-4 mr-1" :class="expensePercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" fill="currentColor" viewBox="0 0 20 20">
+                <path v-if="expensePercentageChange.isPositive" fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <path v-else fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
-              <span class="text-green-500 text-sm">+4.5%</span>
+              <span :class="expensePercentageChange.isPositive ? 'text-green-500' : 'text-red-500'" class="text-sm">
+                {{ expensePercentageChange.isPositive ? '+' : '-' }}{{ expensePercentageChange.percentage }}%
+              </span>
             </div>
           </div>
           <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -242,7 +254,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getDashboardStats } from '~/apis/business/dashboard'
 
 // 使用 dashboard 布局
@@ -300,6 +312,45 @@ const fetchDashboardStats = async () => {
     loading.value = false
   }
 }
+
+// 计算百分比变化
+const calculatePercentageChange = (today, yesterday) => {
+  if (!today || !yesterday || yesterday === 0) {
+    return { percentage: 0, isPositive: true }
+  }
+  
+  const todayNum = parseInt(today.replace(/,/g, '')) || 0
+  const yesterdayNum = parseInt(yesterday.replace(/,/g, '')) || 0
+  
+  if (yesterdayNum === 0) {
+    return { percentage: 0, isPositive: true }
+  }
+  
+  const change = ((todayNum - yesterdayNum) / yesterdayNum) * 100
+  return {
+    percentage: Math.abs(change).toFixed(1),
+    isPositive: change >= 0
+  }
+}
+
+// 计算各项百分比变化
+const taskPercentageChange = computed(() => 
+  calculatePercentageChange(dashboardStats.value.today.taskCount, dashboardStats.value.yesterday.taskCount)
+)
+
+const processedPercentageChange = computed(() => 
+  calculatePercentageChange(dashboardStats.value.today.processedCount, dashboardStats.value.yesterday.processedCount)
+)
+
+const completePercentageChange = computed(() => 
+  calculatePercentageChange(dashboardStats.value.today.completeCount, dashboardStats.value.yesterday.completeCount)
+)
+
+// 模拟支出数据的计算（这里可以根据实际业务逻辑调整）
+const expensePercentageChange = computed(() => ({
+  percentage: '4.5',
+  isPositive: true
+}))
 
 // 用户信息
 const userInfo = ref({
