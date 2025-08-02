@@ -193,6 +193,20 @@
             </div>
           </div>
 
+          <!-- 店铺管理 -->
+          <div class="mb-4">
+            <ul class="space-y-1">
+              <li>
+                <a href="#" @click.prevent="openInTab('/dashboard/store', '店铺管理')" class="flex items-center space-x-3 text-dark-text-secondary px-4 py-2 text-sm hover:bg-dark-input hover:text-cyan-400 hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/store' }">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 7h-3V6c0-1.1-.9-2-2-2H10c-1.1 0-2 .9-2 2v1H5c-1.1 0-2 .9-2 2v1c0 2.55.92 4.63 2.29 5.82.46.4.98.71 1.54.91L12 22l5.17-5.27c.56-.2 1.08-.51 1.54-.91C20.08 14.63 21 12.55 21 10V9c0-1.1-.9-2-2-2zM10 6h4v1h-4V6zm8 4c0 2.02-.67 3.56-1.5 4.5-.83.94-1.5.94-1.5.94s-.67 0-1.5-.94C12.67 13.56 12 12.02 12 10V9h6v1z"/>
+                  </svg>
+                  <span>店铺管理</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
           <!-- 商品管理 -->
           <div class="mb-4">
             <div class="flex items-center justify-between px-4 py-2 cursor-pointer" @click="toggleProductManagement">
@@ -700,6 +714,7 @@ const routeTitleMap = {
   '/dashboard/apps/title-generation': '标题生成',
   '/dashboard/apps/batch-listing': '批量刊登',
   '/dashboard/workflow': '工作流',
+  '/dashboard/store': '店铺管理',
   '/dashboard/images/overview': '图库概览',
   '/dashboard/images/products': '商品图库',
   '/dashboard/images/materials': '素材图库',
