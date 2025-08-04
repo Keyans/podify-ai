@@ -24,6 +24,7 @@
       <TaskTable
         :data="tableData"
         :loading="loading"
+        :currentApp="'detection'"
         idLabel="检测"
         typeLabel="检测"
         quantityLabel="检测"
@@ -44,7 +45,7 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -60,7 +61,6 @@
                 <input 
                   type="text" 
                   v-model="filters.taskId" 
-                  @input="handleFilterChange"
                   placeholder="搜索任务ID"
                   class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
                   :style="{
@@ -78,7 +78,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.status" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -101,7 +100,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.riskLevel"
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -125,7 +123,6 @@
                 <input 
                   type="date" 
                   v-model="filters.startDate" 
-                  @change="handleFilterChange"
                   placeholder="开始日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -141,7 +138,6 @@
                 <input 
                   type="date" 
                   v-model="filters.endDate" 
-                  @change="handleFilterChange"
                   placeholder="结束日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -151,6 +147,17 @@
                   }"
                 >
               </div>
+
+              <!-- 搜索按钮 -->
+              <button 
+                @click="handleSearch"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span>搜索</span>
+              </button>
 
               <!-- 重置按钮 -->
               <button 
@@ -322,7 +329,7 @@ const fetchTaskList = async () => {
       tableData.value = rawList.map(item => ({
         id: item.taskId || item.id,
         检测ID: item.taskId || item.id,
-        目标: item.size || item.targetCount || '100',
+        目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
         成功: item.current || item.successCount || '1',
         失败: '0', // 根据接口文档，暂时设为0
         任务状态: getStatusText(item.status),
@@ -452,6 +459,21 @@ const handleDetailPageChange = async (pagination) => {
 }
 
 // 事件处理函数
+// 手动搜索
+const handleSearch = () => {
+  console.log('执行搜索，当前筛选条件:', filters.value)
+  // 将filters映射到filterParams
+  filterParams.value = {
+    taskId: filters.value.taskId || '',
+    status: filters.value.status || '',
+    startTime: filters.value.startDate || '',
+    endTime: filters.value.endDate || '',
+    userId: ''
+  }
+  pageParams.value.page = 1 // 重置到第一页
+  fetchTaskList()
+}
+
 const handleFilterChange = (newFilters) => {
   console.log('筛选条件变化:', newFilters)
   // 如果传入了新的筛选条件，更新filters

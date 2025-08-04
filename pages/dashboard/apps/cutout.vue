@@ -24,6 +24,7 @@
     <TaskTable
       :data="tableData"
       :loading="loading"
+      :currentApp="'cutout'"
       idLabel="抠图"
       typeLabel="抠图"
       quantityLabel="抠图"
@@ -44,7 +45,7 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -60,7 +61,6 @@
                 <input 
                   type="text" 
                   v-model="filters.taskId" 
-                  @input="handleFilterChange"
                   placeholder="搜索任务ID"
                   class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
                   :style="{
@@ -78,7 +78,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.status" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -102,7 +101,6 @@
                 <input 
                   type="date" 
                   v-model="filters.startDate" 
-                  @change="handleFilterChange"
                   placeholder="开始日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -118,7 +116,6 @@
                 <input 
                   type="date" 
                   v-model="filters.endDate" 
-                  @change="handleFilterChange"
                   placeholder="结束日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -128,6 +125,17 @@
                   }"
                 >
               </div>
+
+              <!-- 搜索按钮 -->
+              <button 
+                @click="handleSearch"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span>搜索</span>
+              </button>
 
               <!-- 重置按钮 -->
               <button 
@@ -150,7 +158,7 @@
   </div>
 
   <!-- 新建抠图任务弹窗 -->
-  <MattingNewTaskModal 
+  <CutoutNewTaskModal 
     :isOpen="showCreateModal" 
     @close="showCreateModal = false"
     @submit="handleTaskSubmit"
@@ -444,6 +452,21 @@ const handleDetailPageChange = async (pagination) => {
 }
 
 // 事件处理函数
+// 手动搜索
+const handleSearch = () => {
+  console.log('执行搜索，当前筛选条件:', filters.value)
+  // 将filters映射到filterParams
+  filterParams.value = {
+    taskId: filters.value.taskId || '',
+    status: filters.value.status || '',
+    startTime: filters.value.startDate || '',
+    endTime: filters.value.endDate || '',
+    userId: ''
+  }
+  pageParams.value.page = 1 // 重置到第一页
+  fetchTaskList()
+}
+
 const handleFilterChange = (filters) => {
   console.log('筛选条件变化:', filters)
   filterParams.value = { ...filterParams.value, ...filters }

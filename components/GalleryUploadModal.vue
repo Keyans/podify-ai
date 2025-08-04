@@ -56,7 +56,7 @@
               
               <button 
                 @click="triggerFolderInput"
-                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center"
+                class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500 flex items-center"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
@@ -209,9 +209,9 @@
 <script setup>
 import { ref, computed, nextTick } from 'vue'
 import { uploadGalleryImages, GalleryType } from '~/apis/business/gallery'
-import { getTencentCosCredentials } from '~/apis/business/oss'
-import COS from 'cos-js-sdk-v5'
 import JSZip from 'jszip'
+import tencentCOS from '~/utils/tencentCOS'
+import { extractImagesFromZip, validateZipFile } from '~/utils/zipUtils'
 
 // Props
 const props = defineProps({
@@ -239,8 +239,7 @@ const dragActive = ref(false)
 const uploading = ref(false)
 const error = ref('')
 
-const cosInstance = ref(null)
-const credentials = ref(null)
+// (已移除COS相关变量，现在使用统一的tencentCOS工具类)
 
 // 计算属性
 const galleryTypeText = computed(() => {
@@ -260,37 +259,7 @@ const uploadedCount = computed(() => {
 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 const maxFileSize = 10 * 1024 * 1024 // 10MB
 
-// 获取腾讯云临时密钥
-const getCredentials = async () => {
-  try {
-    const response = await getTencentCosCredentials()
-    if (response.success) {
-      credentials.value = response.data
-      
-      // 初始化 COS 实例
-      cosInstance.value = new COS({
-        SecretId: credentials.value.tmpSecretId,
-        SecretKey: credentials.value.tmpSecretKey,
-        SecurityToken: credentials.value.sessionToken,
-        StartTime: credentials.value.startTime,
-        ExpiredTime: credentials.value.expiredTime
-      })
-    } else {
-      throw new Error(response.message || '获取上传凭证失败')
-    }
-  } catch (err) {
-    error.value = '获取上传凭证失败：' + err.message
-    console.error('获取腾讯云凭证失败:', err)
-  }
-}
-
-// 生成唯一文件名
-const generateFileName = (originalName) => {
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(7)
-  const extension = originalName.split('.').pop()
-  return `${timestamp}_${random}.${extension}`
-}
+// (已移除旧的COS相关函数，现在使用统一的tencentCOS工具类)
 
 // 验证文件
 const validateFile = (file) => {
@@ -441,34 +410,25 @@ const processFiles = async (selectedFiles) => {
 
 // 上传文件到COS
 const uploadFileToCos = async (fileObj) => {
-  if (!cosInstance.value || !credentials.value) {
-    await getCredentials()
-  }
-
-  return new Promise((resolve, reject) => {
-    const fileName = generateFileName(fileObj.file.name)
-    const key = `${credentials.value.pathPrefix}/${fileName}`
-    
-    cosInstance.value.uploadFile({
-      Bucket: credentials.value.bucketName,
-      Region: credentials.value.region,
-      Key: key,
-      Body: fileObj.file,
-      onProgress: (progressData) => {
-        fileObj.progress = Math.round(progressData.percent * 100)
-      }
-    }, (err, data) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve({
-          url: `https://${data.Location}`,
-          key: key,
-          fileName: fileName
-        })
+  try {
+    const result = await tencentCOS.uploadFile(fileObj.file, {
+      galleryType: 'application',
+      onProgress: (progress) => {
+        fileObj.progress = progress.percent
       }
     })
-  })
+
+    console.log('Gallery上传 - COS上传成功:', result)
+    
+    return {
+      url: result.url,
+      key: result.key,
+      fileName: result.fileName
+    }
+  } catch (error) {
+    console.error('Gallery上传 - COS上传失败:', error)
+    throw error
+  }
 }
 
 // 开始上传

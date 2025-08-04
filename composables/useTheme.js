@@ -12,8 +12,8 @@ const themePresets = {
       text: '#ffffff',
       textSecondary: '#b0b0b0',
       textTertiary: '#808080',
-      accent: '#ff5722',
-      accentHover: '#e64a19',
+      accent: '#22d3ee',        // 改为青蓝色科技感
+      accentHover: '#06b6d4',   // 深青蓝色
       success: '#4CAF50',
       warning: '#FFC107',
       error: '#f44336',

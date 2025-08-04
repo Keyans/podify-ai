@@ -13,6 +13,29 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt'
   ],
+  // 开发服务器配置
+  devServer: {
+    host: '0.0.0.0', // 允许通过IP地址访问
+    port: 3000
+  },
+  // 路由规则配置
+  routeRules: {
+    // 公开页面 - 可以预渲染
+    '/': { prerender: true },
+    '/login': { ssr: false }, // 客户端渲染
+    '/register': { ssr: false },
+    
+    // Dashboard页面 - 需要认证，客户端渲染
+    '/dashboard/**': { 
+      ssr: false    // 客户端渲染
+    },
+    
+    // 测试页面 - 开发环境可用
+    '/test-**': { 
+      prerender: false,
+      ssr: false
+    }
+  },
   app: {
     head: {
       link: [
@@ -29,8 +52,8 @@ export default defineNuxtConfig({
       apiProxyTarget: process.env.NUXT_PUBLIC_API_PROXY_TARGET || envConfig.apiProxyTarget,
       apiProxyPrefix: process.env.NUXT_PUBLIC_API_PROXY_PREFIX || envConfig.apiProxyPrefix,
       apiHeaders: {
-        'x-client-type': process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType,
-        'authorization': process.env.NUXT_PUBLIC_API_AUTH_TOKEN || envConfig.apiAuthToken
+        'x-client-type': process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType
+        // authorization 现在在客户端动态设置
       },
       // 业务配置
       microPodUrl: process.env.NUXT_PUBLIC_MICRO_POD_URL || envConfig.microPodUrl,
@@ -59,8 +82,8 @@ export default defineNuxtConfig({
           ws: false,
           configure: (proxy, options) => {
             proxy.on('proxyReq', (proxyReq) => {
+              // 基本的client-type头部，认证头部由客户端请求添加
               proxyReq.setHeader('x-client-type', process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType)
-              proxyReq.setHeader('authorization', process.env.NUXT_PUBLIC_API_AUTH_TOKEN || envConfig.apiAuthToken)
             })
           }
         }

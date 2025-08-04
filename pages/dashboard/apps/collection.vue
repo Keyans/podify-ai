@@ -29,6 +29,7 @@
       :totalItems="pagination && pagination.total || 0"
       :pageSize="pagination && pagination.limit || 10"
       :showNewButton="false"
+      :currentApp="'collection'"
       idLabel="采集"
       typeLabel="采集"
       quantityLabel="采集"
@@ -85,7 +86,6 @@
                 <input 
                   type="text" 
                   v-model="filters.taskId" 
-                  @input="handleFilterChange"
                   placeholder="搜索任务ID"
                   class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
                   :style="{
@@ -103,7 +103,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.collectorType" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -126,7 +125,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.collectorPlatform" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -150,7 +148,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.status" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -173,7 +170,6 @@
               <input 
                 type="date" 
                 v-model="filters.startDate"
-                @change="handleFilterChange"
                 class="px-4 py-2 rounded-lg border text-sm"
                 :style="{
                   backgroundColor: 'var(--bg-tertiary)',
@@ -186,14 +182,24 @@
               <input 
                 type="date" 
                 v-model="filters.endDate"
-                  @change="handleFilterChange"
                 class="px-4 py-2 rounded-lg border text-sm"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
+                :style="{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border-color)'
+                }"
               />
+
+              <!-- 搜索按钮 -->
+              <button 
+                @click="handleSearch"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span>搜索</span>
+              </button>
 
               <!-- 重置按钮 -->
               <button 
@@ -470,8 +476,8 @@ const getCollectorTypeText = (type) => {
 // 转换采集器平台数字为文字
 const getCollectorPlatformText = (platform) => {
   const platformMap = {
-    1: '亚马逊',
-    2: 'TEMU',
+    1: 'TEMU',
+    2: '亚马逊',
     3: 'Shein',
     4: '1688',
     5: '淘宝'
@@ -646,7 +652,7 @@ const submitNewTask = async (formData) => {
       formData.selectedPlatform === 'temu' ? 'TEMU' : 
       'Shein'
     ) : '亚马逊',
-      targetCount: formData.targetCount || 100,
+    targetCount: formData.targetCount || 1,  // 使用1作为最小合理默认值，而不是100
     successCount: 0,
     status: 'processing',
     creator: 'admin',
@@ -684,6 +690,15 @@ const handlePageSizeChange = (newPageSize) => {
   if (pagination.value) {
   pagination.value.limit = newPageSize
   pagination.value.page = 1 // 重置到第一页
+  }
+  fetchTaskList()
+}
+
+// 手动搜索
+const handleSearch = () => {
+  console.log('执行搜索，当前筛选条件:', filters.value)
+  if (pagination.value) {
+    pagination.value.page = 1 // 重置到第一页
   }
   fetchTaskList()
 }
@@ -816,17 +831,7 @@ const resetPaginationFunc = () => {
 }
 
 // 创建强制刷新处理器
-const forceRefreshData = createPageRefreshHandler({
-  resetStates: [
-    { ref: loading, value: false },
-    { ref: showCreateModal, value: false },
-    { ref: showDetailModal, value: false }
-  ],
-  resetFilters: resetFiltersFunc,
-  resetPagination: resetPaginationFunc,
-  fetchFunctions: [fetchCollectionStats, fetchTaskList],
-  pageName: '商品采集'
-})
+const forceRefreshData = createPageRefreshHandler([fetchCollectionStats, fetchTaskList])
 
 // 使用页面刷新组合式函数
 usePageRefresh(forceRefreshData, '/dashboard/apps/collection')

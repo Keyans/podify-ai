@@ -24,6 +24,7 @@
     <TaskTable
       :data="tableData"
       :loading="loading"
+      :currentApp="'text-to-image'"
       idLabel="生图"
       typeLabel="生图"
       quantityLabel="生图"
@@ -44,7 +45,7 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -60,7 +61,6 @@
                 <input 
                   type="text" 
                   v-model="filters.taskId" 
-                  @input="handleFilterChange"
                   placeholder="搜索任务ID"
                   class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
                   :style="{
@@ -78,7 +78,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.status" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -102,7 +101,6 @@
                 <input 
                   type="date" 
                   v-model="filters.startDate" 
-                  @change="handleFilterChange"
                   placeholder="开始日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -118,7 +116,6 @@
                 <input 
                   type="date" 
                   v-model="filters.endDate" 
-                  @change="handleFilterChange"
                   placeholder="结束日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -128,6 +125,17 @@
                   }"
                 >
               </div>
+
+              <!-- 搜索按钮 -->
+              <button 
+                @click="handleSearch"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span>搜索</span>
+              </button>
 
               <!-- 重置按钮 -->
               <button 
@@ -167,7 +175,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import TaskTable from '~/components/TaskTable.vue'
 import TextToImageNewTaskModal from '~/components/TextToImageNewTaskModal.vue'
 import TextToImageDetailModal from '~/components/TextToImageDetailModal.vue'
@@ -178,6 +186,8 @@ import { usePageRefresh, createPageRefreshHandler } from '~/composables/usePageR
 definePageMeta({
   layout: 'dashboard'
 })
+
+const route = useRoute()
 
 // 控制新建文生图弹窗显示
 const showCreateModal = ref(false)
@@ -313,9 +323,9 @@ const fetchTaskList = async () => {
       // 根据新的API返回结构映射数据字段到表格需要的格式
       const rawList = response.data?.list || response.data?.creatorList || []
       tableData.value = rawList.map(item => ({
-        id: item.taskId || item.id,
-        生图ID: item.taskId || item.id,
-        目标: item.size || item.targetCount || '100',
+        id: item.creatorId || item.id,        // 使用creatorId作为主键
+        生图ID: item.creatorId || item.id,    // 生图ID使用creatorId字段
+        目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
         成功: item.current || item.successCount || '1',
         失败: '0', // 根据接口文档，暂时设为0
         任务状态: getStatusText(item.status),
@@ -345,6 +355,13 @@ const getStatusText = (status) => {
 
 // 查看任务详情
 const showTaskDetail = async (item) => {
+  console.log('=== 开始查看详情调试 ===')
+  console.log('点击查看详情，传入的item数据:', item)
+  
+  // 获取详情数据，使用 creatorId 或 id
+  const taskId = item.id || item.生图ID || item._raw?.creatorId || item._raw?.id
+  console.log('提取的taskId (实际是creatorId):', taskId)
+  
   // 设置当前任务数据，包含详情数据结构
   currentTaskData.value = {
     ...item,
@@ -358,11 +375,13 @@ const showTaskDetail = async (item) => {
   
   showDetailModal.value = true
   
-  // 获取详情数据，使用 taskId 或 id
-  const taskId = item.id || item.生图ID || item._raw?.taskId || item._raw?.id
   if (taskId) {
+    console.log('开始调用fetchTaskDetail，taskId (creatorId):', taskId)
     await fetchTaskDetail(taskId)
+  } else {
+    console.error('无法获取taskId (creatorId)，item数据:', item)
   }
+  console.log('=== 查看详情调试结束 ===')
 }
 
 // 获取任务详情
@@ -370,37 +389,75 @@ const fetchTaskDetail = async (taskId) => {
   try {
     detailLoading.value = true
     const params = {
-      taskId,  // 使用 taskId 作为参数名
+      taskId,  // 使用 taskId 作为参数名，值为creatorId
       page: currentTaskData.value.detailPagination?.page || 1,
       limit: currentTaskData.value.detailPagination?.limit || 10
     }
     console.log('获取文生图任务详情，参数:', params)
+    console.log('准备调用getTextToImageTaskDetail接口...')
+    
     const response = await getTextToImageTaskDetail(params)
     console.log('文生图任务详情响应:', response)
     
-    if (response.success) {
+    if (response && response.success) {
+      console.log('接口调用成功，开始处理数据...')
       // 根据新的API返回结构处理详情数据
-      const detailList = response.data?.creatorList || response.data?.list || []
+      const data = response.data
+      const detailList = data?.creatorList || []
+      console.log('从接口获取的creatorList:', detailList)
+      
+      // 转换数据格式以适配详情弹窗组件
+      const transformedList = detailList.map((item, index) => ({
+        id: index + 1,
+        referenceImage: item.imageUrl, // 原图作为参考图
+        resultImages: item.resultsImageUrl || [], // 结果图片数组
+        dimensions: item.dimensions || '1024×1024', // 尺寸
+        description: item.description || item.prompt || '文生图任务', // 描述
+        prompt: item.prompt || '文生图提示词',
+        status: getDetailStatusText(item.status), // 转换状态文本
+        selected: false,
+        _raw: item // 保留原始数据
+      }))
+      
+      console.log('转换后的数据:', transformedList)
       
       // 更新当前任务数据中的详情信息
       currentTaskData.value = {
         ...currentTaskData.value,
-        detailList: detailList,
+        detailList: transformedList,
         detailPagination: {
-          page: params.page,
-          limit: params.limit,
-          total: response.data?.total || detailList.length
+          page: parseInt(data.current) || parseInt(params.page) || 1,
+          limit: parseInt(data.size) || parseInt(params.limit) || 10,
+          total: parseInt(data.total) || 0,
+          pages: parseInt(data.pages) || 1
         }
       }
       
+      console.log('更新后的currentTaskData:', currentTaskData.value)
+      
       // 同时更新taskDetailData以保持兼容性
-      taskDetailData.value = detailList
+      taskDetailData.value = transformedList
+    } else {
+      console.error('接口返回失败或response为空:', response)
     }
   } catch (error) {
     console.error('获取文生图任务详情失败:', error)
+    console.error('错误详情:', error.message, error.stack)
   } finally {
     detailLoading.value = false
+    console.log('fetchTaskDetail结束，detailLoading设为false')
   }
+}
+
+// 详情状态文本转换
+const getDetailStatusText = (status) => {
+  const statusMap = {
+    0: '处理中',
+    1: '已完成', 
+    2: '失败',
+    3: '部分完成'
+  }
+  return statusMap[status] || '未知'
 }
 
 // 处理详情页面变化
@@ -410,17 +467,33 @@ const handleDetailPageChange = async (pagination) => {
   // 更新当前任务数据的分页信息
   currentTaskData.value.detailPagination = {
     ...currentTaskData.value.detailPagination,
-    ...pagination
+    page: pagination.page || pagination.current,
+    limit: pagination.limit || pagination.size
   }
   
-  // 重新获取详情数据
-  const taskId = currentTaskData.value.id || currentTaskData.value.生图ID || currentTaskData.value._raw?.taskId || currentTaskData.value._raw?.id
+  // 重新获取详情数据，使用creatorId
+  const taskId = currentTaskData.value.id || currentTaskData.value.生图ID || currentTaskData.value._raw?.creatorId || currentTaskData.value._raw?.id
   if (taskId) {
     await fetchTaskDetail(taskId)
   }
 }
 
-// 事件处理函数
+// 事件处理函数 
+// 手动搜索
+const handleSearch = () => {
+  console.log('执行搜索，当前筛选条件:', filters.value)
+  // 更新filterParams
+  filterParams.value = {
+    taskId: filters.value.taskId || '',
+    status: filters.value.status || '',
+    startTime: filters.value.startDate || '',
+    endTime: filters.value.endDate || '',
+    userId: ''
+  }
+  pageParams.value.page = 1 // 重置到第一页
+  fetchTaskList()
+}
+
 const handleFilterChange = (filters) => {
   console.log('筛选条件变化:', filters)
   filterParams.value = { ...filterParams.value, ...filters }
@@ -502,17 +575,7 @@ const resetPaginationFunc = () => {
 }
 
 // 创建强制刷新处理器
-const forceRefreshData = createPageRefreshHandler({
-  resetStates: [
-    { ref: loading, value: false },
-    { ref: showCreateModal, value: false },
-    { ref: showDetailModal, value: false }
-  ],
-  resetFilters: resetFiltersFunc,
-  resetPagination: resetPaginationFunc,
-  fetchFunctions: [fetchStats, fetchTaskList],
-  pageName: '文生图'
-})
+const forceRefreshData = createPageRefreshHandler([fetchStats, fetchTaskList])
 
 // 使用页面刷新组合式函数
 usePageRefresh(forceRefreshData, '/dashboard/apps/text-to-image')

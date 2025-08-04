@@ -6,7 +6,6 @@ export interface EnvironmentConfig {
   apiProxyTarget: string
   apiProxyPrefix: string
   apiClientType: string
-  apiAuthToken: string
   microPodUrl: string
   galleryUrl: string
   backendApi: string
@@ -35,8 +34,7 @@ export const getEnvironmentConfig = (env?: string): EnvironmentConfig => {
     apiPrefix: process.env.NUXT_PUBLIC_API_PREFIX || '/pod/cuzcuz-ai',
     apiProxyTarget: process.env.NUXT_PUBLIC_API_PROXY_TARGET || '',
     apiProxyPrefix: process.env.NUXT_PUBLIC_API_PROXY_PREFIX || '/pod',
-    apiClientType: process.env.NUXT_PUBLIC_API_CLIENT_TYPE || 'pod-admin',
-    apiAuthToken: process.env.NUXT_PUBLIC_API_AUTH_TOKEN || '',
+    apiClientType: process.env.NUXT_PUBLIC_API_CLIENT_TYPE || 'cuzcuz-ai-web',
     microPodUrl: process.env.NUXT_PUBLIC_MICRO_POD_URL || '',
     galleryUrl: process.env.NUXT_PUBLIC_GALLERY_URL || '',
     backendApi: process.env.NUXT_PUBLIC_BACKEND_API || '',

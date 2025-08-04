@@ -780,10 +780,11 @@ const totalPages = computed(() => parseInt(pagination.value.pages))
 // 获取平台名称
 const getPlatformName = (platform) => {
   const platformMap = {
-    1: 'Temu',
-    2: 'Amazon', 
-    3: 'eBay',
-    4: 'AliExpress'
+    1: 'TEMU',
+    2: '亚马逊', 
+    3: 'Shein',
+    4: '1688',
+    5: '淘宝'
   }
   return platformMap[platform] || '未知平台'
   }

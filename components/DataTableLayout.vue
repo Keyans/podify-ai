@@ -23,6 +23,11 @@
       </div>
     </div>
 
+    <!-- 搜索过滤器区域 -->
+    <div class="mb-6">
+      <slot name="search-filters"></slot>
+    </div>
+
     <!-- 操作按钮 -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex space-x-3">
@@ -100,10 +105,8 @@
                   <div v-else-if="column.key === 'actions'" class="flex space-x-2">
                     <button v-for="(action, actionIndex) in rowActions" :key="actionIndex" 
                             @click="$emit('row-action', { action: action.action, item })"
-                            class="text-dark-text-secondary hover:text-dark-text transition-colors">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="action.iconPath"/>
-                      </svg>
+                            class="px-3 py-1 bg-dark-input border border-dark-border rounded text-xs text-dark-text hover:bg-dark-border transition-colors">
+                      {{ getActionLabel(action.action) }}
                     </button>
                   </div>
                   <span v-else>{{ item[column.key] }}</span>
@@ -116,8 +119,25 @@
 
       <!-- 分页 -->
       <div class="px-6 py-4 border-t border-dark-border flex items-center justify-between">
-        <div class="text-sm text-dark-text-secondary">
-          显示 {{ (currentPage - 1) * pageSize + 1 }} 至 {{ Math.min(currentPage * pageSize, totalItems) }} 条，共 {{ totalItems }} 条
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-dark-text-secondary">
+            显示 {{ (currentPage - 1) * pageSize + 1 }} 至 {{ Math.min(currentPage * pageSize, totalItems) }} 条，共 {{ totalItems }} 条
+          </div>
+          <!-- 每页显示数量选择 -->
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-dark-text-secondary">每页显示</span>
+            <select 
+              :value="pageSize"
+              @change="$emit('page-size-change', parseInt($event.target.value))"
+              class="px-2 py-1 bg-dark-input border border-dark-border rounded text-sm text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <span class="text-sm text-dark-text-secondary">条</span>
+          </div>
         </div>
         <nav class="flex items-center space-x-2">
           <button @click="$emit('page-change', currentPage - 1)"
@@ -126,11 +146,68 @@
                   :class="currentPage === 1 ? 'text-dark-text-tertiary cursor-not-allowed' : 'text-dark-text-secondary hover:text-dark-text'">
             上一页
           </button>
-          <span class="px-3 py-1 bg-dark-accent bg-opacity-20 rounded-md text-sm text-dark-accent font-medium">{{ currentPage }}</span>
-          <button @click="$emit('page-change', currentPage + 1)"
-                  :disabled="currentPage * pageSize >= totalItems"
+          
+          <!-- 页码显示 -->
+          <div class="flex items-center space-x-1">
+            <template v-if="totalPages <= 7">
+              <!-- 如果总页数小于等于7，显示所有页码 -->
+              <button 
+                v-for="page in totalPages" 
+                :key="page"
+                @click="$emit('page-change', page)"
+                class="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                :class="currentPage === page 
+                  ? 'bg-cyan-400 text-dark-bg font-bold' 
+                  : 'text-dark-text-secondary hover:text-white hover:bg-dark-input border border-dark-border'"
+              >
+                {{ page }}
+              </button>
+            </template>
+            <template v-else>
+              <!-- 复杂分页逻辑 -->
+              <button 
+                @click="$emit('page-change', 1)"
+                class="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                :class="currentPage === 1 
+                  ? 'bg-cyan-400 text-dark-bg font-bold' 
+                  : 'text-dark-text-secondary hover:text-white hover:bg-dark-input border border-dark-border'"
+              >
+                1
+              </button>
+              
+              <span v-if="currentPage > 4" class="px-2 text-dark-text-tertiary">...</span>
+              
+              <template v-for="page in getVisiblePages" :key="page">
+                <button 
+                  @click="$emit('page-change', page)"
                   class="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                  :class="currentPage * pageSize >= totalItems ? 'text-dark-text-tertiary cursor-not-allowed' : 'text-dark-text-secondary hover:text-dark-text'">
+                  :class="currentPage === page 
+                    ? 'bg-cyan-400 text-dark-bg font-bold' 
+                    : 'text-dark-text-secondary hover:text-white hover:bg-dark-input border border-dark-border'"
+                >
+                  {{ page }}
+                </button>
+              </template>
+              
+              <span v-if="currentPage < totalPages - 3" class="px-2 text-dark-text-tertiary">...</span>
+              
+              <button 
+                v-if="totalPages > 1"
+                @click="$emit('page-change', totalPages)"
+                class="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                :class="currentPage === totalPages 
+                  ? 'bg-cyan-400 text-dark-bg font-bold' 
+                  : 'text-dark-text-secondary hover:text-white hover:bg-dark-input border border-dark-border'"
+              >
+                {{ totalPages }}
+              </button>
+            </template>
+          </div>
+          
+          <button @click="$emit('page-change', currentPage + 1)"
+                  :disabled="currentPage >= totalPages"
+                  class="px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                  :class="currentPage >= totalPages ? 'text-dark-text-tertiary cursor-not-allowed' : 'text-dark-text-secondary hover:text-dark-text'">
             下一页
           </button>
         </nav>
@@ -203,6 +280,24 @@ const isAllSelected = computed(() => {
   return props.tableData.length > 0 && selectedItems.value.length === props.tableData.length
 })
 
+// 计算总页数
+const totalPages = computed(() => {
+  return Math.ceil(props.totalItems / props.pageSize)
+})
+
+// 计算可见的页码
+const getVisiblePages = computed(() => {
+  const pages = []
+  const start = Math.max(2, props.currentPage - 2)
+  const end = Math.min(totalPages.value - 1, props.currentPage + 2)
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  
+  return pages
+})
+
 const toggleSelectAll = () => {
   if (isAllSelected.value) {
     selectedItems.value = []
@@ -266,5 +361,15 @@ const getBadgeClass = (value) => {
     default:
       return 'bg-dark-input text-dark-text-secondary'
   }
+}
+
+// 获取操作标签
+const getActionLabel = (action) => {
+  const actionMap = {
+    'view': '查看详情',
+    'edit': '编辑',
+    'delete': '删除'
+  }
+  return actionMap[action] || action
 }
 </script>
