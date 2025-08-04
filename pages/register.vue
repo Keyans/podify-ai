@@ -32,6 +32,14 @@
             <p class="text-gray-400 text-sm">加入CUZCUZAI，开启创作之旅</p>
           </div>
 
+          <!-- 消息提示 -->
+          <div v-if="message" class="mb-4 p-3 rounded-lg text-sm" :class="{
+            'bg-green-100 text-green-800 border border-green-200': messageType === 'success',
+            'bg-red-100 text-red-800 border border-red-200': messageType === 'error'
+          }">
+            {{ message }}
+          </div>
+
           <!-- 注册表单 -->
           <form @submit.prevent="handleRegister" class="space-y-6">
             <!-- 用户名输入 -->
@@ -96,9 +104,17 @@
             <!-- 注册按钮 -->
             <button 
               type="submit"
-              class="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              :disabled="loading"
+              class="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
             >
-              创建账户
+              <span v-if="loading" class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                注册中...
+              </span>
+              <span v-else>创建账户</span>
             </button>
           </form>
           
@@ -166,6 +182,8 @@
 </template>
 
 <script setup>
+import { register } from '~/apis/auth'
+
 // 注册表单数据
 const registerForm = ref({
   username: '',
@@ -174,14 +192,84 @@ const registerForm = ref({
   confirmPassword: ''
 })
 
+// 加载状态和消息
+const loading = ref(false)
+const message = ref('')
+const messageType = ref('') // 'success', 'error'
+
+// 显示消息
+const showMessage = (msg, type = 'error') => {
+  message.value = msg
+  messageType.value = type
+  
+  // 自动清除消息
+  setTimeout(() => {
+    message.value = ''
+    messageType.value = ''
+  }, 5000)
+}
+
 // 处理注册
-const handleRegister = () => {
+const handleRegister = async () => {
+  // 清除之前的消息
+  message.value = ''
+  messageType.value = ''
+  
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
-    alert('密码不一致，请重新输入')
+    showMessage('密码不一致，请重新输入', 'error')
     return
   }
-  console.log('注册信息:', registerForm.value)
-  // 这里添加注册逻辑
+
+  try {
+    loading.value = true
+    
+    // 准备注册数据
+    const registerData = {
+      email: registerForm.value.email,
+      password: registerForm.value.password,
+      nickname: registerForm.value.username
+    }
+    
+    console.log('开始注册，数据:', registerData)
+    
+    // 调用注册API
+    const response = await register(registerData)
+    
+    console.log('注册响应:', response)
+    
+    // 检查注册是否成功
+    if (response && (response.success || response.code === 200)) {
+      console.log('注册成功，准备跳转到登录页面')
+      
+      // 显示成功提示
+      showMessage('注册成功！即将跳转到登录页面...', 'success')
+      
+      // 延迟跳转，让用户看到成功消息
+      setTimeout(async () => {
+        await navigateTo('/login')
+      }, 2000)
+    } else {
+      // 注册失败，显示错误信息
+      const errorMessage = response?.message || '注册失败，请重试'
+      showMessage(errorMessage, 'error')
+      console.error('注册失败:', errorMessage)
+    }
+    
+  } catch (error) {
+    console.error('注册过程中发生错误:', error)
+    
+    // 提取错误信息
+    let errorMessage = '注册失败，请重试'
+    if (error?.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error?.message) {
+      errorMessage = error.message
+    }
+    
+    showMessage(errorMessage, 'error')
+  } finally {
+    loading.value = false
+  }
 }
 
 // 页面元数据
