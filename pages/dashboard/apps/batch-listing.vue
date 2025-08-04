@@ -79,7 +79,6 @@
                 <input 
                   type="text" 
                   v-model="filters.taskId" 
-                  @input="handleFilterChange"
                   placeholder="搜索任务ID"
                   class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
                   :style="{
@@ -97,7 +96,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.platform" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -121,7 +119,6 @@
               <div class="relative">
                 <select 
                   v-model="filters.status" 
-                  @change="handleFilterChange"
                   class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -145,7 +142,6 @@
                 <input 
                   type="date" 
                   v-model="filters.startDate" 
-                  @change="handleFilterChange"
                   placeholder="开始日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -161,7 +157,6 @@
                 <input 
                   type="date" 
                   v-model="filters.endDate" 
-                  @change="handleFilterChange"
                   placeholder="结束日期"
                   class="px-4 py-2 rounded-lg border text-sm min-w-40"
                   :style="{
@@ -171,6 +166,17 @@
                   }"
                 >
       </div>
+
+              <!-- 搜索按钮 -->
+              <button 
+                @click="handleSearch"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span>搜索</span>
+              </button>
 
               <!-- 重置按钮 -->
               <button 
@@ -211,7 +217,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import DataTableLayout from '~/components/DataTableLayout.vue'
+import TaskTable from '~/components/TaskTable.vue'
+import BatchListingNewTaskModal from '~/components/BatchListingNewTaskModal.vue' 
+import BatchListingDetailModal from '~/components/BatchListingDetailModal.vue'
 import { usePageRefresh, createPageRefreshHandler } from '~/composables/usePageRefresh'
 
 // 使用 dashboard 布局
@@ -416,6 +424,12 @@ const filters = ref({
   endDate: ''
 })
 
+// 弹窗控制
+const showCreateModal = ref(false)
+const showDetailModal = ref(false)
+const currentTaskData = ref(null)
+const loading = ref(false)
+
 // 重置筛选条件
 const resetFilters = () => {
   filters.value = {
@@ -427,6 +441,41 @@ const resetFilters = () => {
   }
   // 这里可以触发数据重新加载
   console.log('筛选条件已重置')
+}
+
+// 显示任务详情
+const showTaskDetail = (task) => {
+  currentTaskData.value = task
+  showDetailModal.value = true
+}
+
+// 处理任务提交
+const handleTaskSubmit = (taskData) => {
+  console.log('新建任务:', taskData)
+  showCreateModal.value = false
+  // 重新加载数据
+}
+
+// 手动搜索
+const handleSearch = () => {
+  console.log('执行搜索，当前筛选条件:', filters.value)
+  // 重新加载数据
+}
+
+// 处理筛选条件变化
+const handleFilterChange = () => {
+  console.log('筛选条件变化:', filters.value)
+  // 重新加载数据
+}
+
+// 处理下载结果
+const handleDownloadResults = (task) => {
+  console.log('下载结果:', task)
+}
+
+// 处理详情页面变化
+const handleDetailPageChange = (page) => {
+  console.log('详情页面变化:', page)
 }
 
 // 事件处理函数

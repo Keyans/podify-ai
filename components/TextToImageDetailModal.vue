@@ -85,19 +85,55 @@
                 <td class="py-3 px-4">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img v-if="item.referenceImage" :src="item.referenceImage" alt="参考图" class="w-full h-full object-cover" />
+                    <img 
+                      v-if="item.referenceImage || item.imageUrl" 
+                      :src="item.referenceImage || item.imageUrl" 
+                      alt="参考图" 
+                      class="w-full h-full object-cover"
+                      @error="$event.target.style.display='none'"
+                    />
                     <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <span class="text-xs text-gray-500">无参考图</span>
                     </div>
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <div class="flex space-x-2">
-                    <div v-for="(resultImg, imgIndex) in item.resultImages || []" :key="imgIndex" class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="resultImg" alt="结果图" class="w-full h-full object-cover" />
-                    </div>
-                    <div v-if="!item.resultImages || item.resultImages.length === 0" class="w-16 h-16 bg-dark-hover rounded-md flex items-center justify-center">
-                      <span class="text-xs text-gray-500">生成中</span>
+                  <div class="flex space-x-2 max-w-xs overflow-x-auto">
+                    <template v-if="item.resultImages && item.resultImages.length > 0">
+                      <div 
+                        v-for="(resultImg, imgIndex) in item.resultImages" 
+                        :key="imgIndex" 
+                        class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden flex-shrink-0"
+                      >
+                        <img 
+                          :src="resultImg" 
+                          alt="结果图" 
+                          class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                          @click="previewImage(resultImg)"
+                          @error="$event.target.style.display='none'"
+                        />
+                      </div>
+                    </template>
+                    <template v-else-if="item.resultsImageUrl && item.resultsImageUrl.length > 0">
+                      <div 
+                        v-for="(resultImg, imgIndex) in item.resultsImageUrl" 
+                        :key="imgIndex" 
+                        class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden flex-shrink-0"
+                      >
+                        <img 
+                          :src="resultImg" 
+                          alt="结果图" 
+                          class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                          @click="previewImage(resultImg)"
+                          @error="$event.target.style.display='none'"
+                        />
+                      </div>
+                    </template>
+                    <div v-else class="w-16 h-16 bg-dark-hover rounded-md flex items-center justify-center flex-shrink-0">
+                      <div class="text-center">
+                        <div class="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto mb-1"></div>
+                        <span class="text-xs text-gray-500">生成中</span>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -391,16 +427,44 @@ const filterByStatus = (status) => {
 }
 
 const getStatusClass = (status) => {
+  // 处理数字状态码
+  const numericStatus = typeof status === 'number' ? status : null
+  const statusText = typeof status === 'string' ? status : null
+  
+  if (numericStatus !== null) {
+    const numericStatusClasses = {
+      0: 'bg-yellow-100 text-yellow-800', // 处理中
+      1: 'bg-green-100 text-green-800',   // 已完成
+      2: 'bg-red-100 text-red-800',       // 失败
+      3: 'bg-orange-100 text-orange-800'  // 部分完成
+    }
+    return numericStatusClasses[numericStatus] || 'bg-gray-100 text-gray-800'
+  }
+  
+  // 处理字符串状态
   const statusClasses = {
     '已完成': 'bg-green-100 text-green-800',
     '处理中': 'bg-yellow-100 text-yellow-800',
     '失败': 'bg-red-100 text-red-800',
-    '部分失败': 'bg-orange-100 text-orange-800'
+    '部分失败': 'bg-orange-100 text-orange-800',
+    '部分完成': 'bg-orange-100 text-orange-800'
   }
-  return statusClasses[status] || 'bg-gray-100 text-gray-800'
+  return statusClasses[statusText] || 'bg-gray-100 text-gray-800'
 }
 
 const getStatusText = (status) => {
+  // 处理数字状态码
+  if (typeof status === 'number') {
+    const statusMap = {
+      0: '处理中',
+      1: '已完成',
+      2: '失败',
+      3: '部分完成'
+    }
+    return statusMap[status] || '未知'
+  }
+  
+  // 处理字符串状态
   return status || '未知'
 }
 
@@ -438,6 +502,14 @@ const exportTextToImageDetail = () => {
 const exportDetail = () => {
   console.log('保存收藏')
   showMoreActions.value = false
+}
+
+// 图片预览功能
+const previewImage = (imageUrl) => {
+  if (imageUrl) {
+    // 在新窗口中打开图片
+    window.open(imageUrl, '_blank')
+  }
 }
 
 // 监听任务数据变化，重置分页

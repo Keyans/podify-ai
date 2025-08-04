@@ -698,7 +698,7 @@ const getPlatformBgColor = (platform) => {
 
 // 获取目标数量
 const getTargetCount = (item) => {
-  return item.targetCount || item.目标 || 100
+  return item.cropperNum || item.targetCount || item.目标 || '0'
 }
 
 // 获取成功数量

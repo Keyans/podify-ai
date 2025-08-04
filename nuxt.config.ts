@@ -13,6 +13,29 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt'
   ],
+  // 开发服务器配置
+  devServer: {
+    host: '0.0.0.0', // 允许通过IP地址访问
+    port: 3000
+  },
+  // 路由规则配置
+  routeRules: {
+    // 公开页面 - 可以预渲染
+    '/': { prerender: true },
+    '/login': { ssr: false }, // 客户端渲染
+    '/register': { ssr: false },
+    
+    // Dashboard页面 - 需要认证，客户端渲染
+    '/dashboard/**': { 
+      ssr: false    // 客户端渲染
+    },
+    
+    // 测试页面 - 开发环境可用
+    '/test-**': { 
+      prerender: false,
+      ssr: false
+    }
+  },
   app: {
     head: {
       link: [
