@@ -440,7 +440,7 @@
 
 
 
-              <!-- 记住密码复选框（仅登录模式） -->
+                            <!-- 记住密码复选框（仅登录模式） -->
               <div v-if="!isRegisterMode" class="flex items-center justify-between">
                 <label class="flex items-center space-x-3 cursor-pointer group">
                   <div class="relative">
@@ -449,9 +449,9 @@
                       type="checkbox"
                       class="sr-only"
                     >
-                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400"
+                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400 flex items-center justify-center"
                          :class="{ 'bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-400': rememberPassword }">
-                      <svg v-if="rememberPassword" class="w-3 h-3 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg v-if="rememberPassword" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                       </svg>
                     </div>
@@ -503,9 +503,9 @@
                       class="sr-only"
                       required
                     >
-                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400"
+                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400 flex items-center justify-center"
                          :class="{ 'bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-400': agreeToTerms }">
-                      <svg v-if="agreeToTerms" class="w-3 h-3 text-white absolute top-0.5 left-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <svg v-if="agreeToTerms" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                       </svg>
                     </div>
@@ -916,8 +916,9 @@ const handleSubmit = async () => {
         // 保存登录状态到localStorage (兼容现有逻辑)
         localStorage.setItem('isLoggedIn', 'true')
         
-        // 保存认证相关信息（用于API调用）
-        localStorage.setItem('access_token', userData.accessToken)
+        // 保存认证相关信息（用于API调用）- 修复token键名不一致问题
+        localStorage.setItem('auth_token', userData.accessToken) // 修复：使用auth_token而不是access_token
+        localStorage.setItem('access_token', userData.accessToken) // 保留兼容性
         localStorage.setItem('user_id', userData.userId)
         localStorage.setItem('tenant_id', userData.tenantId)
         
@@ -934,7 +935,17 @@ const handleSubmit = async () => {
         }))
 
         showToast('注册成功，欢迎使用CUZCUZAI！', 'success')
-        await navigateTo('/dashboard')
+        
+        // 延迟跳转，确保认证状态已保存
+        setTimeout(async () => {
+          try {
+            await navigateTo('/dashboard')
+          } catch (error) {
+            console.error('跳转失败:', error)
+            // 强制刷新到dashboard页面
+            window.location.href = '/dashboard'
+          }
+        }, 500)
       } else {
         showToast('注册失败，请检查信息', 'error')
       }
@@ -1053,8 +1064,9 @@ const handleSubmit = async () => {
         // 保存登录状态到localStorage (兼容现有逻辑)
         localStorage.setItem('isLoggedIn', 'true')
         
-        // 保存认证相关信息（用于API调用）
-        localStorage.setItem('access_token', userData.accessToken)
+        // 保存认证相关信息（用于API调用）- 修复token键名不一致问题
+        localStorage.setItem('auth_token', userData.accessToken) // 修复：使用auth_token而不是access_token
+        localStorage.setItem('access_token', userData.accessToken) // 保留兼容性
         localStorage.setItem('user_id', userData.userId)
         localStorage.setItem('tenant_id', userData.tenantId)
         
@@ -1090,7 +1102,18 @@ const handleSubmit = async () => {
           hasRememberedPassword.value = false
         }
         
-        await navigateTo('/dashboard')
+        showToast('登录成功，欢迎回来！', 'success')
+        
+        // 延迟跳转，确保认证状态已保存
+        setTimeout(async () => {
+          try {
+            await navigateTo('/dashboard')
+          } catch (error) {
+            console.error('跳转失败:', error)
+            // 强制刷新到dashboard页面
+            window.location.href = '/dashboard'
+          }
+        }, 500)
       } else {
         showToast('登录失败，请检查账号或密码', 'error')
       }

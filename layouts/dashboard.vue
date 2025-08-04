@@ -664,11 +664,35 @@
 import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
 import { useThemeStore } from '~/composables/useTheme'
 import ThemeSelector from '~/components/ThemeSelector.vue'
+import { isLoggedIn } from '~/apis/auth'
 
 const themeStore = useThemeStore()
 const activeTheme = computed(() => themeStore.activeTheme)
 const route = useRoute()
 const router = useRouter()
+
+// 认证检查函数
+const checkAuthAndRedirect = () => {
+  if (process.client) {
+    const loggedIn = isLoggedIn()
+    if (!loggedIn) {
+      console.log('用户未登录，重定向到登录页面')
+      router.push('/login')
+      return false
+    }
+  }
+  return true
+}
+
+// 监听路由变化，确保每次页面切换都检查登录状态
+watch(() => route.path, () => {
+  if (process.client) {
+    // 延迟执行检查，确保路由已经完全切换
+    setTimeout(() => {
+      checkAuthAndRedirect()
+    }, 100)
+  }
+}, { immediate: true })
 
 // 菜单状态
 const isMyAppsOpen = ref(true)
@@ -1167,6 +1191,15 @@ const handleKeydown = (event) => {
   }
 }
 
+// 监听localStorage变化（用于跨标签页登出检测）
+const handleStorageChange = (event) => {
+  // 如果auth_token被移除，说明用户在其他标签页登出了
+  if (event.key === 'auth_token' && !event.newValue && event.oldValue) {
+    console.log('检测到其他标签页登出，重定向到登录页面')
+    router.push('/login')
+  }
+}
+
 // 初始化时设置默认标签页
 onMounted(() => {
   // 根据当前路由设置活跃标签页
@@ -1201,12 +1234,25 @@ onMounted(() => {
   // 添加全局事件监听器
   document.addEventListener('click', handleClickOutside)
   document.addEventListener('keydown', handleKeydown)
+  
+  // 监听localStorage变化（跨标签页登出检测）
+  if (process.client) {
+    window.addEventListener('storage', handleStorageChange)
+  }
+
+  // 页面加载时检查登录状态
+  checkAuthAndRedirect()
 })
 
 // 组件卸载时清理事件监听器
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('keydown', handleKeydown)
+  
+  // 清理localStorage监听器
+  if (process.client) {
+    window.removeEventListener('storage', handleStorageChange)
+  }
 })
 </script>
 
