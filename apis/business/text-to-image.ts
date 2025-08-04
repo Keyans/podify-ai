@@ -36,8 +36,13 @@ export const getTextToImageTaskList = async (params: TaskListParams): Promise<Ap
 }
 
 // 获取文生图任务详情
-export const getTextToImageTaskDetail = async (params: { taskId: string; page?: number; limit?: number }): Promise<ApiResponse<any>> => {
+export const getTextToImageTaskDetail = async (params: { 
+  taskId: string;    // 任务ID，实际传入的是creatorId 
+  page?: number;     // 页码
+  limit?: number     // 每页数量
+}): Promise<ApiResponse<any>> => {
   const url = buildApiPath('/text/image/getList')
+  console.log('API: 调用文生图详情接口，URL:', url, '参数:', params)
   return get(url, params)
 }
 

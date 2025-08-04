@@ -178,7 +178,7 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs" :style="{ color: 'var(--text-secondary)' }">目标：{{ item.targetCount || 100 }}</span>
+                  <span class="text-xs" :style="{ color: 'var(--text-secondary)' }">目标：{{ item.cropperNum || item.targetCount || '0' }}</span>
                   <span class="text-xs" :style="{ color: getProgressColor(item.status) }">{{ getSuccessCount(item) }}</span>
                 </div>
                 <div class="w-full h-1 rounded-full" :style="{ backgroundColor: 'var(--bg-tertiary)' }">
@@ -523,16 +523,26 @@ const getPlatformBgColor = (platform) => {
 
 // 获取成功数量
 const getSuccessCount = (item) => {
-  if (item.status === 'completed') return '100'
+  // 优先使用实际的成功数量字段
+  if (item.successCount !== undefined) return item.successCount
+  if (item.current !== undefined) return item.current
+  
+  // 如果没有实际数据，根据状态返回合理的值
+  if (item.status === 'completed') return item.cropperNum || item.targetCount || '0'
   if (item.status === 'failed') return '0'
-  return '95'
+  
+  // 进行中的任务，返回部分完成数量
+  const total = item.cropperNum || item.targetCount || 100
+  return Math.floor(total * 0.95) // 假设进行中时完成了95%
 }
 
 // 获取进度百分比
 const getProgressPercentage = (item) => {
-  if (item.status === 'completed') return 100
-  if (item.status === 'failed') return 0
-  return 95
+  const total = item.cropperNum || item.targetCount || 100
+  const success = getSuccessCount(item)
+  
+  if (total === 0) return 0
+  return Math.min(100, Math.round((success / total) * 100))
 }
 
 // 状态文本
