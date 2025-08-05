@@ -438,6 +438,20 @@
                 <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
               </div>
 
+              <!-- 邀请码输入（注册模式且手机方式） -->
+              <div v-if="isRegisterMode && authMethod === 'phone'" class="relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl blur-sm"></div>
+                <div class="relative">
+                  <input 
+                    v-model="loginForm.inviteCode"
+                    type="text" 
+                    class="w-full px-6 py-4 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 text-white placeholder-gray-400 transition-all backdrop-blur-sm"
+                    placeholder="邀请码（可选）"
+                  >
+                </div>
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-purple-500/10 to-transparent opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </div>
+
 
 
                             <!-- 记住密码复选框（仅登录模式） -->
@@ -610,7 +624,8 @@ const loginForm = ref({
   password: '',
   phone: '', // 新增手机号
   smsCode: '', // 新增验证码
-  loginSmsCode: '' // 新增登录验证码
+  loginSmsCode: '', // 新增登录验证码
+  inviteCode: '' // 新增邀请码（手机注册时使用）
 })
 
 const isLoading = ref(false)
@@ -881,7 +896,7 @@ const handleSubmit = async () => {
           return
         }
         
-        registerData.email = loginForm.value.email
+        registerData.contactEmail = loginForm.value.email
       } else {
         // 手机号注册
         if (!loginForm.value.phone || !loginForm.value.smsCode) {
@@ -899,8 +914,9 @@ const handleSubmit = async () => {
           return
         }
       
-      registerData.phone = loginForm.value.phone
+      registerData.contactPhone = loginForm.value.phone
       registerData.smsCode = loginForm.value.smsCode
+      registerData.inviteCode = loginForm.value.inviteCode
     }
     
     // 执行注册

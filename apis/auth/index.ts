@@ -5,7 +5,7 @@ import apiConfig, { setAuthToken, buildApiPath } from '../apiConfig'
 const authApiPaths = {
   login: '/pod/tenant/api/v1/tenants/login',
   loginBySms: '/pod/tenant/api/v1/tenants/login-by-sms', // 添加验证码登录接口
-  register: '/pod/tenant/api/v1/tenants/register',
+  register: '/pod/tenant/api/v1/users/multi-platform/register',
   sendSmsCode: '/pod/tenant/api/v1/sms/send-code',
   sendEmailCode: '/pod/tenant/api/v1/email/send-code', // 添加邮箱验证码接口
   info: '/user/info'
@@ -44,9 +44,10 @@ interface LoginResponse {
 
 // 注册接口请求类型
 interface RegisterRequest {
-  email?: string
-  phone?: string
+  contactEmail?: string   // 邮箱注册时使用
+  contactPhone?: string   // 手机注册时使用
   password: string
+  inviteCode?: string     // 手机注册时使用
   smsCode?: string
   emailCode?: string
   nickname?: string
@@ -95,8 +96,8 @@ const getAuthHeaders = () => {
     return {
       'X-Tenant-Id': tenantId || '',
       'X-Auth-User-Id': userId || '', 
-      'X-Auth-Platform-Type': 'web',
-      'X-Client-Type': 'cuzcuz-ai-web'
+      'X-Auth-Platform-Type': 'AI_PROJECT',
+      'X-Client-Type': 'AI_C_WEB'
     }
   }
   return {}
@@ -105,8 +106,8 @@ const getAuthHeaders = () => {
 // 获取基础请求头（用于登录前的请求）
 const getBaseHeaders = () => {
   return {
-    'X-Auth-Platform-Type': 'web',
-    'X-Client-Type': 'cuzcuz-ai-web'
+    'X-Auth-Platform-Type': 'AI_PROJECT',
+    'X-Client-Type': 'AI_C_WEB'
   }
 }
 

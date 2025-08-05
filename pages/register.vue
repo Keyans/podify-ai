@@ -225,7 +225,7 @@ const handleRegister = async () => {
     
     // 准备注册数据
     const registerData = {
-      email: registerForm.value.email,
+      contactEmail: registerForm.value.email,
       password: registerForm.value.password,
       nickname: registerForm.value.username
     }
