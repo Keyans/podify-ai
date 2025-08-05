@@ -41,6 +41,7 @@
       @page-change="handlePageChange"
       @page-size-change="handlePageSizeChange"
       @filter-change="handleFilterChange"
+      @preload="handlePreloadImages"
     >
         <!-- 自定义搜索栏设计 -->
         <template #custom-filters>
@@ -111,10 +112,10 @@
                   }"
                 >
                   <option value="">全部类型</option>
-                  <option value="product">商品采集</option>
-                  <option value="shop">店铺采集</option>
-                  <option value="category">分类采集</option>
-                  <option value="keyword">关键词采集</option>
+                  <option value="1">商品</option>
+                  <option value="2">店铺</option>
+                  <option value="3">搜索</option>
+                  <option value="4">其他</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -133,11 +134,9 @@
                   }"
                 >
                   <option value="">全部平台</option>
-                  <option value="1688">1688</option>
-                  <option value="淘宝">淘宝网</option>
-                  <option value="天猫">天猫商城</option>
-                  <option value="京东">京东商城</option>
-                  <option value="拼多多">拼多多</option>
+                  <option value="1">TEMU</option>
+                  <option value="2">亚马逊</option>
+                  <option value="3">Shein</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -156,10 +155,11 @@
                   }"
                 >
                   <option value="">全部状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">采集中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待处理</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -284,9 +284,9 @@ const pagination = ref({
 
 const filters = ref({
   taskId: '',
-  collectorType: null,
-  collectorPlatform: null,
-  status: null,
+  collectorType: '',
+  collectorPlatform: '',
+  status: '',
   startDate: '',
   endDate: '',
   startTime: '',
@@ -367,6 +367,16 @@ const fetchTaskList = async () => {
       ...filters.value
     }
     
+    // 将startDate/endDate转换为startTime/endTime以匹配API参数
+    if (params.startDate) {
+      params.startTime = params.startDate
+      delete params.startDate
+    }
+    if (params.endDate) {
+      params.endTime = params.endDate
+      delete params.endDate
+    }
+    
     // 过滤掉空值
     Object.keys(params).forEach(key => {
       if (params[key] === '' || params[key] === null || params[key] === undefined) {
@@ -390,7 +400,7 @@ const fetchTaskList = async () => {
         targetCount: item.collectorNum || 0,
         successCount: item.collectorSuccessNum || 0,
         failCount: item.collectorFailNum || 0,
-        status: getCollectorStatusText(item.collectorStatus),
+        status: item.collectorStatus,  // 保持原始数字状态值
         creator: item.createBy || 'unknown',
         createdAt: item.createTime || '',
         // 保留原始数据以备查看详情时使用
@@ -435,7 +445,7 @@ const fetchTaskList = async () => {
         targetCount: item.collectorNum || 0,
         successCount: item.collectorSuccessNum || 0,
         failCount: item.collectorFailNum || 0,
-        status: getCollectorStatusText(item.collectorStatus),
+        status: item.collectorStatus,  // 保持原始数字状态值
         creator: item.createBy || 'unknown',
         createdAt: item.createTime || '',
         rawData: item
@@ -465,10 +475,10 @@ const fetchTaskList = async () => {
 // 转换采集器类型数字为文字
 const getCollectorTypeText = (type) => {
   const typeMap = {
-    1: '商品链接',
-    2: '店铺链接', 
-    3: '搜索采集',
-    4: '采集插件'
+    1: '商品',
+    2: '店铺', 
+    3: '搜索',
+    4: '其他'
   }
   return typeMap[type] || `类型${type}`
 }
@@ -478,9 +488,7 @@ const getCollectorPlatformText = (platform) => {
   const platformMap = {
     1: 'TEMU',
     2: '亚马逊',
-    3: 'Shein',
-    4: '1688',
-    5: '淘宝'
+    3: 'Shein'
   }
   return platformMap[platform] || `平台${platform}`
 }
@@ -489,10 +497,10 @@ const getCollectorPlatformText = (platform) => {
 const getCollectorStatusText = (status) => {
   const statusMap = {
     0: '待处理',
-    1: '处理中', 
+    1: '进行中', 
     2: '已完成',
-    3: '失败',
-    4: '已取消'
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || `状态${status}`
 }
@@ -510,12 +518,94 @@ const getProductStatusText = (status) => {
   return statusMap[status] || `状态${status}`
 }
 
+// 预加载缓存
+const preloadCache = new Set()
+
+// 处理表格行hover预加载
+const handlePreloadImages = async (item) => {
+  // 防止重复预加载同一个任务
+  if (preloadCache.has(item.id)) {
+    console.log(`🔄 [Collection] 任务 ${item.id} 已预加载，跳过`)
+    return
+  }
+  
+  console.log(`👆 [Collection] 开始hover预加载任务 ${item.id}`)
+  
+  try {
+    // 获取详情数据
+    const detailResponse = await getTaskDetail({
+      taskId: item.id,
+      page: 1,
+      limit: 10
+    })
+    
+    if (detailResponse && detailResponse.data) {
+      const productList = detailResponse.data.productList || []
+      const imageUrls = productList
+        .map(product => product.image)
+        .filter(Boolean) // 过滤掉空值
+        .slice(0, 5) // 只预加载前5张图片，避免过度占用带宽
+      
+      // 批量预加载图片 (普通优先级)
+      if (imageUrls.length > 0) {
+        const { default: imagePreloader } = await import('~/utils/imagePreloader')
+        imagePreloader.preloadBatch(imageUrls, 'normal')
+        preloadCache.add(item.id) // 标记已预加载
+        console.log(`✅ [Collection] hover预加载任务 ${item.id} 的 ${imageUrls.length} 张图片`)
+      }
+    }
+  } catch (error) {
+    console.log('❌ [Collection] hover预加载图片失败:', error)
+  }
+}
+
+// 预加载任务详情图片 (点击时高优先级)
+const preloadTaskImages = async (taskId) => {
+  console.log(`🚀 [Collection] 开始高优先级预加载任务 ${taskId}`)
+  
+  try {
+    // 先获取详情数据
+    const detailResponse = await getTaskDetail({
+      taskId: taskId,
+      page: 1,
+      limit: 10
+    })
+    
+    if (detailResponse && detailResponse.data) {
+      const productList = detailResponse.data.productList || []
+      const imageUrls = productList
+        .map(product => product.image)
+        .filter(Boolean) // 过滤掉空值
+      
+      // 批量预加载图片 (高优先级)
+      if (imageUrls.length > 0) {
+        const { default: imagePreloader } = await import('~/utils/imagePreloader')
+        await imagePreloader.preloadBatch(imageUrls, 'high')
+        preloadCache.add(taskId) // 标记已预加载
+        console.log(`✅ [Collection] 高优先级预加载任务 ${taskId} 的 ${imageUrls.length} 张图片完成`)
+      }
+    }
+  } catch (error) {
+    console.log('❌ [Collection] 高优先级预加载图片失败:', error)
+  }
+}
+
 // 打开详情弹窗
 const openDetailModal = async (task) => {
   try {
-    // 先设置基本任务数据
-  currentTaskData.value = task
-  showDetailModal.value = true
+    console.log(`🔍 [Collection] 打开详情弹窗，任务ID: ${task.id}`)
+    
+    // 先设置基本任务数据并显示弹窗
+    currentTaskData.value = task
+    showDetailModal.value = true
+    
+    // 只有在没有预加载过的情况下才进行高优先级预加载
+    if (!preloadCache.has(task.id)) {
+      console.log(`📥 [Collection] 任务 ${task.id} 未预加载，开始高优先级预加载`)
+      preloadTaskImages(task.id)
+    } else {
+      console.log(`✅ [Collection] 任务 ${task.id} 已预加载，直接显示`)
+    }
     
     // 调用详情接口获取详细数据
     const detailResponse = await getTaskDetail({
@@ -654,7 +744,7 @@ const submitNewTask = async (formData) => {
     ) : '亚马逊',
     targetCount: formData.targetCount || 1,  // 使用1作为最小合理默认值，而不是100
     successCount: 0,
-    status: 'processing',
+    status: 1,  // 1对应"进行中"状态
     creator: 'admin',
     createdAt: new Date().toLocaleString()
   }
@@ -716,9 +806,9 @@ const handleFilterChange = (newFilters) => {
 const resetFilters = () => {
   filters.value = {
     taskId: '',
-    collectorType: null,
-    collectorPlatform: null,
-    status: null,
+    collectorType: '',
+    collectorPlatform: '',
+    status: '',
     startDate: '',
     endDate: '',
     startTime: '',

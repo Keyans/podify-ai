@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "npx cross-env NUXT_ENV=development nuxt dev --dotenv .env.development",
-    "dev:test": "npx cross-env NUXT_ENV=test nuxt dev --dotenv .env.test",
-    "dev:prod": "npx cross-env NUXT_ENV=production nuxt dev --dotenv .env.production",
+    "dev": "npx cross-env NUXT_ENV=development nuxt dev --dotenv .env.development --host 0.0.0.0",
+    "dev:test": "npx cross-env NUXT_ENV=test nuxt dev --dotenv .env.test --host 0.0.0.0",
+    "dev:prod": "npx cross-env NUXT_ENV=production nuxt dev --dotenv .env.production --host 0.0.0.0",
     "build:dev": "npx cross-env NUXT_ENV=development nuxt build --dotenv .env.development",
     "build:test": "npx cross-env NUXT_ENV=test nuxt build --dotenv .env.test",
     "build:prod": "npx cross-env NUXT_ENV=production nuxt build --dotenv .env.production",
