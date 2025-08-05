@@ -68,7 +68,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.title"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[300px]">
@@ -166,7 +177,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.title"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[300px]">
@@ -262,7 +284,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.title"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[300px]">
@@ -336,7 +369,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.url" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.url"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[400px]">
@@ -423,12 +467,35 @@
                   <td class="py-3 px-4">{{ (pagination.page - 1) * pagination.limit + index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.originalImage" alt="原图" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.originalImage"
+                        alt="原图"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img v-if="item.croppedImage" :src="item.croppedImage" alt="裁剪图" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        v-if="item.croppedImage"
+                        :src="item.croppedImage"
+                        alt="裁剪图"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                       <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                         <span class="text-xs text-gray-500">无图片</span>
                       </div>
@@ -541,6 +608,7 @@
 
 <script setup>
 import { ref, defineProps, defineEmits, computed, onMounted, watch } from 'vue'
+import OptimizedImage from '~/components/OptimizedImage.vue'
 
 const props = defineProps({
   isOpen: {
@@ -830,6 +898,13 @@ const handlePageChange = (newPage) => {
     page: newPage,
     limit: pagination.value.limit
   })
+}
+
+// 处理图片点击
+const handleImageClick = (item) => {
+  console.log('点击图片:', item)
+  // 可以在这里实现图片放大查看功能
+  // 比如打开一个图片预览模态框
 }
 
 // 初始化
