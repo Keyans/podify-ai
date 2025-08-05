@@ -86,13 +86,32 @@
                   }"
                 >
                   <option value="">全部状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">抠图中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待处理</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 创建人搜索 -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  v-model="filters.userId" 
+                  placeholder="搜索创建人"
+                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
               </div>
 
@@ -264,7 +283,8 @@ const filters = ref({
   taskId: '',
   status: '',
   startDate: '',
-  endDate: ''
+  endDate: '',
+  userId: ''
 })
 
 // 重置筛选条件
@@ -273,7 +293,8 @@ const resetFilters = () => {
     taskId: '',
     status: '',
     startDate: '',
-    endDate: ''
+    endDate: '',
+    userId: ''
   }
   // 更新filterParams并重新获取数据
   filterParams.value = {
@@ -281,7 +302,7 @@ const resetFilters = () => {
     status: filters.value.status || '',
     startTime: filters.value.startDate || '',
     endTime: filters.value.endDate || '',
-    userId: ''
+    userId: filters.value.userId || ''
   }
   pageParams.value.page = 1
   fetchTaskList()
@@ -317,7 +338,7 @@ const fetchTaskList = async () => {
         目标: item.mattingNum || item.targetCount,
         成功: item.mattingSuccessNum || item.successCount,
         失败: item.mattingFailNum || item.failedCount,
-        任务状态: getStatusText(item.mattingStatus || item.status),
+        status: item.mattingStatus || item.status, // 保持原始数字状态值
         创建人: item.createBy || item.creator,
         // 保留原始数据字段，供详情弹窗使用
         mattingNum: item.mattingNum,
@@ -326,9 +347,7 @@ const fetchTaskList = async () => {
         mattingStatus: item.mattingStatus,
         mattingId: item.mattingId,
         _raw: item, // 保存完整的原始数据
-        创建时间: item.createTime || item.createdAt,
-        // 保留原始数据以备后用
-        _raw: item
+        创建时间: item.createTime || item.createdAt
       }))
     }
   } catch (error) {
@@ -341,10 +360,11 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成',
-    2: '失败',
-    3: '暂停'
+    0: '待处理',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -461,7 +481,7 @@ const handleSearch = () => {
     status: filters.value.status || '',
     startTime: filters.value.startDate || '',
     endTime: filters.value.endDate || '',
-    userId: ''
+    userId: filters.value.userId || ''
   }
   pageParams.value.page = 1 // 重置到第一页
   fetchTaskList()

@@ -167,6 +167,7 @@
               :key="item.id"
             class="hover:bg-opacity-50" 
             :style="{ backgroundColor: 'var(--bg-secondary)' }"
+            @mouseenter="handleRowHover(item)"
           >
             <td class="px-6 py-4 text-center">
               <input type="checkbox" class="rounded border-gray-300" v-model="selectedItems" :value="item.id">
@@ -562,7 +563,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'newTask', 'quick-action'])
+const emit = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'newTask', 'quick-action', 'preload'])
 
 // 选中项
 const selectAll = ref(false)
@@ -591,14 +592,30 @@ watch(() => props.pageSize, (newPageSize) => {
 
 // 根据筛选条件过滤数据
 const filteredData = computed(() => {
-  let result = [...props.data]
-  
-  // 按状态筛选
-  if (filters.value.status !== 'all') {
-    result = result.filter(item => getStatus(item) === filters.value.status)
+  // 如果使用服务端分页（totalItems > 0），跳过客户端筛选
+  if (props.totalItems > 0) {
+    return props.data
   }
   
-  // 按ID搜索
+  let result = [...props.data]
+  
+  // 按状态筛选 - 仅在客户端分页时使用
+  if (filters.value.status !== 'all') {
+    result = result.filter(item => {
+      const itemStatus = getStatus(item)
+      const filterStatus = filters.value.status
+      
+      // 处理数字状态值比较（如cutout、collection等页面）
+      if (typeof itemStatus === 'number') {
+        return itemStatus == filterStatus // 使用 == 而不是 === 来处理数字和字符串比较
+      }
+      
+      // 处理字符串状态值比较
+      return itemStatus === filterStatus
+    })
+  }
+  
+  // 按ID搜索 - 仅在客户端分页时使用
   if (filters.value.search) {
     const searchLower = filters.value.search.toLowerCase()
     result = result.filter(item => {
@@ -611,9 +628,9 @@ const filteredData = computed(() => {
 
 // 计算分页后的数据 - 支持服务端分页
 const paginatedData = computed(() => {
-  // 如果使用服务端分页（totalItems > 0），直接返回传入的数据
+  // 如果使用服务端分页（totalItems > 0），直接返回传入的数据，不进行客户端筛选
   if (props.totalItems > 0) {
-    return filteredData.value
+    return props.data
   }
   
   // 否则使用客户端分页
@@ -708,27 +725,34 @@ const getSuccessCount = (item) => {
 
 // 获取状态
 const getStatus = (item) => {
-  // 处理英文状态
-  if (item.status) {
+  // 处理数字状态值（collection页面）
+  if (typeof item.status === 'number') {
     return item.status
   }
   
-  // 处理中文状态
-  if (item.任务状态) {
-    const statusMap = {
-      '进行中': 'processing',
-      '已完成': 'completed',
-      '失败': 'failed',
-      '部分失败': 'partial-failed'
-    }
-    return statusMap[item.任务状态] || 'processing'
+  // 处理其他页面的字符串状态值
+  return item.status || item.任务状态 || 'processing'
+}
+
+// 将数字状态转换为文字 (collection页面使用)
+const getNumericStatusText = (status) => {
+  const statusMap = {
+    0: '待处理',
+    1: '进行中',
+    2: '已完成', 
+    3: '部分失败',
+    4: '失败'
   }
-  
-  return 'processing'
+  return statusMap[status] || `状态${status}`
 }
 
 // 获取状态文本
 const getStatusText = (item) => {
+  // 处理数字状态（collection页面）
+  if (typeof item.status === 'number') {
+    return getNumericStatusText(item.status)
+  }
+  
   // 处理中文状态
   if (item.任务状态) {
     return item.任务状态
@@ -832,6 +856,27 @@ const applyFilters = () => {
   emit('filter-change', filters.value)
 }
 
+// 处理行悬停预加载
+const handleRowHover = async (item) => {
+  // 只在商品采集页面预加载图片
+  if (props.currentApp !== 'collection') return
+  
+  // 防抖，避免频繁hover触发预加载
+  if (handleRowHover.timer) {
+    clearTimeout(handleRowHover.timer)
+  }
+  
+  handleRowHover.timer = setTimeout(async () => {
+    try {
+      const { default: imagePreloader } = await import('~/utils/imagePreloader')
+      // 发射预加载事件到父组件
+      emit('preload', item)
+    } catch (error) {
+      console.log('预加载初始化失败:', error)
+    }
+  }, 300) // 300ms后开始预加载
+}
+
 // 查看任务详情
 const handleView = (item) => {
   emit('view', item)
@@ -855,10 +900,30 @@ const handleFilterChange = () => {
 // 获取状态类
 const getStatusClass = (item) => {
   const status = getStatus(item)
+  
+  // 处理数字状态值（collection页面）
+  if (typeof status === 'number') {
+    if (status === 0) return 'bg-gray-100 text-gray-800'    // 待处理
+    if (status === 1) return 'bg-blue-100 text-blue-800'   // 进行中
+    if (status === 2) return 'bg-green-100 text-green-800' // 已完成
+    if (status === 3) return 'bg-yellow-100 text-yellow-800' // 部分失败
+    if (status === 4) return 'bg-red-100 text-red-800'     // 失败
+  }
+  
+  // 处理中文状态值
+  if (status === '待处理') return 'bg-gray-100 text-gray-800'
+  if (status === '进行中') return 'bg-blue-100 text-blue-800'
+  if (status === '已完成') return 'bg-green-100 text-green-800'
+  if (status === '部分失败') return 'bg-yellow-100 text-yellow-800'
+  if (status === '失败') return 'bg-red-100 text-red-800'
+  
+  // 兼容英文状态值（其他页面可能使用）
+  if (status === 'waiting') return 'bg-gray-100 text-gray-800'
   if (status === 'processing') return 'bg-blue-100 text-blue-800'
   if (status === 'completed') return 'bg-green-100 text-green-800'
-  if (status === 'failed') return 'bg-red-100 text-red-800'
   if (status === 'partial-failed') return 'bg-yellow-100 text-yellow-800'
+  if (status === 'failed') return 'bg-red-100 text-red-800'
+  
   return 'bg-gray-100 text-gray-800'
 }
 
