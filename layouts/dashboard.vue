@@ -715,7 +715,8 @@
 import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
 import { useThemeStore } from '~/composables/useTheme'
 import ThemeSelector from '~/components/ThemeSelector.vue'
-import { isLoggedIn } from '~/apis/auth'
+import { isLoggedIn, logout as clearAuthData } from '~/apis/auth'
+import { post } from '~/apis/index'
 
 const themeStore = useThemeStore()
 const activeTheme = computed(() => themeStore.activeTheme)
@@ -1138,10 +1139,75 @@ const createTeam = () => {
 }
 
 // 退出登录
-const logout = () => {
-  localStorage.removeItem('isLoggedIn')
-  localStorage.removeItem('userInfo')
-  navigateTo('/login')
+const logout = async () => {
+  try {
+    // 调用退出登录API（传递空对象作为参数）
+    await callLogoutApi()
+    
+    // 清除本地认证数据
+    clearAuthData()
+    
+    // 显示成功消息
+    if (process.client && window.$toast) {
+      window.$toast.success('退出登录成功')
+    }
+    
+    // 延迟一下再跳转
+    setTimeout(() => {
+      navigateTo('/login')
+    }, 1000)
+    
+  } catch (error) {
+    console.error('退出登录失败:', error)
+    
+    // 即使出错也要清除本地数据并跳转
+    clearAuthData()
+    
+    if (process.client && window.$toast) {
+      window.$toast.warning('退出登录完成')
+    }
+    
+    setTimeout(() => {
+      navigateTo('/login')
+    }, 1000)
+  }
+}
+
+// 调用退出登录API
+const callLogoutApi = async () => {
+  try {
+    // 构建退出登录的API路径（不包含cuzcuz-ai前缀）
+    const logoutPath = '/tenant/api/v1/auth/logout'
+    
+    // 获取认证头
+    const getAuthHeaders = () => {
+      if (process.client) {
+        const userId = localStorage.getItem('user_id')
+        const tenantId = localStorage.getItem('tenant_id')
+        const authToken = localStorage.getItem('auth_token')
+        
+        return {
+          'X-Tenant-Id': tenantId || '',
+          'X-Auth-User-Id': userId || '', 
+          'X-Auth-Platform-Type': 'web',
+          'X-Client-Type': 'cuzcuz-ai-web',
+          'Authorization': authToken || ''
+        }
+      }
+      return {}
+    }
+    
+    // 调用退出登录接口（传递空对象）
+    await post(logoutPath, {}, {
+      headers: getAuthHeaders()
+    })
+    
+    console.log('退出登录API调用成功')
+  } catch (error) {
+    console.error('退出登录API调用失败:', error)
+    // 即使API调用失败，也继续执行本地退出登录
+    throw error
+  }
 }
 
 // 监听路由变化，同步标签页状态和左侧导航状态

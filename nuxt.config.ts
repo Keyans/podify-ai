@@ -20,8 +20,8 @@ export default defineNuxtConfig({
   },
   // 路由规则配置
   routeRules: {
-    // 公开页面 - 可以预渲染
-    '/': { prerender: true },
+    // 公开页面 - 改为客户端渲染，支持动态功能
+    '/': { ssr: false },
     '/login': { ssr: false }, // 客户端渲染
     '/register': { ssr: false },
     

@@ -71,42 +71,19 @@
           <div class="md:w-1/2 mb-10 md:mb-0">
             <h1 class="text-5xl md:text-6xl font-bold mb-20 leading-tight">
               <span class="block mb-20 neon-text text-cyan-400">CUZ CUZ AI</span>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 text-gradient-animate creative-text-effect relative">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                 创造多元素材
-                <!-- 科技感文字效果 -->
-                <div class="absolute inset-0 text-cyan-400 opacity-30 creative-text-glow">创造多元素材</div>
-                <div class="absolute inset-0 text-blue-400 opacity-20 creative-text-scan">创造多元素材</div>
               </span>
             </h1>
             <p class="text-xl text-gray-300 mb-20">Less Design, More Creation.</p>
             <!-- 动态显示登录/开始创作按钮 -->
             <NuxtLink 
               :to="isLoggedIn ? '/dashboard' : '/login'" 
-              class="cyber-button relative inline-block group"
+              class="inline-block bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium py-4 px-10 rounded-lg text-lg hover:from-blue-700 hover:to-cyan-600 transition-colors duration-200"
             >
-              <!-- 外层发光边框 -->
-              <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 cyber-glow"></div>
-              
-              <!-- 按钮主体 -->
-              <div class="relative bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium py-4 px-10 rounded-lg text-lg transition-all duration-300 group-hover:scale-105 overflow-hidden">
-                <!-- 内部扫描线 -->
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000 cyber-scan"></div>
-                
-                <!-- 按钮内容 -->
-                <span class="relative flex items-center z-10">
-                  <!-- 动态图标 -->
-                  <svg class="w-5 h-5 mr-3 cyber-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                  </svg>
-                  <span class="cyber-text">{{ isLoggedIn ? '开始创作' : '立即体验' }}</span>
-                </span>
-                
-                <!-- 角落装饰 -->
-                <div class="absolute top-1 left-1 w-3 h-3 border-l-2 border-t-2 border-cyan-300 cyber-corner"></div>
-                <div class="absolute top-1 right-1 w-3 h-3 border-r-2 border-t-2 border-cyan-300 cyber-corner"></div>
-                <div class="absolute bottom-1 left-1 w-3 h-3 border-l-2 border-b-2 border-cyan-300 cyber-corner"></div>
-                <div class="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2 border-cyan-300 cyber-corner"></div>
-              </div>
+              <span class="flex items-center">
+                {{ isLoggedIn ? '开始创作' : '立即体验' }}
+              </span>
             </NuxtLink>
           </div>
 
@@ -758,7 +735,6 @@
         <div class="code-snippet code-snippet-1">CUZ</div>
         <div class="code-snippet code-snippet-2">CUZ</div>
         <div class="code-snippet code-snippet-3">AI</div>
-        <div class="code-snippet code-snippet-4">PLATFORM</div>
       </div>
       
       <div class="max-w-7xl mx-auto px-8 relative z-10">
@@ -784,10 +760,78 @@
                 <div class="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
                 <h3 class="text-xl font-medium">一键抠图</h3>
               </div>
-              <p class="text-gray-400 text-sm mb-6">AI自动识别主体，秒级移除背景</p>
-              <div class="h-72 flex items-center justify-center bg-gray-900/50 rounded-lg overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=600&auto=format&fit=crop" alt="高端抠图效果" class="w-full h-full object-cover" />
+              <p class="text-gray-400 text-sm mb-6">AI智能识别主体，秒级移除背景</p>
+              
+              <!-- 抠图动画展示区 -->
+              <div class="h-72 relative bg-gray-900/50 rounded-lg overflow-hidden group cursor-pointer" @click="startMattingAnimation">
+                <!-- 透明背景棋盘格 -->
+                <div class="absolute inset-0 matting-background"></div>
+                
+                <!-- 抠图后的图片（透明背景）- 底层 -->
+                <div class="absolute inset-0 matting-result">
+                  <!-- 已经抠好图的狗狗 - 透明背景 -->
+                  <div class="w-full h-full relative transition-all duration-500" 
+                       :class="{ 'matting-glow': isMattingAnimating }">
+                    <!-- 直接显示已经抠好图的狗狗图片 -->
+                    <img 
+                      src="/dog.png" 
+                      alt="抠图后的狗狗（透明背景）" 
+                      class="w-full h-full object-cover matting-cutout-image"
+                    />
+                  </div>
+                </div>
+                
+                <!-- 原始图片遮罩层 - 从左到右移除 -->
+                <div class="absolute inset-0 matting-overlay" :class="{ 'animate-sweep-away': isMattingAnimating }">
+                  <img 
+                    src="/dogbg.png" 
+                    alt="原始图片-带背景的狗狗" 
+                    class="w-full h-full object-cover" 
+                  />
+                </div>
+                
+                <!-- AI处理光束效果 -->
+                <div class="absolute inset-0 matting-beam" :class="{ 'animate-beam': isMattingAnimating }"></div>
+                
+                <!-- 提示文字 -->
+                <div class="absolute bottom-4 left-4 text-cyan-400 text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity z-10">
+                  <div v-if="!isMattingAnimating" class="flex items-center bg-black/70 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <span class="animate-pulse">点击查看AI抠图过程</span>
+                  </div>
+                  <div v-else class="flex items-center bg-black/70 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span class="text-yellow-400">AI正在智能抠图中...</span>
+                  </div>
+                </div>
+                
+                <!-- 动画状态指示 -->
+                <div v-if="isMattingAnimating" class="absolute top-4 right-4 bg-green-500/20 border border-green-400/50 text-green-400 px-3 py-1 rounded-full text-xs font-medium animate-pulse z-10">
+                  <span class="flex items-center">
+                    <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-ping"></div>
+                    背景移除中
+                  </span>
+                </div>
+                
+                <!-- 透明背景提示 -->
+                <div v-if="isMattingAnimating" class="absolute top-4 left-4 bg-white/90 border border-gray-300 text-gray-800 px-3 py-1 rounded-full text-xs font-medium z-10 shadow-md">
+                  <span class="flex items-center">
+                    <div class="w-3 h-3 mr-2 rounded-sm" style="background: repeating-conic-gradient(#cccccc 0% 25%, white 0% 50%) 50% / 6px 6px;"></div>
+                    PNG透明背景
+                  </span>
+                </div>
+                
+                <!-- 进度条 -->
+                <div v-if="isMattingAnimating" class="absolute bottom-0 left-0 w-full h-1 bg-gray-700">
+                  <div class="h-full bg-gradient-to-r from-blue-400 to-cyan-400 animate-progress"></div>
+                </div>
               </div>
+              
               <div class="mt-4 text-center">
                 <!-- 动态按钮 -->
                 <NuxtLink 
@@ -1139,6 +1183,9 @@
 // 登录状态管理
 const isLoggedIn = ref(false)
 
+// 抠图动画状态
+const isMattingAnimating = ref(false)
+
 // 检查登录状态
 const checkLoginStatus = () => {
   if (process.client) {
@@ -1162,6 +1209,44 @@ const handleGenerate = () => {
   } else {
     navigateTo('/login')
   }
+}
+
+// 启动抠图动画
+const startMattingAnimation = () => {
+  if (isMattingAnimating.value) return
+  
+  console.log('🎬 启动一键抠图动画!')
+  console.log('📋 双图片切换方案：')
+  console.log('  1. 底层：已经抠好图的透明背景图片')
+  console.log('  2. 顶层：原始蓝色背景图片（从左到右移除）')
+  console.log('  3. 效果：透明区域显示PNG风格棋盘格背景')
+  console.log('🎨 透明背景颜色：白色(#ffffff) + 浅灰色(#e5e5e5)')
+  console.log('📐 棋盘格大小：12x12px')
+  console.log('🖼️  方案优势：真实抠图效果，无CSS mask限制')
+  console.log('📄 底层图片：/dog.png（本地透明背景图片）')
+  console.log('📄 顶层图片：/dogbg.png（同一只狗的带背景版本）')
+  console.log('🎯 图片配对：完美匹配，同一只狗狗的两个版本')
+  console.log('🔧 尺寸修复：两张图片都使用 object-cover 确保显示大小完全一致')
+  console.log('🚫 移除蓝色效果：清除边框、阴影、发光效果，保持纯净透明背景')
+  console.log('⭕ 移除光圈：清除狗狗图片上的蓝色脉冲光圈提示效果')
+  
+  isMattingAnimating.value = true
+  
+  // 添加动画阶段监控
+  setTimeout(() => {
+    console.log('⚡ 动画进行中 - 背景正在被移除...')
+  }, 1000)
+  
+  setTimeout(() => {
+    console.log('🎯 动画后期 - 透明背景应该可见...')
+  }, 2500)
+  
+  // 3.5秒后重置动画状态
+  setTimeout(() => {
+    console.log('✨ 抠图动画完成!')
+    console.log('🔍 最终状态：应该显示透明背景的抠图结果')
+    isMattingAnimating.value = false
+  }, 3500)
 }
 
 // 页面挂载时检查登录状态
@@ -1394,7 +1479,7 @@ useHead({
 
 .matrix-char {
   position: absolute;
-  color: #00ff00;
+  color: #06b6d4;
   font-family: 'Courier New', monospace;
   font-size: 14px;
   animation: matrix 3s linear infinite;
@@ -1925,7 +2010,7 @@ useHead({
   position: absolute;
   width: 2px;
   height: 20px;
-  background: linear-gradient(to bottom, transparent, #00ff41, transparent);
+  background: linear-gradient(to bottom, transparent, #06b6d4, transparent);
   animation: digitalRain 4s linear infinite;
 }
 
@@ -1976,10 +2061,10 @@ useHead({
   width: 100%;
   height: 100%;
   background-image: 
-    linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px),
-    linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
-    radial-gradient(circle at 20% 20%, rgba(0, 255, 65, 0.2) 2px, transparent 2px),
-    radial-gradient(circle at 80% 80%, rgba(0, 255, 65, 0.2) 2px, transparent 2px);
+    linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.2) 2px, transparent 2px),
+    radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.2) 2px, transparent 2px);
   background-size: 30px 30px, 30px 30px, 60px 60px, 60px 60px;
   animation: circuitPulse 8s ease-in-out infinite;
 }
@@ -2005,11 +2090,11 @@ useHead({
 
 .code-snippet {
   position: absolute;
-  color: #00ff41;
+  color: #06b6d4;
   font-family: 'Courier New', monospace;
   font-size: 14px;
   font-weight: bold;
-  text-shadow: 0 0 10px #00ff41;
+  text-shadow: 0 0 10px #06b6d4;
   animation: codeFloat 10s ease-in-out infinite;
 }
 
@@ -2031,11 +2116,7 @@ useHead({
   animation-delay: 5s;
 }
 
-.code-snippet-4 {
-  top: 40%;
-  left: 70%;
-  animation-delay: 7.5s;
-}
+
 
 @keyframes codeFloat {
   0%, 100% {
@@ -2362,142 +2443,148 @@ useHead({
   }
 }
 
-/* Banner区域科技感文字效果 */
-.creative-text-effect {
-  position: relative;
-  overflow: hidden;
+/* 抠图动画效果 - 纯净的PNG透明背景 */
+.matting-background {
+  z-index: 1;
+  /* PNG风格的透明背景棋盘格 - 经典白色和浅灰色 */
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(45deg, #e5e5e5 25%, transparent 25%), 
+    linear-gradient(-45deg, #e5e5e5 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #e5e5e5 75%), 
+    linear-gradient(-45deg, transparent 75%, #e5e5e5 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  border-radius: 8px;
 }
 
-.creative-text-glow {
-  animation: creativeGlow 3s ease-in-out infinite;
-  filter: blur(1px);
+.matting-result {
+  z-index: 2;
 }
 
-.creative-text-scan {
-  animation: creativeScan 4s ease-in-out infinite;
-  filter: blur(0.5px);
+.matting-overlay {
+  z-index: 3;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
 }
 
-@keyframes creativeGlow {
-  0%, 100% {
-    opacity: 0.2;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.02);
-  }
+.matting-overlay.animate-sweep-away {
+  animation: mattingClipAway 3.5s ease-in-out forwards;
 }
 
-@keyframes creativeScan {
-  0%, 100% {
-    opacity: 0.1;
-    transform: translateX(0);
-  }
-  25% {
-    opacity: 0.3;
-    transform: translateX(5px);
-  }
-  75% {
-    opacity: 0.3;
-    transform: translateX(-5px);
-  }
+.matting-beam {
+  z-index: 4;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    transparent 45%, 
+    rgba(0, 245, 255, 0.9) 48%, 
+    rgba(255, 255, 255, 0.8) 50%, 
+    rgba(0, 245, 255, 0.9) 52%, 
+    transparent 55%, 
+    transparent 100%
+  );
+  width: 8px;
+  transform: translateX(-100%);
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
 }
 
-/* Banner区域科技感按钮效果 */
-.cyber-button {
-  position: relative;
+.matting-beam.animate-beam {
+  animation: beamSweep 3.5s ease-in-out forwards;
+  opacity: 1;
 }
 
-.cyber-glow {
-  animation: cyberGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes cyberGlow {
+/* 使用clip-path从左到右移除背景 */
+@keyframes mattingClipAway {
   0% {
-    opacity: 0.25;
-    filter: blur(4px);
+    clip-path: inset(0 0 0 0);
+  }
+  10% {
+    clip-path: inset(0 0 0 5%);
+  }
+  90% {
+    clip-path: inset(0 0 0 95%);
   }
   100% {
-    opacity: 0.4;
-    filter: blur(6px);
+    clip-path: inset(0 0 0 100%);
   }
 }
 
-.cyber-icon {
-  animation: cyberIconSpin 3s ease-in-out infinite;
-  transform-origin: center;
-}
-
-@keyframes cyberIconSpin {
-  0%, 100% {
-    transform: rotate(0deg) scale(1);
+@keyframes beamSweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
   }
-  25% {
-    transform: rotate(90deg) scale(1.1);
+  10% {
+    opacity: 1;
   }
-  50% {
-    transform: rotate(180deg) scale(1);
+  90% {
+    opacity: 1;
   }
-  75% {
-    transform: rotate(270deg) scale(1.1);
-  }
-}
-
-.cyber-text {
-  animation: cyberTextPulse 2s ease-in-out infinite;
-}
-
-@keyframes cyberTextPulse {
-  0%, 100% {
-    text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
-  }
-  50% {
-    text-shadow: 0 0 15px rgba(6, 182, 212, 0.8), 0 0 25px rgba(59, 130, 246, 0.4);
-  }
-}
-
-.cyber-corner {
-  animation: cyberCornerPulse 1.5s ease-in-out infinite;
-  opacity: 0.7;
-}
-
-@keyframes cyberCornerPulse {
-  0%, 100% {
+  95% {
+    transform: translateX(100%);
     opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-/* 按钮悬停时的增强效果 */
-.cyber-button:hover .cyber-glow {
-  animation: cyberGlowHover 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes cyberGlowHover {
-  0% {
-    opacity: 0.75;
-    filter: blur(6px);
   }
   100% {
-    opacity: 1;
-    filter: blur(8px);
+    transform: translateX(120%);
+    opacity: 0;
   }
 }
 
-.cyber-button:hover .cyber-icon {
-  animation-duration: 1s;
+/* 进度条动画 */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  20% {
+    width: 30%;
+  }
+  80% {
+    width: 90%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
-.cyber-button:hover .cyber-text {
-  animation-duration: 1s;
+.animate-progress {
+  animation: progress 3s ease-in-out forwards;
 }
 
-.cyber-button:hover .cyber-corner {
-  animation-duration: 0.8s;
+/* 抠图展示区增强效果 */
+.group:hover .matting-original img {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
 }
+
+/* 抠图结果增强显示 */
+.matting-result > div > div {
+  transition: all 0.3s ease;
+}
+
+/* 抠图后的图片效果 - 直接使用已抠图的图片 */
+.matting-cutout-image {
+  /* 不需要复杂的mask，直接显示已经抠好图的图片 */
+  filter: drop-shadow(0 0 25px rgba(6, 182, 212, 0.5));
+  /* 保持图片质量和透明背景 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* 增强透明背景显示效果 */
+.matting-result {
+  /* 确保透明背景可见 */
+  background: transparent;
+}
+
+/* 简化的抠图效果 - 无蓝色发光 */
+.matting-glow {
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* 移除蓝色光圈提示效果 */
+
+/* Banner区域简化样式 - 移除复杂动画效果 */
 </style>
