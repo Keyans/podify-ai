@@ -71,22 +71,42 @@
           <div class="md:w-1/2 mb-10 md:mb-0">
             <h1 class="text-5xl md:text-6xl font-bold mb-20 leading-tight">
               <span class="block mb-20 neon-text text-cyan-400">CUZ CUZ AI</span>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 text-gradient-animate">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 text-gradient-animate creative-text-effect relative">
                 创造多元素材
+                <!-- 科技感文字效果 -->
+                <div class="absolute inset-0 text-cyan-400 opacity-30 creative-text-glow">创造多元素材</div>
+                <div class="absolute inset-0 text-blue-400 opacity-20 creative-text-scan">创造多元素材</div>
               </span>
             </h1>
             <p class="text-xl text-gray-300 mb-20">Less Design, More Creation.</p>
             <!-- 动态显示登录/开始创作按钮 -->
             <NuxtLink 
               :to="isLoggedIn ? '/dashboard' : '/login'" 
-              class="inline-block bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium py-3 px-8 rounded-md text-lg transition-all transform hover:scale-105"
+              class="cyber-button relative inline-block group"
             >
-              <span class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
-                </svg>
-                {{ isLoggedIn ? '开始创作' : '立即体验' }}
-              </span>
+              <!-- 外层发光边框 -->
+              <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 cyber-glow"></div>
+              
+              <!-- 按钮主体 -->
+              <div class="relative bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium py-4 px-10 rounded-lg text-lg transition-all duration-300 group-hover:scale-105 overflow-hidden">
+                <!-- 内部扫描线 -->
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000 cyber-scan"></div>
+                
+                <!-- 按钮内容 -->
+                <span class="relative flex items-center z-10">
+                  <!-- 动态图标 -->
+                  <svg class="w-5 h-5 mr-3 cyber-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                  </svg>
+                  <span class="cyber-text">{{ isLoggedIn ? '开始创作' : '立即体验' }}</span>
+                </span>
+                
+                <!-- 角落装饰 -->
+                <div class="absolute top-1 left-1 w-3 h-3 border-l-2 border-t-2 border-cyan-300 cyber-corner"></div>
+                <div class="absolute top-1 right-1 w-3 h-3 border-r-2 border-t-2 border-cyan-300 cyber-corner"></div>
+                <div class="absolute bottom-1 left-1 w-3 h-3 border-l-2 border-b-2 border-cyan-300 cyber-corner"></div>
+                <div class="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2 border-cyan-300 cyber-corner"></div>
+              </div>
             </NuxtLink>
           </div>
 
@@ -248,16 +268,44 @@
     </section>
 
     <!-- 特色标语区域 -->
-    <section class="py-24 bg-gradient-to-b from-black to-gray-900">
-      <div class="max-w-5xl mx-auto text-center px-8">
+    <section class="py-24 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+      <!-- 极光背景效果 -->
+      <div class="absolute inset-0 opacity-30">
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+      </div>
+      
+      <!-- 流星划过效果 -->
+      <div class="shooting-stars">
+        <div class="shooting-star shooting-star-1"></div>
+        <div class="shooting-star shooting-star-2"></div>
+        <div class="shooting-star shooting-star-3"></div>
+      </div>
+      
+      <div class="max-w-5xl mx-auto text-center px-8 relative z-10">
         <h2 class="text-4xl md:text-5xl font-bold mb-4">CUZCUZAI，更懂创意的AI</h2>
         <p class="text-xl text-gray-300">少做重复设计，多样创作时间</p>
       </div>
     </section>
 
     <!-- 功能特点区域 -->
-    <section class="py-20 bg-gray-900">
-      <div class="max-w-7xl mx-auto px-8">
+    <section class="py-20 bg-gray-900 relative overflow-hidden">
+      <!-- 科技网格背景 -->
+      <div class="absolute inset-0 opacity-5">
+        <div class="tech-grid-bg"></div>
+      </div>
+      
+      <!-- 浮动数据点 -->
+      <div class="floating-data-points">
+        <div class="data-point data-point-1"></div>
+        <div class="data-point data-point-2"></div>
+        <div class="data-point data-point-3"></div>
+        <div class="data-point data-point-4"></div>
+        <div class="data-point data-point-5"></div>
+      </div>
+      
+      <div class="max-w-7xl mx-auto px-8 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- 特点卡片1 -->
           <div class="hover-card bg-gray-800 bg-opacity-50 rounded-xl p-8 transition-all duration-300 text-center">
@@ -338,8 +386,25 @@
     </section>
 
     <!-- 设计场景区域 -->
-    <section class="py-20 bg-gradient-to-b from-gray-900 to-black">
-      <div class="max-w-7xl mx-auto px-8">
+    <section class="py-20 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
+      <!-- 能量波纹效果 -->
+      <div class="absolute inset-0">
+        <div class="energy-wave energy-wave-1"></div>
+        <div class="energy-wave energy-wave-2"></div>
+        <div class="energy-wave energy-wave-3"></div>
+      </div>
+      
+      <!-- 漂浮粒子群 -->
+      <div class="particle-swarm">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="particle particle-4"></div>
+        <div class="particle particle-5"></div>
+        <div class="particle particle-6"></div>
+      </div>
+      
+      <div class="max-w-7xl mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-bold mb-4">多元设计场景，<span class="text-blue-400">高效创意工作流</span></h2>
         </div>
@@ -354,44 +419,191 @@
           <button class="px-6 py-2 rounded-full bg-gray-800 border border-gray-700 text-white hover:bg-gray-700 transition-colors">无限创意</button>
         </div>
         
-        <!-- 场景展示 -->
-        <div class="relative p-6 bg-blue-100/5 rounded-2xl overflow-hidden">
-          <div class="relative z-10 flex flex-col md:flex-row gap-8">
-            <div class="md:w-1/3">
-              <h3 class="text-3xl font-bold mb-4">AI模特</h3>
-              <p class="text-gray-400 mb-6">服装上身更直观，营销转化更高效</p>
+        <!-- AI模特展示区域 -->
+        <div class="relative p-8 bg-gradient-to-br from-gray-900/80 to-gray-800/60 rounded-3xl overflow-hidden backdrop-blur-sm border border-gray-700/50">
+          <!-- 量子粒子效果 -->
+          <div class="quantum-particles">
+            <div class="quantum-dot quantum-dot-1"></div>
+            <div class="quantum-dot quantum-dot-2"></div>
+            <div class="quantum-dot quantum-dot-3"></div>
+            <div class="quantum-dot quantum-dot-4"></div>
+            <div class="quantum-dot quantum-dot-5"></div>
+          </div>
+          
+          <!-- 数据流线效果 -->
+          <div class="data-streams">
+            <div class="data-stream stream-1"></div>
+            <div class="data-stream stream-2"></div>
+            <div class="data-stream stream-3"></div>
+          </div>
+          
+          <!-- 背景装饰 -->
+          <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-400/20 to-transparent rounded-full"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-400/20 to-transparent rounded-full"></div>
+          </div>
+          
+          <!-- 动态线条装饰 -->
+          <div class="absolute inset-0">
+            <svg class="w-full h-full" viewBox="0 0 600 400" fill="none" style="opacity: 0.15;">
+              <path d="M0 200 Q150 100 300 200 T600 200" stroke="url(#aiModelGradient1)" stroke-width="1" class="animate-pulse"/>
+              <path d="M0 250 Q200 150 400 250 T600 250" stroke="url(#aiModelGradient2)" stroke-width="1" class="animate-pulse" style="animation-delay: 1s;"/>
+              <defs>
+                <linearGradient id="aiModelGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#06b6d4"/>
+                  <stop offset="100%" style="stop-color:#3b82f6"/>
+                </linearGradient>
+                <linearGradient id="aiModelGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#8b5cf6"/>
+                  <stop offset="100%" style="stop-color:#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          
+          <div class="relative z-10 flex flex-col lg:flex-row gap-12">
+            <!-- 左侧内容区域 -->
+            <div class="lg:w-2/5 flex flex-col justify-center">
+              <!-- 标题区域 -->
+              <div class="mb-8">
+                <div class="flex items-center mb-4">
+                  <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-xl flex items-center justify-center mr-4">
+                    <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">AI模特</h3>
+                    <div class="h-1 w-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full mt-2"></div>
+                  </div>
+                </div>
+                <p class="text-xl text-gray-300 leading-relaxed">服装上身更直观，营销转化更高效</p>
+              </div>
+              
+              <!-- 特性列表 -->
+              <div class="space-y-4 mb-8">
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-cyan-400 rounded-full mr-3"></div>
+                  <span class="text-gray-300">真实模特效果展示</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                  <span class="text-gray-300">多样化服装搭配</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                  <span class="text-gray-300">一键智能换装</span>
+                </div>
+              </div>
+              
+              <!-- 操作按钮 -->
               <button 
                 @click="handleTryNow"
-                class="flex items-center space-x-2 text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                class="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl text-white font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105"
               >
-                <span>马上试用</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                </svg>
+                <span class="relative z-10 flex items-center">
+                  <span>马上试用</span>
+                  <svg class="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                  </svg>
+                </span>
+                <div class="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </button>
             </div>
-            <div class="md:w-2/3 grid grid-cols-3 gap-4">
-              <img src="https://images.unsplash.com/photo-1603217192634-61068e4d4bf9?q=80&w=300&auto=format&fit=crop" alt="时尚模特" class="rounded-lg w-full h-auto" />
-              <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=300&auto=format&fit=crop" alt="服装展示" class="rounded-lg w-full h-auto" />
-              <div class="grid grid-rows-2 gap-4">
-                <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=300&auto=format&fit=crop" alt="产品展示1" class="rounded-lg w-full h-auto" />
-                <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=300&auto=format&fit=crop" alt="产品展示2" class="rounded-lg w-full h-auto" />
+            
+            <!-- 右侧图片展示区域 -->
+            <div class="lg:w-3/5">
+              <div class="relative">
+                <!-- 简化的展示区域 -->
+                <div class="grid grid-cols-3 gap-6">
+                  
+                  <!-- 主图：时尚模特 -->
+                  <div class="relative group h-96">
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-2xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+                    <div class="relative h-full rounded-2xl overflow-hidden border border-cyan-400/30 group-hover:border-cyan-400/50 transition-colors">
+                      <img src="https://images.unsplash.com/photo-1603217192634-61068e4d4bf9?q=80&w=400&auto=format&fit=crop" alt="时尚模特" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div class="absolute bottom-4 left-4 text-cyan-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">时尚模特</div>
+                    </div>
+                  </div>
+                  
+                  <!-- 中图：服装展示 -->
+                  <div class="flex flex-col gap-6">
+                    <div class="relative group h-44">
+                      <div class="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+                      <div class="relative h-full rounded-xl overflow-hidden border border-purple-400/30 group-hover:border-purple-400/50 transition-colors">
+                        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=400&auto=format&fit=crop" alt="服装展示" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute bottom-3 left-3 text-purple-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">服装展示</div>
+                      </div>
+                    </div>
+                    
+                    <div class="relative group h-44">
+                      <div class="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-cyan-400/20 rounded-xl transform rotate-1 group-hover:rotate-2 transition-transform"></div>
+                      <div class="relative h-full rounded-xl overflow-hidden border border-pink-400/30 group-hover:border-pink-400/50 transition-colors">
+                        <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=400&auto=format&fit=crop" alt="效果对比" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute bottom-3 left-3 text-pink-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">效果对比</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 右侧图：创意展示 -->
+                  <div class="relative group h-96">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-2xl transform -rotate-1 group-hover:-rotate-2 transition-transform"></div>
+                    <div class="relative h-full rounded-2xl overflow-hidden border border-blue-400/30 group-hover:border-blue-400/50 transition-colors">
+                      <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300&auto=format&fit=crop" alt="创意展示" class="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div class="absolute bottom-4 left-4 text-blue-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">创意展示</div>
+                    </div>
+                  </div>
+                  
+                </div>
+                
+                <!-- 浮动装饰元素 -->
+                <div class="absolute -top-6 -right-6 w-10 h-10 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-15 animate-pulse"></div>
+                <div class="absolute -bottom-6 -left-6 w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
               </div>
             </div>
           </div>
         </div>
         
         <!-- 通用设计工作流 -->
-        <div class="mt-20">
-          <div class="text-center mb-12">
+        <div class="mt-20 relative">
+          <!-- 科技线条网络 -->
+          <div class="absolute inset-0 opacity-10">
+            <svg class="w-full h-full" viewBox="0 0 800 400">
+              <defs>
+                <linearGradient id="workflow-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#06b6d4"/>
+                  <stop offset="50%" style="stop-color:#3b82f6"/>
+                  <stop offset="100%" style="stop-color:#8b5cf6"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,200 Q200,100 400,200 T800,200" stroke="url(#workflow-line-gradient)" stroke-width="2" fill="none" class="tech-flow-line"/>
+              <path d="M100,100 Q300,50 500,100 T700,100" stroke="url(#workflow-line-gradient)" stroke-width="1" fill="none" class="tech-flow-line" style="animation-delay: 1s;"/>
+              <path d="M100,300 Q300,350 500,300 T700,300" stroke="url(#workflow-line-gradient)" stroke-width="1" fill="none" class="tech-flow-line" style="animation-delay: 2s;"/>
+            </svg>
+          </div>
+          
+          <div class="text-center mb-12 relative z-10">
             <h3 class="text-3xl font-bold mb-4">通用设计工作流</h3>
             <p class="text-gray-400">从创意到成品，AI助力每一步</p>
           </div>
           
           <!-- 工作流步骤 -->
           <div class="relative">
-            <!-- 连接线 -->
-            <div class="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent transform -translate-y-1/2 hidden md:block"></div>
+            <!-- 连接线和简洁流光效果 -->
+            <div class="absolute top-1/2 left-0 right-0 transform -translate-y-1/2 hidden md:block overflow-visible">
+              <!-- 基础连接线 -->
+              <div class="h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent"></div>
+              
+              <!-- 简洁流光条 -->
+              <div class="absolute inset-0 overflow-visible">
+                <div class="workflow-simple-flow h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full transform -translate-y-0.25"></div>
+              </div>
+            </div>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
               <!-- 步骤1 -->
@@ -526,8 +738,30 @@
     </section>
 
     <!-- 素材加工区域 -->
-    <section class="py-20 bg-gradient-to-b from-black to-gray-900">
-      <div class="max-w-7xl mx-auto px-8">
+    <section class="py-20 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+      <!-- 数字雨效果 -->
+      <div class="digital-rain">
+        <div class="rain-drop rain-drop-1"></div>
+        <div class="rain-drop rain-drop-2"></div>
+        <div class="rain-drop rain-drop-3"></div>
+        <div class="rain-drop rain-drop-4"></div>
+        <div class="rain-drop rain-drop-5"></div>
+      </div>
+      
+      <!-- 电路板背景 -->
+      <div class="absolute inset-0 opacity-5">
+        <div class="circuit-board-bg"></div>
+      </div>
+      
+      <!-- 浮动代码片段 -->
+      <div class="floating-code-snippets">
+        <div class="code-snippet code-snippet-1">CUZ</div>
+        <div class="code-snippet code-snippet-2">CUZ</div>
+        <div class="code-snippet code-snippet-3">AI</div>
+        <div class="code-snippet code-snippet-4">PLATFORM</div>
+      </div>
+      
+      <div class="max-w-7xl mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-bold mb-4">高效素材加工</h2>
         </div>
@@ -604,8 +838,32 @@
     </section>
 
     <!-- 风格画廊 -->
-    <section class="py-20 bg-black">
-      <div class="max-w-7xl mx-auto px-8">
+    <section class="py-20 bg-black relative overflow-hidden">
+      <!-- 光束扫描效果 -->
+      <div class="scanning-beams">
+        <div class="scan-beam scan-beam-1"></div>
+        <div class="scan-beam scan-beam-2"></div>
+        <div class="scan-beam scan-beam-3"></div>
+      </div>
+      
+      <!-- 星空背景 -->
+      <div class="starfield">
+        <div class="star star-1"></div>
+        <div class="star star-2"></div>
+        <div class="star star-3"></div>
+        <div class="star star-4"></div>
+        <div class="star star-5"></div>
+        <div class="star star-6"></div>
+        <div class="star star-7"></div>
+        <div class="star star-8"></div>
+      </div>
+      
+      <!-- 全息网格 -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="holographic-grid"></div>
+      </div>
+      
+      <div class="max-w-7xl mx-auto px-8 relative z-10">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-bold mb-4">甄选风格</h2>
         </div>
@@ -694,6 +952,23 @@
 
     <!-- 底部信息区域 -->
     <footer class="relative bg-gradient-to-b from-gray-900 via-black to-gray-900 overflow-hidden">
+      <!-- 脉冲波纹 -->
+      <div class="pulse-waves">
+        <div class="pulse-wave pulse-wave-1"></div>
+        <div class="pulse-wave pulse-wave-2"></div>
+        <div class="pulse-wave pulse-wave-3"></div>
+      </div>
+      
+      <!-- 闪烁星点 -->
+      <div class="twinkling-stars">
+        <div class="twinkle twinkle-1"></div>
+        <div class="twinkle twinkle-2"></div>
+        <div class="twinkle twinkle-3"></div>
+        <div class="twinkle twinkle-4"></div>
+        <div class="twinkle twinkle-5"></div>
+        <div class="twinkle twinkle-6"></div>
+      </div>
+      
       <!-- 科技感背景装饰 -->
       <div class="absolute inset-0 opacity-10">
         <div class="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent"></div>
@@ -1297,5 +1572,932 @@ useHead({
     width: 80px;
     height: 60px;
   }
+}
+
+/* 简洁工作流流光效果 */
+@keyframes workflowSimpleFlow {
+  0% {
+    transform: translateX(-150px);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 0.6;
+  }
+  97% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(calc(100vw - 100px));
+    opacity: 0;
+  }
+}
+
+.workflow-simple-flow {
+  animation: workflowSimpleFlow 8s linear infinite;
+  width: 120px;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* 极光效果 */
+.aurora {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(45deg, transparent, rgba(6, 182, 212, 0.2), transparent);
+  animation: auroraMove 15s ease-in-out infinite;
+  filter: blur(3px);
+}
+
+.aurora-1 {
+  animation-delay: 0s;
+  background: linear-gradient(45deg, transparent, rgba(6, 182, 212, 0.3), rgba(59, 130, 246, 0.2), transparent);
+}
+
+.aurora-2 {
+  animation-delay: 5s;
+  background: linear-gradient(135deg, transparent, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2), transparent);
+}
+
+.aurora-3 {
+  animation-delay: 10s;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
+}
+
+@keyframes auroraMove {
+  0%, 100% {
+    transform: translateX(-100%) skewX(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(100%) skewX(10deg);
+    opacity: 1;
+  }
+}
+
+/* 流星效果 */
+.shooting-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.shooting-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: linear-gradient(45deg, #00f5ff, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 6px #00f5ff;
+  animation: shootingStar 3s linear infinite;
+}
+
+.shooting-star::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 1px;
+  background: linear-gradient(to left, #00f5ff, transparent);
+  transform: rotate(45deg);
+  transform-origin: right;
+}
+
+.shooting-star-1 {
+  top: 20%;
+  right: 100%;
+  animation-delay: 0s;
+}
+
+.shooting-star-2 {
+  top: 60%;
+  right: 100%;
+  animation-delay: 1s;
+}
+
+.shooting-star-3 {
+  top: 40%;
+  right: 100%;
+  animation-delay: 2s;
+}
+
+@keyframes shootingStar {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-2000px) translateY(1000px);
+    opacity: 0;
+  }
+}
+
+/* 科技网格背景 */
+.tech-grid-bg {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: techGridMove 20s linear infinite;
+}
+
+@keyframes techGridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+/* 浮动数据点 */
+.floating-data-points {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.data-point {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #00f5ff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00f5ff;
+  animation: dataFloat 8s ease-in-out infinite;
+}
+
+.data-point-1 {
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.data-point-2 {
+  top: 30%;
+  left: 80%;
+  animation-delay: 1.5s;
+}
+
+.data-point-3 {
+  top: 70%;
+  left: 20%;
+  animation-delay: 3s;
+}
+
+.data-point-4 {
+  top: 50%;
+  left: 60%;
+  animation-delay: 4.5s;
+}
+
+.data-point-5 {
+  top: 80%;
+  left: 90%;
+  animation-delay: 6s;
+}
+
+@keyframes dataFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* 能量波纹效果 */
+.energy-wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  border: 2px solid rgba(6, 182, 212, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: energyWave 6s ease-out infinite;
+}
+
+.energy-wave-1 {
+  animation-delay: 0s;
+}
+
+.energy-wave-2 {
+  animation-delay: 2s;
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.energy-wave-3 {
+  animation-delay: 4s;
+  border-color: rgba(236, 72, 153, 0.2);
+}
+
+@keyframes energyWave {
+  0% {
+    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* 漂浮粒子群 */
+.particle-swarm {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: radial-gradient(circle, #00f5ff, transparent);
+  border-radius: 50%;
+  animation: particleSwarm 12s linear infinite;
+}
+
+.particle-1 {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.particle-2 {
+  top: 40%;
+  left: 30%;
+  animation-delay: 2s;
+}
+
+.particle-3 {
+  top: 60%;
+  left: 50%;
+  animation-delay: 4s;
+}
+
+.particle-4 {
+  top: 80%;
+  left: 70%;
+  animation-delay: 6s;
+}
+
+.particle-5 {
+  top: 30%;
+  left: 80%;
+  animation-delay: 8s;
+}
+
+.particle-6 {
+  top: 70%;
+  left: 20%;
+  animation-delay: 10s;
+}
+
+@keyframes particleSwarm {
+  0%, 100% {
+    transform: translateX(0) translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translateX(100px) translateY(-50px) scale(1.2);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50px) translateY(-100px) scale(0.8);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translateX(-100px) translateY(50px) scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+/* 科技流动线条 */
+.tech-flow-line {
+  stroke-dasharray: 10 5;
+  animation: techFlow 8s ease-in-out infinite;
+}
+
+@keyframes techFlow {
+  0%, 100% {
+    stroke-dashoffset: 0;
+    opacity: 0.3;
+  }
+  50% {
+    stroke-dashoffset: 100;
+    opacity: 0.8;
+  }
+}
+
+/* 数字雨效果 */
+.digital-rain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.rain-drop {
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, #00ff41, transparent);
+  animation: digitalRain 4s linear infinite;
+}
+
+.rain-drop-1 {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.rain-drop-2 {
+  left: 30%;
+  animation-delay: 0.8s;
+}
+
+.rain-drop-3 {
+  left: 50%;
+  animation-delay: 1.6s;
+}
+
+.rain-drop-4 {
+  left: 70%;
+  animation-delay: 2.4s;
+}
+
+.rain-drop-5 {
+  left: 90%;
+  animation-delay: 3.2s;
+}
+
+@keyframes digitalRain {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh + 100px));
+    opacity: 0;
+  }
+}
+
+/* 电路板背景 */
+.circuit-board-bg {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 65, 0.2) 2px, transparent 2px),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 65, 0.2) 2px, transparent 2px);
+  background-size: 30px 30px, 30px 30px, 60px 60px, 60px 60px;
+  animation: circuitPulse 8s ease-in-out infinite;
+}
+
+@keyframes circuitPulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* 浮动代码片段 */
+.floating-code-snippets {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.code-snippet {
+  position: absolute;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #00ff41;
+  animation: codeFloat 10s ease-in-out infinite;
+}
+
+.code-snippet-1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.code-snippet-2 {
+  top: 60%;
+  left: 80%;
+  animation-delay: 2.5s;
+}
+
+.code-snippet-3 {
+  top: 80%;
+  left: 20%;
+  animation-delay: 5s;
+}
+
+.code-snippet-4 {
+  top: 40%;
+  left: 70%;
+  animation-delay: 7.5s;
+}
+
+@keyframes codeFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-20px) rotate(5deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px) rotate(-3deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-30px) rotate(2deg);
+    opacity: 0.9;
+  }
+}
+
+/* 光束扫描效果 */
+.scanning-beams {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.scan-beam {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.8), transparent);
+  animation: scanBeam 6s ease-in-out infinite;
+}
+
+.scan-beam-1 {
+  top: 20%;
+  animation-delay: 0s;
+}
+
+.scan-beam-2 {
+  top: 50%;
+  animation-delay: 2s;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
+}
+
+.scan-beam-3 {
+  top: 80%;
+  animation-delay: 4s;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.8), transparent);
+}
+
+@keyframes scanBeam {
+  0%, 100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+}
+
+/* 星空背景 */
+.starfield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: starTwinkle 4s ease-in-out infinite;
+}
+
+.star-1 { top: 10%; left: 20%; animation-delay: 0s; }
+.star-2 { top: 25%; left: 60%; animation-delay: 0.5s; }
+.star-3 { top: 40%; left: 30%; animation-delay: 1s; }
+.star-4 { top: 60%; left: 80%; animation-delay: 1.5s; }
+.star-5 { top: 75%; left: 15%; animation-delay: 2s; }
+.star-6 { top: 90%; left: 70%; animation-delay: 2.5s; }
+.star-7 { top: 15%; left: 85%; animation-delay: 3s; }
+.star-8 { top: 55%; left: 45%; animation-delay: 3.5s; }
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+/* 全息网格 */
+.holographic-grid {
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 245, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 245, 255, 0.2) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: hologramShift 15s linear infinite;
+}
+
+@keyframes hologramShift {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(40px, 40px) rotate(360deg);
+  }
+}
+
+/* 量子粒子效果 */
+.quantum-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.quantum-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #00f5ff, transparent);
+  border-radius: 50%;
+  animation: quantumFloat 8s ease-in-out infinite;
+}
+
+.quantum-dot-1 {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.quantum-dot-2 {
+  top: 40%;
+  left: 60%;
+  animation-delay: 1.6s;
+}
+
+.quantum-dot-3 {
+  top: 70%;
+  left: 30%;
+  animation-delay: 3.2s;
+}
+
+.quantum-dot-4 {
+  top: 60%;
+  left: 80%;
+  animation-delay: 4.8s;
+}
+
+.quantum-dot-5 {
+  top: 30%;
+  left: 70%;
+  animation-delay: 6.4s;
+}
+
+@keyframes quantumFloat {
+  0%, 100% {
+    transform: translateX(0) translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateX(20px) translateY(-15px) scale(1.2);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-10px) translateY(-25px) scale(0.8);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(-20px) translateY(10px) scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+/* 数据流线效果 */
+.data-streams {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.data-stream {
+  position: absolute;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f5ff, transparent);
+  animation: dataStream 5s ease-in-out infinite;
+}
+
+.stream-1 {
+  top: 25%;
+  left: 0;
+  animation-delay: 0s;
+}
+
+.stream-2 {
+  top: 50%;
+  right: 0;
+  animation-delay: 1.67s;
+  animation-direction: reverse;
+}
+
+.stream-3 {
+  top: 75%;
+  left: 0;
+  animation-delay: 3.33s;
+}
+
+@keyframes dataStream {
+  0%, 100% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(calc(100vw + 100px));
+    opacity: 1;
+  }
+}
+
+/* 脉冲波纹 */
+.pulse-waves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pulse-wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  border: 2px solid rgba(0, 245, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulseWave 4s ease-out infinite;
+}
+
+.pulse-wave-1 {
+  animation-delay: 0s;
+}
+
+.pulse-wave-2 {
+  animation-delay: 1.33s;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.pulse-wave-3 {
+  animation-delay: 2.67s;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+@keyframes pulseWave {
+  0% {
+    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+/* 闪烁星点 */
+.twinkling-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.twinkle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ffffff;
+  animation: twinkleAnimation 3s ease-in-out infinite;
+}
+
+.twinkle-1 { top: 15%; left: 25%; animation-delay: 0s; }
+.twinkle-2 { top: 35%; left: 70%; animation-delay: 0.5s; }
+.twinkle-3 { top: 55%; left: 20%; animation-delay: 1s; }
+.twinkle-4 { top: 75%; left: 60%; animation-delay: 1.5s; }
+.twinkle-5 { top: 25%; left: 80%; animation-delay: 2s; }
+.twinkle-6 { top: 65%; left: 40%; animation-delay: 2.5s; }
+
+@keyframes twinkleAnimation {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+/* Banner区域科技感文字效果 */
+.creative-text-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.creative-text-glow {
+  animation: creativeGlow 3s ease-in-out infinite;
+  filter: blur(1px);
+}
+
+.creative-text-scan {
+  animation: creativeScan 4s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+
+@keyframes creativeGlow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes creativeScan {
+  0%, 100% {
+    opacity: 0.1;
+    transform: translateX(0);
+  }
+  25% {
+    opacity: 0.3;
+    transform: translateX(5px);
+  }
+  75% {
+    opacity: 0.3;
+    transform: translateX(-5px);
+  }
+}
+
+/* Banner区域科技感按钮效果 */
+.cyber-button {
+  position: relative;
+}
+
+.cyber-glow {
+  animation: cyberGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes cyberGlow {
+  0% {
+    opacity: 0.25;
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 0.4;
+    filter: blur(6px);
+  }
+}
+
+.cyber-icon {
+  animation: cyberIconSpin 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes cyberIconSpin {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1);
+  }
+  75% {
+    transform: rotate(270deg) scale(1.1);
+  }
+}
+
+.cyber-text {
+  animation: cyberTextPulse 2s ease-in-out infinite;
+}
+
+@keyframes cyberTextPulse {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(6, 182, 212, 0.8), 0 0 25px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.cyber-corner {
+  animation: cyberCornerPulse 1.5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+@keyframes cyberCornerPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* 按钮悬停时的增强效果 */
+.cyber-button:hover .cyber-glow {
+  animation: cyberGlowHover 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes cyberGlowHover {
+  0% {
+    opacity: 0.75;
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(8px);
+  }
+}
+
+.cyber-button:hover .cyber-icon {
+  animation-duration: 1s;
+}
+
+.cyber-button:hover .cyber-text {
+  animation-duration: 1s;
+}
+
+.cyber-button:hover .cyber-corner {
+  animation-duration: 0.8s;
 }
 </style>
