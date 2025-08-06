@@ -182,7 +182,7 @@
   <!-- 新建侵权检测任务弹窗 -->
   <DetectionNewTaskModal 
     :isOpen="showCreateModal" 
-    @close="showCreateModal = false"
+    @close="() => { console.log('父组件: 收到close事件'); showCreateModal = false; console.log('父组件: showCreateModal设为false'); }"
     @submit="handleTaskSubmit"
   />
 
@@ -272,6 +272,14 @@ const pageParams = ref({
   limit: 10
 })
 
+// 分页状态
+const pagination = ref({
+  total: 0,
+  current: 1,
+  size: 10,
+  pages: 1
+})
+
 // 筛选参数
 const filterParams = ref({
   taskId: '',
@@ -324,20 +332,30 @@ const fetchTaskList = async () => {
     }
     const response = await getDetectionTaskList(params)
     if (response.success) {
-      // 根据新的API返回结构映射数据字段到表格需要的格式
-      const rawList = response.data?.list || response.data?.creatorList || []
+      // 根据API返回结构映射数据字段到表格需要的格式
+      const rawList = response.data?.records || []
       tableData.value = rawList.map(item => ({
-        id: item.taskId || item.id,
-        检测ID: item.taskId || item.id,
-        目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
-        成功: item.current || item.successCount || '1',
-        失败: '0', // 根据接口文档，暂时设为0
+        id: item.id,
+        检测ID: item.taskNo || item.id,
+        目标: item.targetCount || '0',
+        成功: item.completedCount || '0',
+        失败: '0', // 根据接口返回暂时设为0
         任务状态: getStatusText(item.status),
-        创建人: item.creatorId || item.creator || item.createBy,
-        创建时间: item.createTime || item.createdAt,
+        创建人: item.operator || 'system',
+        创建时间: item.createTime,
         // 保留原始数据以备后用
         _raw: item
       }))
+      
+      // 更新分页信息
+      if (response.data) {
+        pagination.value = {
+          total: parseInt(response.data.total || 0),
+          current: response.data.pageNum || 1,
+          size: response.data.pageSize || 10,
+          pages: response.data.pages || 1
+        }
+      }
     }
   } catch (error) {
     console.error('获取侵权检测任务列表失败:', error)
@@ -398,8 +416,8 @@ const fetchTaskDetail = async (taskId) => {
     console.log('侵权检测任务详情响应:', response)
     
     if (response.success) {
-      // 根据新的API返回结构处理详情数据
-      const detailList = response.data?.data || response.data?.list || []
+      // 根据API返回结构处理详情数据（data直接是数组）
+      const detailList = Array.isArray(response.data) ? response.data : (response.data?.data || response.data?.list || [])
       
       // 更新当前任务数据中的详情信息
       currentTaskData.value = {

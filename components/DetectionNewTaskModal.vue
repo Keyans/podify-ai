@@ -1,10 +1,10 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-dark-card rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto text-dark-text">
+  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" @click="close">
+    <div class="bg-dark-card rounded-lg w-full max-w-xl max-h-[90vh] overflow-y-auto text-dark-text" @click.stop>
       <!-- Header -->
       <div class="p-5 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium text-dark-text">新建检测任务</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-300">
+        <button @click="close" class="text-gray-400 hover:text-gray-300 cursor-pointer z-10 relative">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -13,30 +13,27 @@
       
       <div class="p-6">
         <!-- 上传方式选择 -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-          <!-- 上传图片 -->
-          <div 
+        <div class="flex space-x-4 mb-8">
+          <button 
             @click="selectUploadMethod('upload')"
-            class="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
-            :class="uploadMethod === 'upload' ? 'border-blue-500 bg-blue-500/10' : 'border-dark-border hover:border-blue-400'"
+            class="flex-1 py-3 px-4 flex items-center justify-center border border-dark-border rounded-md hover:bg-dark-hover focus:outline-none"
+            :class="uploadMethod === 'upload' ? 'bg-dark-hover border-blue-500' : ''"
           >
-            <svg class="w-8 h-8 mx-auto mb-2" :class="uploadMethod === 'upload' ? 'text-blue-500' : 'text-dark-text-secondary'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            <div class="text-sm font-medium text-dark-text">上传图片</div>
-          </div>
-
-          <!-- 图库选择 -->
-          <div 
+            上传图片
+          </button>
+          <button 
             @click="selectUploadMethod('gallery')"
-            class="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
-            :class="uploadMethod === 'gallery' ? 'border-blue-500 bg-blue-500/10' : 'border-dark-border hover:border-blue-400'"
+            class="flex-1 py-3 px-4 flex items-center justify-center border border-dark-border rounded-md hover:bg-dark-hover focus:outline-none"
+            :class="uploadMethod === 'gallery' ? 'bg-dark-hover border-blue-500' : ''"
           >
-            <svg class="w-8 h-8 mx-auto mb-2" :class="uploadMethod === 'gallery' ? 'text-blue-500' : 'text-dark-text-secondary'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <div class="text-sm font-medium text-dark-text">图库选择</div>
-          </div>
+            图库选择
+          </button>
         </div>
 
         <!-- 腾讯云 COS 上传组件 -->
@@ -262,7 +259,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits, watch, computed } from 'vue'
+import { ref, reactive, defineProps, defineEmits, watch, computed, onMounted, onBeforeUnmount } from 'vue'
 import TencentCosUpload from '~/components/TencentCosUpload.vue'
 import { createDetectionTask } from '~/apis/business/detection'
 
@@ -286,6 +283,9 @@ const cosUploadRef = ref(null)
 
 // 上传成功的文件列表
 const uploadedFiles = ref([])
+
+// 已选择的文件数量（用于响应式更新）
+const selectedFilesCount = ref(0)
 
 // 图库相关状态
 const showGalleryModal = ref(false)
@@ -370,7 +370,11 @@ const selectUploadMethod = (method) => {
 // COS 上传成功处理
 const handleUploadSuccess = (result) => {
   console.log('文件上传成功:', result)
+  console.log('当前uploadedFiles:', uploadedFiles.value)
   uploadedFiles.value.push(result)
+  console.log('添加后uploadedFiles:', uploadedFiles.value)
+  console.log('canSubmit值:', canSubmit.value)
+  console.log('getTotalImageCount值:', getTotalImageCount())
 }
 
 // COS 上传失败处理
@@ -381,6 +385,10 @@ const handleUploadError = (error) => {
 // 文件变化处理
 const handleFilesChange = (files) => {
   console.log('文件列表变化:', files)
+  selectedFilesCount.value = files.length
+  console.log('更新文件计数，当前文件数:', files.length)
+  console.log('getTotalImageCount值:', getTotalImageCount())
+  console.log('canSubmit值:', canSubmit.value)
 }
 
 // 打开图库弹窗
@@ -445,7 +453,7 @@ const removeGalleryImage = (imageId) => {
 // 获取总图片数量
 const getTotalImageCount = () => {
   if (uploadMethod.value === 'upload') {
-    return cosUploadRef.value ? cosUploadRef.value.getImageInfoList().length : 0
+    return selectedFilesCount.value
   } else {
     return selectedGalleryImages.value.length
   }
@@ -454,7 +462,7 @@ const getTotalImageCount = () => {
 // 检查是否可以提交
 const canSubmit = computed(() => {
   if (uploadMethod.value === 'upload') {
-    return cosUploadRef.value ? cosUploadRef.value.getImageInfoList().length > 0 : false
+    return selectedFilesCount.value > 0
   } else {
     return selectedGalleryImages.value.length > 0
   }
@@ -462,8 +470,31 @@ const canSubmit = computed(() => {
 
 // 关闭弹窗
 const close = () => {
+  console.log('DetectionNewTaskModal: 关闭按钮被点击')
   emits('close')
+  console.log('DetectionNewTaskModal: close事件已发送')
 }
+
+// ESC键关闭
+const handleEscape = (event) => {
+  if (event.key === 'Escape' && props.isOpen) {
+    close()
+  }
+}
+
+// 监听弹窗开关状态
+watch(() => props.isOpen, (newValue) => {
+  if (newValue) {
+    document.addEventListener('keydown', handleEscape)
+  } else {
+    document.removeEventListener('keydown', handleEscape)
+  }
+})
+
+// 组件卸载时清理事件监听
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEscape)
+})
 
 // 提交表单
 const submit = async () => {
@@ -473,7 +504,7 @@ const submit = async () => {
     // 1. 先上传所有文件到 COS
     let cosImageList = []
     if (uploadMethod.value === 'upload' && cosUploadRef.value) {
-      await cosUploadRef.value.uploadAllFilesToCos()
+      await cosUploadRef.value.uploadAllFiles()
       cosImageList = cosUploadRef.value.getImageInfoList()
     }
     
@@ -505,9 +536,14 @@ const submit = async () => {
     
     console.log('创建侵权检测任务参数:', taskParams)
     
+    console.log('准备调用createDetectionTask，参数:', taskParams)
     const response = await createDetectionTask(taskParams)
+    console.log('createDetectionTask响应:', response)
     
-    if (response.success) {
+    // 检查响应是否成功（考虑不同的成功标识）
+    const isSuccess = response.success === true || response.code === 200
+    
+    if (isSuccess) {
       console.log('侵权检测任务创建成功:', response)
       
       const resultData = {
@@ -516,6 +552,7 @@ const submit = async () => {
         success: true
       }
       
+      console.log('准备发送submit事件，成功数据:', resultData)
       emits('submit', resultData)
     } else {
       console.error('侵权检测任务创建失败:', response)
@@ -527,6 +564,7 @@ const submit = async () => {
         error: response.message || '创建侵权检测任务失败'
       }
       
+      console.log('准备发送submit事件，失败数据:', resultData)
       emits('submit', resultData)
     }
     
@@ -550,6 +588,7 @@ const submit = async () => {
 const resetForm = () => {
   uploadMethod.value = 'upload'
   uploadedFiles.value = []
+  selectedFilesCount.value = 0
   selectedGalleryImages.value = []
   showGalleryModal.value = false
   gallerySearch.value = ''
@@ -557,10 +596,8 @@ const resetForm = () => {
   galleryPagination.value.currentPage = 1
   submitting.value = false
   
-  // 重置 COS 上传组件
-  if (cosUploadRef.value) {
-    cosUploadRef.value.clearFiles()
-  }
+  // 重置 COS 上传组件（组件会在重新渲染时自动重置）
+  // cosUploadRef 会在组件重新渲染时自动重置，无需手动调用
 }
 
 // 监听弹窗关闭，重置表单

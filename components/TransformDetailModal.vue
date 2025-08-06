@@ -84,12 +84,14 @@
                 <td class="py-3 px-4">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img 
+                    <OptimizedImage 
                       v-if="item.originalImage || item.imageUrl" 
                       :src="item.originalImage || item.imageUrl" 
                       alt="原图" 
-                      class="w-full h-full object-cover" 
-                      @error="handleImageError"
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
                     />
                     <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <span class="text-xs text-gray-500">无图片</span>
@@ -99,12 +101,14 @@
                 <td class="py-3 px-4">
                   <div class="flex space-x-2">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img 
+                      <OptimizedImage 
                         v-if="item.fissionedImage || item.fissionUrl" 
                         :src="item.fissionedImage || item.fissionUrl" 
                         alt="裂变图" 
-                        class="w-full h-full object-cover"
-                        @error="handleImageError"
+                        container-class="w-full h-full"
+                        image-class="w-full h-full object-cover"
+                        :zoomable="true"
+                        :lazy="false"
                       />
                       <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                         <span class="text-xs text-gray-500">无图片</span>

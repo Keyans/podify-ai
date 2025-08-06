@@ -85,12 +85,14 @@
                 <td class="py-3 px-4">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img 
+                    <OptimizedImage 
                       v-if="item.referenceImage || item.imageUrl" 
                       :src="item.referenceImage || item.imageUrl" 
                       alt="参考图" 
-                      class="w-full h-full object-cover"
-                      @error="$event.target.style.display='none'"
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
                     />
                     <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <span class="text-xs text-gray-500">无参考图</span>
@@ -105,12 +107,13 @@
                         :key="imgIndex" 
                         class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden flex-shrink-0"
                       >
-                        <img 
+                        <OptimizedImage 
                           :src="resultImg" 
                           alt="结果图" 
-                          class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                          @click="previewImage(resultImg)"
-                          @error="$event.target.style.display='none'"
+                          container-class="w-full h-full"
+                          image-class="w-full h-full object-cover"
+                          :zoomable="true"
+                          :lazy="false"
                         />
                       </div>
                     </template>
@@ -120,12 +123,13 @@
                         :key="imgIndex" 
                         class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden flex-shrink-0"
                       >
-                        <img 
+                        <OptimizedImage 
                           :src="resultImg" 
                           alt="结果图" 
-                          class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                          @click="previewImage(resultImg)"
-                          @error="$event.target.style.display='none'"
+                          container-class="w-full h-full"
+                          image-class="w-full h-full object-cover"
+                          :zoomable="true"
+                          :lazy="false"
                         />
                       </div>
                     </template>
@@ -504,13 +508,7 @@ const exportDetail = () => {
   showMoreActions.value = false
 }
 
-// 图片预览功能
-const previewImage = (imageUrl) => {
-  if (imageUrl) {
-    // 在新窗口中打开图片
-    window.open(imageUrl, '_blank')
-  }
-}
+// 图片预览功能已由OptimizedImage组件内置的ImageViewer提供
 
 // 监听任务数据变化，重置分页
 watch(() => props.taskData, (newData) => {

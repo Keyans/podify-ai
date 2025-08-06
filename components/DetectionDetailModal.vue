@@ -105,7 +105,7 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                   <img 
                     :src="item.imageUrl || 'https://via.placeholder.com/60x60'" 
-                    :alt="item.imageName"
+                    :alt="item.fileName || item.imageName"
                     class="w-15 h-15 object-cover rounded-md"
                   />
                 </td>
@@ -121,7 +121,7 @@
                   {{ item.riskLabel || '疑似含有侵权内容' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text">
-                  {{ item.confidence || '42.51%' }}
+                  {{ item.confidence ? `${item.confidence}%` : '0%' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text-secondary">
                   {{ item.detectionTime || '2025-07-24 01:12:39' }}

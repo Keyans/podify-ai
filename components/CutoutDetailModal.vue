@@ -83,7 +83,15 @@
                 <td class="py-3 px-4">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img v-if="item.originalImage || item.imageUrl" :src="item.originalImage || item.imageUrl" alt="原图" class="w-full h-full object-cover" @error="handleImageError" />
+                    <OptimizedImage 
+                      v-if="item.originalImage || item.imageUrl" 
+                      :src="item.originalImage || item.imageUrl" 
+                      alt="原图" 
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
+                    />
                     <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <span class="text-xs text-gray-500">无原图</span>
                     </div>
@@ -91,7 +99,15 @@
                 </td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img v-if="item.cutoutImage || item.resultsImageUrl || item.resultUrl" :src="item.cutoutImage || item.resultsImageUrl || item.resultUrl" alt="抠图" class="w-full h-full object-cover" @error="handleImageError" />
+                    <OptimizedImage 
+                      v-if="item.cutoutImage || item.resultsImageUrl || item.resultUrl" 
+                      :src="item.cutoutImage || item.resultsImageUrl || item.resultUrl" 
+                      alt="抠图" 
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
+                    />
                     <div v-else-if="item.status === 0" class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <div class="text-xs text-yellow-400 text-center">
                         <div class="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-1"></div>

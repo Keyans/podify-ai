@@ -25,6 +25,7 @@
       :data="tableData"
       :loading="loading"
       :currentApp="'transform'"
+      :totalItems="pagination.total"
       idLabel="裂变"
       typeLabel="裂变"
       quantityLabel="裂变"
@@ -246,6 +247,14 @@ const pageParams = ref({
   limit: 10
 })
 
+// 分页信息
+const pagination = ref({
+  total: 0,
+  current: 1,
+  size: 10,
+  pages: 1
+})
+
 // 筛选参数
 const filterParams = ref({
   taskId: '',
@@ -286,7 +295,7 @@ const fetchTaskList = async () => {
     const response = await getFissionTaskList(params)
     if (response.success) {
       // 映射数据字段到表格需要的格式
-      const rawList = response.data?.fissionTaskList || []
+      const rawList = response.data?.fissionList || []
       tableData.value = rawList.map(item => ({
         id: item.fissionId,
         裂变ID: item.fissionId,
@@ -299,6 +308,14 @@ const fetchTaskList = async () => {
         // 保留原始数据以备后用
         _raw: item
       }))
+      
+      // 更新分页信息
+      pagination.value = {
+        total: parseInt(response.data?.total || '0'),
+        current: parseInt(response.data?.current || '1'),
+        size: parseInt(response.data?.size || '10'),
+        pages: parseInt(response.data?.pages || '1')
+      }
     }
   } catch (error) {
     console.error('获取任务列表失败:', error)
