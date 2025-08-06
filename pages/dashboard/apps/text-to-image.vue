@@ -326,10 +326,10 @@ const fetchTaskList = async () => {
       tableData.value = rawList.map(item => ({
         id: item.creatorId || item.id,        // 使用creatorId作为主键
         生图ID: item.creatorId || item.id,    // 生图ID使用creatorId字段
-        目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
-        成功: item.current || item.successCount || '1',
-        失败: '0', // 根据接口文档，暂时设为0
-        任务状态: getStatusText(item.status),
+        目标: item.creatorNum || item.cropperNum || item.targetCount || item.size || '0',  // 使用creatorNum作为主要目标数量
+        成功: item.creatorSuccessNum || item.current || item.successCount || '0',
+        失败: item.creatorFailNum || '0', // 使用接口返回的失败数量
+        任务状态: getStatusText(item.creatorStatus),  // 使用creatorStatus字段
         创建人: item.creatorId || item.creator || item.createBy,
         创建时间: item.createTime || item.createdAt,
         // 保留原始数据以备后用
@@ -414,9 +414,9 @@ const fetchTaskDetail = async (taskId) => {
         referenceImage: item.imageUrl, // 原图作为参考图
         resultImages: item.resultsImageUrl || [], // 结果图片数组
         dimensions: item.dimensions || '1024×1024', // 尺寸
-        description: item.description || item.prompt || '文生图任务', // 描述
-        prompt: item.prompt || '文生图提示词',
-        status: getDetailStatusText(item.status), // 转换状态文本
+        description: item.description || item.promptWord || '文生图任务', // 描述
+        prompt: item.promptWord || item.prompt || '文生图提示词',
+        status: item.creatorStatus, // 使用数字状态，让详情弹窗组件处理转换
         selected: false,
         _raw: item // 保留原始数据
       }))
@@ -451,16 +451,7 @@ const fetchTaskDetail = async (taskId) => {
   }
 }
 
-// 详情状态文本转换
-const getDetailStatusText = (status) => {
-  const statusMap = {
-    0: '处理中',
-    1: '已完成', 
-    2: '失败',
-    3: '部分完成'
-  }
-  return statusMap[status] || '未知'
-}
+
 
 // 处理详情页面变化
 const handleDetailPageChange = async (pagination) => {

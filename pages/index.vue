@@ -67,48 +67,24 @@
       
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="flex flex-col md:flex-row items-center justify-between">
-          <!-- 左侧文本内容 - 科技感进入动画 -->
-          <div class="md:w-1/2 mb-10 md:mb-0 relative tech-entrance-container">
-            <!-- 数据扫描效果背景 -->
-            <div class="absolute inset-0 scanning-overlay">
-              <div class="scan-grid"></div>
-              <div class="data-scan-line"></div>
-            </div>
-            
-            <!-- 主标题区域 -->
-            <div class="relative z-10">
-              <h1 class="text-5xl md:text-6xl font-bold mb-20 leading-tight">
-                <span class="block mb-20 neon-text text-cyan-400 title-tech-entrance">
-                  CUZ CUZ AI
-                  <div class="text-decode-overlay">CUZ CUZ AI</div>
-                </span>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 subtitle-tech-entrance">
-                  创造多元素材
-                  <div class="text-decode-overlay">创造多元素材</div>
-                </span>
-              </h1>
-              
-              <!-- 标语带科技边框 -->
-              <div class="relative tech-tagline-container">
-                <div class="tech-border-frame"></div>
-                <p class="text-xl text-gray-300 mb-20 tagline-tech-entrance relative z-10">
-                  Less Design, More Creation.
-                </p>
-              </div>
-              
-              <!-- 按钮科技感外框 -->
-              <div class="relative tech-button-frame">
-                <div class="button-scan-border"></div>
-                <NuxtLink 
-                  :to="isLoggedIn ? '/dashboard' : '/login'" 
-                  class="inline-block bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium py-4 px-10 rounded-lg text-lg hover:from-blue-700 hover:to-cyan-600 transition-colors duration-200 button-tech-entrance relative z-10"
-                >
-                  <span class="flex items-center">
-                    {{ isLoggedIn ? '开始创作' : '立即体验' }}
-                  </span>
-                </NuxtLink>
-              </div>
-            </div>
+          <!-- 左侧文本内容 -->
+          <div class="md:w-1/2 mb-10 md:mb-0">
+            <h1 class="text-5xl md:text-6xl font-bold mb-20 leading-tight">
+              <span class="block mb-20 neon-text text-cyan-400">CUZ CUZ AI</span>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                创造多元素材
+              </span>
+            </h1>
+            <p class="text-xl text-gray-300 mb-20">Less Design, More Creation.</p>
+            <!-- 动态显示登录/开始创作按钮 -->
+            <NuxtLink 
+              :to="isLoggedIn ? '/dashboard' : '/login'" 
+              class="inline-block bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-medium py-4 px-10 rounded-lg text-lg hover:from-blue-700 hover:to-cyan-600 transition-colors duration-200"
+            >
+              <span class="flex items-center">
+                {{ isLoggedIn ? '开始创作' : '立即体验' }}
+              </span>
+            </NuxtLink>
           </div>
 
           <!-- 右侧科技展示区 -->
@@ -164,50 +140,50 @@
                           <!-- 大风车叶片容器 -->
             <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full big-windmill-container">
                 
-                <!-- 叶片1：北方 (12点方向) - POD T恤设计 -->
+                <!-- 叶片1：北方 (12点方向) - AI生成 -->
                 <div class="absolute windmill-blade windmill-blade-1 cursor-pointer" style="top: -20px; left: 50%; transform: translateX(-50%); transform-origin: 50% 212px;">
                   <div class="relative group w-48 h-32 hover:scale-150 transition-all duration-500 hover:z-50">
                     <div class="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-xl transform group-hover:rotate-2 transition-transform"></div>
                     <div class="relative rounded-xl overflow-hidden border border-cyan-400/30 windmill-card">
-                      <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=600&auto=format&fit=crop" alt="POD T恤设计" class="w-full h-full object-cover" />
+                      <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=600&auto=format&fit=crop" alt="AI智能生成" class="w-full h-full object-cover" />
                       <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div class="absolute bottom-2 left-2 text-cyan-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">T恤设计</div>
+                      <div class="absolute bottom-2 left-2 text-cyan-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">AI生成</div>
                     </div>
                   </div>
                 </div>
                 
-                <!-- 叶片2：东方 (3点方向) - POD马克杯 -->
+                <!-- 叶片2：东方 (3点方向) - 未来科技 -->
                 <div class="absolute windmill-blade windmill-blade-2 cursor-pointer" style="top: 50%; right: -20px; transform: translateY(-50%); transform-origin: -212px 50%;">
                   <div class="relative group w-48 h-32 hover:scale-150 transition-all duration-500 hover:z-50">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-xl transform group-hover:rotate-2 transition-transform"></div>
                     <div class="relative rounded-xl overflow-hidden border border-purple-400/30 windmill-card">
-                      <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=600&auto=format&fit=crop" alt="POD马克杯" class="w-full h-full object-cover" />
+                      <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=600&auto=format&fit=crop" alt="未来科技" class="w-full h-full object-cover" />
                       <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div class="absolute bottom-2 left-2 text-purple-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">马克杯</div>
+                      <div class="absolute bottom-2 left-2 text-purple-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">未来科技</div>
                     </div>
                   </div>
                 </div>
                 
-                <!-- 叶片3：南方 (6点方向) - POD帆布包 -->
+                <!-- 叶片3：南方 (6点方向) - 数字艺术 -->
                 <div class="absolute windmill-blade windmill-blade-3 cursor-pointer" style="bottom: -20px; left: 50%; transform: translateX(-50%); transform-origin: 50% -212px;">
                   <div class="relative group w-48 h-32 hover:scale-150 transition-all duration-500 hover:z-50">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-xl transform group-hover:rotate-2 transition-transform"></div>
                     <div class="relative rounded-xl overflow-hidden border border-blue-400/30 windmill-card">
-                      <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600&auto=format&fit=crop" alt="POD帆布包" class="w-full h-full object-cover" />
+                      <img src="https://images.unsplash.com/photo-1626544827763-d516dce335e2?q=80&w=600&auto=format&fit=crop" alt="数字艺术" class="w-full h-full object-cover" />
                       <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div class="absolute bottom-2 left-2 text-blue-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">帆布包</div>
+                      <div class="absolute bottom-2 left-2 text-blue-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">数字艺术</div>
                     </div>
                   </div>
                 </div>
                 
-                <!-- 叶片4：西方 (9点方向) - POD手机壳 -->
+                <!-- 叶片4：西方 (9点方向) - 智能设计 -->
                 <div class="absolute windmill-blade windmill-blade-4 cursor-pointer" style="top: 50%; left: -20px; transform: translateY(-50%); transform-origin: 212px 50%;">
                   <div class="relative group w-48 h-32 hover:scale-150 transition-all duration-500 hover:z-50">
                     <div class="absolute inset-0 bg-gradient-to-br from-green-400/20 to-cyan-400/20 rounded-xl transform group-hover:rotate-2 transition-transform"></div>
                     <div class="relative rounded-xl overflow-hidden border border-green-400/30 windmill-card">
-                      <img src="https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?q=80&w=600&auto=format&fit=crop" alt="POD手机壳" class="w-full h-full object-cover" />
+                      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=600&auto=format&fit=crop" alt="智能设计" class="w-full h-full object-cover" />
                       <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div class="absolute bottom-2 left-2 text-green-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">手机壳</div>
+                      <div class="absolute bottom-2 left-2 text-green-400 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">智能设计</div>
                     </div>
                   </div>
                 </div>
@@ -2630,415 +2606,4 @@ useHead({
 /* 移除蓝色光圈提示效果 */
 
 /* Banner区域简化样式 - 移除复杂动画效果 */
-
-/* ======================== 科技感进入动画效果 ======================== */
-
-/* 容器初始化 */
-.tech-entrance-container {
-  opacity: 0;
-  animation: techContainerAppear 0.8s ease-out 0.5s forwards;
-}
-
-@keyframes techContainerAppear {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* 扫描网格背景 */
-.scanning-overlay {
-  opacity: 0;
-  animation: scanningStart 2s ease-out 0.5s forwards;
-}
-
-.scan-grid {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  animation: gridScan 3s ease-in-out 1s infinite;
-}
-
-@keyframes gridScan {
-  0%, 100% {
-    opacity: 0.3;
-    transform: translate(0, 0);
-  }
-  50% {
-    opacity: 0.6;
-    transform: translate(5px, 5px);
-  }
-}
-
-/* 数据扫描线 - 增强渐变效果 */
-.data-scan-line {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(6, 182, 212, 0.3) 10%,
-    rgba(6, 182, 212, 0.8) 25%,
-    rgba(255, 255, 255, 1) 40%,
-    rgba(6, 182, 212, 1) 50%,
-    rgba(255, 255, 255, 1) 60%,
-    rgba(6, 182, 212, 0.8) 75%,
-    rgba(6, 182, 212, 0.3) 90%,
-    transparent 100%
-  );
-  box-shadow: 
-    0 0 25px rgba(6, 182, 212, 0.9),
-    0 0 40px rgba(6, 182, 212, 0.6),
-    0 0 60px rgba(6, 182, 212, 0.3),
-    0 0 80px rgba(255, 255, 255, 0.2);
-  animation: dataScanMove 2.5s ease-out 1s forwards;
-  
-
-}
-
-/* 扫描线渐变拖尾效果 */
-.data-scan-line::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -10px;
-  width: 24px;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(6, 182, 212, 0.1) 20%,
-    rgba(6, 182, 212, 0.3) 40%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(6, 182, 212, 0.3) 60%,
-    rgba(6, 182, 212, 0.1) 80%,
-    transparent
-  );
-  filter: blur(2px);
-}
-
-.data-scan-line::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -20px;
-  width: 44px;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(6, 182, 212, 0.05) 30%,
-    rgba(6, 182, 212, 0.1) 50%,
-    rgba(6, 182, 212, 0.05) 70%,
-    transparent
-  );
-  filter: blur(8px);
-}
-
-@keyframes dataScanMove {
-  0% {
-    left: -100%;
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    left: 100%;
-    opacity: 0;
-  }
-}
-
-/* 标题科技感进入 - 0.5秒快速出现 */
-.title-tech-entrance {
-  position: relative;
-  opacity: 0;
-  transform: translateY(50px);
-  animation: titleTechEntrance 1.5s ease-out 0.5s forwards;
-}
-
-.title-tech-entrance .text-decode-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: transparent;
-  background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.8), transparent);
-  background-clip: text;
-  -webkit-background-clip: text;
-  opacity: 0;
-  animation: textDecode 0.8s ease-out 0.7s forwards;
-}
-
-@keyframes titleTechEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(50px) scale(0.8);
-    filter: blur(10px);
-  }
-  40% {
-    opacity: 0.7;
-    transform: translateY(20px) scale(0.9);
-    filter: blur(5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes textDecode {
-  0% {
-    opacity: 1;
-    background-position: -200% 0;
-  }
-  50% {
-    opacity: 1;
-    background-position: 200% 0;
-  }
-  100% {
-    opacity: 0;
-    background-position: 400% 0;
-  }
-}
-
-/* 副标题科技感进入 - 0.5秒间隔 */
-.subtitle-tech-entrance {
-  position: relative;
-  opacity: 0;
-  transform: translateX(-100px);
-  animation: subtitleTechEntrance 1.2s ease-out 1.0s forwards;
-}
-
-.subtitle-tech-entrance .text-decode-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  opacity: 0;
-  animation: textDecode 0.6s ease-out 1.2s forwards;
-}
-
-@keyframes subtitleTechEntrance {
-  0% {
-    opacity: 0;
-    transform: translateX(-100px);
-    filter: blur(8px);
-  }
-  60% {
-    opacity: 0.8;
-    transform: translateX(10px);
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-    filter: blur(0);
-  }
-}
-
-/* 标语科技边框 - 0.5秒间隔 */
-.tech-tagline-container {
-  opacity: 0;
-  animation: taglineContainerAppear 1s ease-out 1.5s forwards;
-}
-
-.tech-border-frame {
-  position: absolute;
-  inset: -10px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: linear-gradient(45deg, 
-    transparent, 
-    rgba(6, 182, 212, 0.3), 
-    transparent, 
-    rgba(59, 130, 246, 0.3), 
-    transparent
-  );
-  background-size: 300% 300%;
-  animation: borderScanOnce 2s ease-in-out 1.5s forwards;
-  opacity: 0;
-}
-
-@keyframes borderScan {
-  0%, 100% {
-    background-position: 0% 50%;
-    opacity: 0.3;
-  }
-  50% {
-    background-position: 100% 50%;
-    opacity: 0.8;
-  }
-}
-
-/* 只播放一次的边框扫描 */
-@keyframes borderScanOnce {
-  0% {
-    background-position: 0% 50%;
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.6;
-    background-position: 50% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-    opacity: 1;
-  }
-  80% {
-    background-position: 150% 50%;
-    opacity: 0.4;
-  }
-  100% {
-    background-position: 200% 50%;
-    opacity: 0;
-  }
-}
-
-.tagline-tech-entrance {
-  opacity: 0;
-  transform: translateY(30px);
-  animation: taglineTechEntrance 1s ease-out 1.7s forwards;
-}
-
-@keyframes taglineTechEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-    letter-spacing: 3px;
-    filter: blur(5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    letter-spacing: normal;
-    filter: blur(0);
-  }
-}
-
-/* 按钮科技感效果 - 0.5秒间隔 */
-.tech-button-frame {
-  opacity: 0;
-  animation: buttonFrameAppear 1s ease-out 2.2s forwards;
-}
-
-.button-scan-border {
-  position: absolute;
-  inset: -5px;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(6, 182, 212, 0.6), 
-    rgba(255, 255, 255, 0.8), 
-    rgba(6, 182, 212, 0.6), 
-    transparent
-  );
-  background-size: 400% 100%;
-  animation: buttonBorderScanOnce 1.5s ease-in-out 2.2s forwards;
-  opacity: 0;
-}
-
-@keyframes buttonBorderScan {
-  0%, 100% {
-    background-position: -100% 0;
-    opacity: 0.5;
-  }
-  50% {
-    background-position: 100% 0;
-    opacity: 1;
-  }
-}
-
-/* 按钮只播放一次的边框扫描 */
-@keyframes buttonBorderScanOnce {
-  0% {
-    background-position: -100% 0;
-    opacity: 0;
-  }
-  30% {
-    opacity: 0.8;
-    background-position: 0% 0;
-  }
-  70% {
-    background-position: 100% 0;
-    opacity: 1;
-  }
-  100% {
-    background-position: 200% 0;
-    opacity: 0;
-  }
-}
-
-.button-tech-entrance {
-  opacity: 0;
-  transform: translateY(40px) scale(0.9);
-  animation: buttonTechEntrance 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 2.4s forwards;
-}
-
-@keyframes buttonTechEntrance {
-  0% {
-    opacity: 0;
-    transform: translateY(40px) scale(0.9);
-    filter: blur(5px);
-    box-shadow: none;
-  }
-  60% {
-    opacity: 0.8;
-    transform: translateY(-5px) scale(1.05);
-    filter: blur(1px);
-    box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-    box-shadow: 0 15px 35px rgba(6, 182, 212, 0.3);
-  }
-}
-
-@keyframes taglineContainerAppear {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes buttonFrameAppear {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes scanningStart {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
 </style>

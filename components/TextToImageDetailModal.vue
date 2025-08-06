@@ -437,33 +437,38 @@ const getStatusClass = (status) => {
   
   if (numericStatus !== null) {
     const numericStatusClasses = {
-      0: 'bg-yellow-100 text-yellow-800', // 处理中
-      1: 'bg-green-100 text-green-800',   // 已完成
-      2: 'bg-red-100 text-red-800',       // 失败
-      3: 'bg-orange-100 text-orange-800'  // 部分完成
+      0: 'bg-gray-100 text-gray-800',     // 待执行
+      1: 'bg-yellow-100 text-yellow-800', // 进行中
+      2: 'bg-green-100 text-green-800',   // 已完成
+      3: 'bg-orange-100 text-orange-800', // 部分失败
+      4: 'bg-red-100 text-red-800'        // 失败
     }
     return numericStatusClasses[numericStatus] || 'bg-gray-100 text-gray-800'
   }
   
   // 处理字符串状态
   const statusClasses = {
+    '待执行': 'bg-gray-100 text-gray-800',
+    '进行中': 'bg-yellow-100 text-yellow-800',
     '已完成': 'bg-green-100 text-green-800',
-    '处理中': 'bg-yellow-100 text-yellow-800',
-    '失败': 'bg-red-100 text-red-800',
     '部分失败': 'bg-orange-100 text-orange-800',
+    '失败': 'bg-red-100 text-red-800',
+    // 兼容旧的状态名称
+    '处理中': 'bg-yellow-100 text-yellow-800',
     '部分完成': 'bg-orange-100 text-orange-800'
   }
   return statusClasses[statusText] || 'bg-gray-100 text-gray-800'
 }
 
 const getStatusText = (status) => {
-  // 处理数字状态码
+  // 处理数字状态码，与列表页面保持一致的状态映射
   if (typeof status === 'number') {
     const statusMap = {
-      0: '处理中',
-      1: '已完成',
-      2: '失败',
-      3: '部分完成'
+      0: '待执行',
+      1: '进行中',
+      2: '已完成',
+      3: '部分失败',
+      4: '失败'
     }
     return statusMap[status] || '未知'
   }
