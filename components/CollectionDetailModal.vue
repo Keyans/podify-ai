@@ -806,10 +806,11 @@ const croppingItems = computed(() => {
 // 状态文本转换函数
 const getStatusText = (status) => {
   const statusMap = {
-    0: '处理中',
-    1: '成功', 
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中', 
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }

@@ -86,10 +86,11 @@
                   }"
                 >
                   <option value="">全部状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">检测中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待执行</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -343,8 +344,11 @@ const fetchTaskList = async () => {
         任务状态: getStatusText(item.status),
         创建人: item.operator || 'system',
         创建时间: item.createTime,
-        // 保留原始数据以备后用
-        _raw: item
+        // 保留原始数据以备后用，确保包含taskId字段
+        _raw: {
+          ...item,
+          taskId: item.taskId || item.id // 确保有taskId字段
+        }
       }))
       
       // 更新分页信息
@@ -367,10 +371,11 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -391,8 +396,10 @@ const showTaskDetail = async (item) => {
   
   showDetailModal.value = true
   
-  // 获取详情数据，使用 taskId 或 id
-  const taskId = item.id || item.检测ID || item._raw?.taskId || item._raw?.id
+  // 获取详情数据，优先使用原始数据中的taskId，然后使用id
+  const taskId = item._raw?.taskId || item._raw?.id || item.id || item.检测ID
+  console.log('点击查看详情，item数据:', item)
+  console.log('使用的taskId:', taskId)
   if (taskId) {
     // 并行获取任务详情列表和任务统计信息
     await Promise.all([
@@ -418,6 +425,9 @@ const fetchTaskDetail = async (taskId) => {
     if (response.success) {
       // 根据API返回结构处理详情数据（data直接是数组）
       const detailList = Array.isArray(response.data) ? response.data : (response.data?.data || response.data?.list || [])
+      
+      console.log('处理后的详情数据:', detailList)
+      console.log('详情数据长度:', detailList.length)
       
       // 更新当前任务数据中的详情信息
       currentTaskData.value = {

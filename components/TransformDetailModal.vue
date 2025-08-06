@@ -99,20 +99,39 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <div class="flex space-x-2">
-                    <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <OptimizedImage 
-                        v-if="item.fissionedImage || item.fissionUrl" 
-                        :src="item.fissionedImage || item.fissionUrl" 
-                        alt="裂变图" 
-                        container-class="w-full h-full"
-                        image-class="w-full h-full object-cover"
-                        :zoomable="true"
-                        :lazy="false"
-                      />
-                      <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
-                        <span class="text-xs text-gray-500">无图片</span>
+                  <!-- 支持多张裂变图显示 -->
+                  <div class="flex flex-wrap gap-2 max-w-xs">
+                    <!-- 处理resultsImageUrl数组格式 -->
+                    <template v-if="getFissionImages(item).length > 0">
+                      <div 
+                        v-for="(imageUrl, imgIndex) in getFissionImages(item).slice(0, 4)" 
+                        :key="imgIndex"
+                        class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden relative"
+                      >
+                        <OptimizedImage 
+                          :src="imageUrl" 
+                          :alt="`裂变图${imgIndex + 1}`" 
+                          container-class="w-full h-full"
+                          image-class="w-full h-full object-cover"
+                          :zoomable="true"
+                          :lazy="false"
+                        />
+                        <!-- 显示图片序号 -->
+                        <div class="absolute top-1 left-1 bg-black/50 text-white text-xs px-1 rounded">
+                          {{ imgIndex + 1 }}
+                        </div>
                       </div>
+                      <!-- 如果超过4张图片，显示剩余数量 -->
+                      <div 
+                        v-if="getFissionImages(item).length > 4"
+                        class="w-16 h-16 bg-dark-hover rounded-md flex items-center justify-center"
+                      >
+                        <span class="text-xs text-gray-400">+{{ getFissionImages(item).length - 4 }}</span>
+                      </div>
+                    </template>
+                    <!-- 无裂变图时的显示 -->
+                    <div v-else class="w-16 h-16 bg-dark-hover rounded-md flex items-center justify-center">
+                      <span class="text-xs text-gray-500">无图片</span>
                     </div>
                   </div>
                 </td>
@@ -125,7 +144,17 @@
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
-                  <a href="#" class="text-green-500 hover:underline" @click.prevent="downloadImage(item)">下载图片</a>
+                  <div class="flex flex-col space-y-1">
+                    <a href="#" class="text-green-500 hover:underline text-sm" @click.prevent="downloadImage(item)">下载图片</a>
+                    <a 
+                      v-if="getFissionImages(item).length > 1" 
+                      href="#" 
+                      class="text-blue-500 hover:underline text-xs" 
+                      @click.prevent="viewAllImages(item)"
+                    >
+                      查看全部({{ getFissionImages(item).length }})
+                    </a>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -328,6 +357,69 @@ const getStatusClass = (status) => {
     4: 'bg-orange-500 text-white'
   }
   return statusClassMap[status] || 'bg-gray-500 text-white'
+}
+
+// 获取裂变图片数组
+const getFissionImages = (item) => {
+  console.log('🔍 getFissionImages 调试:', {
+    fissionId: item.fissionId || item.id,
+    resultsImageUrl: item.resultsImageUrl,
+    type: typeof item.resultsImageUrl,
+    isArray: Array.isArray(item.resultsImageUrl)
+  })
+  
+  // 优先处理resultsImageUrl数组格式
+  if (item.resultsImageUrl && Array.isArray(item.resultsImageUrl)) {
+    const filtered = item.resultsImageUrl.filter(url => url && url.trim() !== '')
+    console.log('✅ 返回数组格式图片:', filtered)
+    return filtered
+  }
+  
+  // 处理字符串格式的resultsImageUrl（可能是JSON字符串）
+  if (item.resultsImageUrl && typeof item.resultsImageUrl === 'string') {
+    try {
+      const parsed = JSON.parse(item.resultsImageUrl)
+      if (Array.isArray(parsed)) {
+        return parsed.filter(url => url && url.trim() !== '')
+      }
+    } catch (e) {
+      // 如果不是JSON字符串，当作单个URL处理
+      return [item.resultsImageUrl].filter(url => url && url.trim() !== '')
+    }
+  }
+  
+  // 兼容旧的字段名
+  const legacyFields = [
+    item.fissionedImage,
+    item.fissionUrl,
+    item.transformedImage,
+    item.resultImage
+  ]
+  
+  return legacyFields.filter(url => url && url.trim() !== '')
+}
+
+// 查看所有裂变图
+const viewAllImages = (item) => {
+  const images = getFissionImages(item)
+  if (images.length === 0) {
+    console.log('没有可查看的裂变图')
+    return
+  }
+  
+  // 使用图片查看器显示所有图片
+  const { $imageViewer } = useNuxtApp()
+  if ($imageViewer?.showGallery) {
+    const imageItems = images.map((url, index) => ({
+      src: url,
+      title: `裂变图 ${index + 1}`,
+      alt: `裂变图 ${index + 1}`
+    }))
+    $imageViewer.showGallery(imageItems, 0)
+  } else {
+    // 备选方案：在新窗口中打开第一张图片
+    window.open(images[0], '_blank')
+  }
 }
 
 // 图片加载错误处理

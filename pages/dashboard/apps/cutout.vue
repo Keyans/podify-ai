@@ -360,7 +360,7 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '待处理',
+    0: '待执行',
     1: '进行中',
     2: '已完成',
     3: '部分失败',

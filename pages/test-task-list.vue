@@ -91,10 +91,11 @@ const rawResponse = ref(null)
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成', 
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中', 
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }

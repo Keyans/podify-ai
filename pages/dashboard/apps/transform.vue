@@ -87,10 +87,11 @@
                     }"
                   >
                     <option value="">全部状态</option>
-                    <option value="waiting">等待中</option>
-                    <option value="processing">裂变中</option>
-                    <option value="completed">已完成</option>
-                    <option value="failed">失败</option>
+                    <option value="0">待执行</option>
+                    <option value="1">进行中</option>
+                    <option value="2">已完成</option>
+                    <option value="3">部分失败</option>
+                    <option value="4">失败</option>
                   </select>
                   <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -381,8 +382,11 @@ const fetchTaskDetail = async (taskId) => {
         fissionId: item.fissionId,
         imageUrl: item.imageUrl,
         originalImage: item.imageUrl,
-        fissionUrl: item.resultsImageUrl,
-        fissionedImage: item.resultsImageUrl,
+        // 保持resultsImageUrl的原始数组格式
+        resultsImageUrl: item.resultsImageUrl,
+        // 兼容旧字段，如果是数组则取第一个
+        fissionUrl: Array.isArray(item.resultsImageUrl) ? item.resultsImageUrl[0] : item.resultsImageUrl,
+        fissionedImage: Array.isArray(item.resultsImageUrl) ? item.resultsImageUrl[0] : item.resultsImageUrl,
         status: item.status,
         fissionStatus: item.status,
         // 保留原始数据
@@ -407,6 +411,16 @@ const fetchTaskDetail = async (taskId) => {
       console.log('✅ 任务详情数据已格式化:', {
         detailList: formattedDetailList,
         pagination: currentTaskData.value.detailPagination
+      })
+      
+      // 专门调试resultsImageUrl数据
+      formattedDetailList.forEach((item, index) => {
+        console.log(`详情项 ${index + 1}:`, {
+          fissionId: item.fissionId,
+          resultsImageUrl: item.resultsImageUrl,
+          isArray: Array.isArray(item.resultsImageUrl),
+          length: Array.isArray(item.resultsImageUrl) ? item.resultsImageUrl.length : 'N/A'
+        })
       })
     }
   } catch (error) {

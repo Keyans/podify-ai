@@ -22,10 +22,11 @@
             }"
             >
               <option value="all">全部状态</option>
-              <option value="waiting">等待中</option>
-              <option value="processing">处理中</option>
-              <option value="completed">已完成</option>
-              <option value="failed">失败</option>
+              <option value="0">待执行</option>
+              <option value="1">进行中</option>
+              <option value="2">已完成</option>
+              <option value="3">部分失败</option>
+              <option value="4">失败</option>
           </select>
             <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -737,7 +738,7 @@ const getStatus = (item) => {
 // 将数字状态转换为文字 (collection页面使用)
 const getNumericStatusText = (status) => {
   const statusMap = {
-    0: '待处理',
+    0: '待执行',
     1: '进行中',
     2: '已完成', 
     3: '部分失败',
