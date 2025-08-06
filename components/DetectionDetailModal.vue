@@ -65,10 +65,10 @@
               class="px-3 py-2 bg-dark-input border border-dark-border rounded-md text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">风险等级</option>
-              <option value="low">低风险</option>
-              <option value="medium">中风险</option>
-              <option value="high">高风险</option>
-              <option value="unknown">未知</option>
+              <option value="0">无风险</option>
+              <option value="1">低风险</option>
+              <option value="2">中风险</option>
+              <option value="3">高风险</option>
             </select>
           </div>
         </div>
@@ -120,7 +120,7 @@
                   {{ item.reason || item.riskLabel || '疑似含有侵权内容' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text">
-                  {{ item.confidence ? `${item.confidence}%` : '0%' }}
+                  {{ item.confidence ? `${(item.confidence / 100).toFixed(2)}%` : '0%' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text-secondary">
                   {{ item.detectionTime || '2025-07-24 01:12:39' }}
@@ -311,7 +311,9 @@ const filteredDetailList = computed(() => {
   let result = [...detailList.value]
   
   if (filterRiskLevel.value) {
-    result = result.filter(item => item.riskLevel === filterRiskLevel.value)
+    // 确保数字比较正确，filterRiskLevel.value是字符串，需要转换为数字进行比较
+    const targetRiskLevel = parseInt(filterRiskLevel.value)
+    result = result.filter(item => item.riskLevel === targetRiskLevel)
   }
   
   return result
@@ -331,43 +333,45 @@ const paginatedDetailList = computed(() => {
 
 // 获取风险等级样式
 const getRiskLevelClass = (level) => {
-  // 支持数字和字符串风险等级
+  // 支持数字和字符串风险等级，按照API文档：0=无风险,1=低风险,2=中风险,3=高风险
   switch (level) {
     case 0:
-    case 'low':
-      return 'bg-green-100 text-green-800'
+    case 'none':
+      return 'bg-gray-100 text-gray-800'  // 无风险
     case 1:
-    case 'medium':
-      return 'bg-yellow-100 text-yellow-800'
+    case 'low':
+      return 'bg-green-100 text-green-800'  // 低风险
     case 2:
-    case 'high':
-      return 'bg-red-100 text-red-800'
+    case 'medium':
+      return 'bg-yellow-100 text-yellow-800'  // 中风险
     case 3:
-    case 'unknown':
-      return 'bg-blue-100 text-blue-800'
+    case 'high':
+      return 'bg-red-100 text-red-800'  // 高风险
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-blue-100 text-blue-800'  // 未知风险
   }
 }
 
 // 获取风险等级文本
 const getRiskLevelText = (level) => {
-  // 支持数字和字符串风险等级
+  // 支持数字和字符串风险等级，按照API文档：0=无风险,1=低风险,2=中风险,3=高风险
+  console.log('🔍 getRiskLevelText 调试:', { level, type: typeof level })
+  
   switch (level) {
     case 0:
-    case 'low':
+    case 'none':
       return '无风险'
     case 1:
+    case 'low':
+      return '低风险'
+    case 2:
     case 'medium':
       return '中风险'
-    case 2:
+    case 3:
     case 'high':
       return '高风险'
-    case 3:
-    case 'unknown':
-      return '未知风险'
     default:
-      return '无风险'
+      return '未知风险'
   }
 }
 
