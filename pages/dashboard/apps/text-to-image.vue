@@ -416,7 +416,7 @@ const fetchTaskDetail = async (taskId) => {
         dimensions: item.dimensions || '1024×1024', // 尺寸
         description: item.description || item.promptWord || '文生图任务', // 描述
         prompt: item.promptWord || item.prompt || '文生图提示词',
-        status: item.creatorStatus, // 使用数字状态，让详情弹窗组件处理转换
+        status: item.status, // 详情接口返回的状态字段是status，不是creatorStatus
         selected: false,
         _raw: item // 保留原始数据
       }))
