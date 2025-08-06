@@ -41,9 +41,11 @@
             <div v-if="showStatusDropdown" class="absolute mt-1 w-40 bg-dark-card border border-dark-border rounded-md shadow-lg z-10">
               <div class="py-1">
                 <a href="#" @click.prevent="filterByStatus('全部')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">全部</a>
-                <a href="#" @click.prevent="filterByStatus('成功')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">成功</a>
+                <a href="#" @click.prevent="filterByStatus('待执行')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">待执行</a>
+                <a href="#" @click.prevent="filterByStatus('进行中')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">进行中</a>
+                <a href="#" @click.prevent="filterByStatus('已完成')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">已完成</a>
+                <a href="#" @click.prevent="filterByStatus('部分失败')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">部分失败</a>
                 <a href="#" @click.prevent="filterByStatus('失败')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">失败</a>
-                <a href="#" @click.prevent="filterByStatus('处理中')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">处理中</a>
               </div>
             </div>
           </div>
@@ -303,10 +305,11 @@ const getStatusText = (status) => {
   // 确保status是数字类型
   const numStatus = typeof status === 'string' ? parseInt(status) : status
   const statusMap = {
-    0: '处理中',
-    1: '成功',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[numStatus] || '未知'
 }
@@ -315,10 +318,12 @@ const getStatusText = (status) => {
 const getStatusClass = (status) => {
   const statusText = getStatusText(status)
   return {
-    'bg-green-500 text-white': statusText === '成功',
+    'bg-gray-500 text-white': statusText === '待执行',
+    'bg-blue-500 text-white': statusText === '进行中',
+    'bg-green-500 text-white': statusText === '已完成',
+    'bg-orange-500 text-white': statusText === '部分失败',
     'bg-red-500 text-white': statusText === '失败',
-    'bg-yellow-500 text-white': statusText === '处理中',
-    'bg-gray-500 text-white': statusText === '暂停' || statusText === '未知'
+    'bg-gray-500 text-white': statusText === '未知'
   }
 }
 
