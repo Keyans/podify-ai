@@ -78,7 +78,10 @@
         <button 
             v-if="showNewButton"
             @click="handleNewTask"
-            class="px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 flex items-center text-sm"
+            class="px-4 py-2 text-white rounded-lg flex items-center text-sm task-table-primary-btn"
+            :style="{
+              backgroundColor: 'var(--accent-color)'
+            }"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -147,7 +150,7 @@
       </div>
       
       <!-- 表格内容区域 - 精确自适应高度，确保内部滚动 -->
-      <div class="flex-1 min-h-0 overflow-auto" :style="{ backgroundColor: 'var(--bg-secondary)' }">
+      <div class="flex-1 min-h-0 overflow-auto relative" :style="{ backgroundColor: 'var(--bg-secondary)' }">
         <table class="w-full table-fixed">
           <colgroup>
             <col style="width: 50px;">  <!-- 复选框列 -->
@@ -359,21 +362,33 @@
               </div>
             </td>
           </tr>
-          
-            <!-- 无数据时的占位内容 - 使用最小高度确保填充 -->
-          <tr v-if="filteredData.length === 0">
-              <td :colspan="showType ? 8 : 7" class="px-6 py-20">
-                <div class="flex flex-col items-center justify-center text-center" :style="{ color: 'var(--text-secondary)', minHeight: '300px' }">
-                  <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  <p class="text-lg font-medium mb-2">暂无数据</p>
-                  <p class="text-sm opacity-75">还没有任何任务记录</p>
-                </div>
-            </td>
-          </tr>
+
         </tbody>
       </table>
+      
+      <!-- 加载状态的居中显示 -->
+      <div 
+        v-if="loading" 
+        class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
+        :style="{ color: 'var(--text-secondary)' }"
+      >
+        <div class="w-8 h-8 border-2 border-current border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-lg font-medium mb-2">加载中...</p>
+        <p class="text-sm opacity-75">正在获取数据</p>
+      </div>
+      
+      <!-- 无数据时的居中显示 -->
+      <div 
+        v-else-if="filteredData.length === 0" 
+        class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
+        :style="{ color: 'var(--text-secondary)' }"
+      >
+        <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-lg font-medium mb-2">暂无数据</p>
+        <p class="text-sm opacity-75">还没有任何任务记录</p>
+      </div>
       </div>
       
       <!-- 分页区域 - 固定高度 -->
@@ -437,7 +452,14 @@
           </button>
 
           <!-- 页码 -->
-          <span class="px-3 py-1.5 text-sm rounded border bg-blue-600 text-white">
+          <span 
+            class="px-3 py-1.5 text-sm rounded border"
+            :style="{
+              backgroundColor: 'var(--accent-color)',
+              color: 'white',
+              borderColor: 'var(--accent-color)'
+            }"
+          >
             {{ pagination.currentPage }}
           </span>
 
@@ -959,4 +981,11 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-</script> 
+</script>
+
+<style scoped>
+.task-table-primary-btn:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style> 
