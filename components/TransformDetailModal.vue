@@ -136,12 +136,7 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <span 
-                    class="px-2 py-1 text-xs font-medium rounded-md"
-                    :class="getStatusClass(item.status || item.fissionStatus)"
-                  >
-                    {{ getStatusText(item.status || item.fissionStatus) }}
-                  </span>
+                  <TaskStatus :status="item.status || item.fissionStatus || 0" size="sm" />
                 </td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex flex-col space-y-1">
@@ -259,6 +254,7 @@
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, computed, watch } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {

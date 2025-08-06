@@ -332,23 +332,19 @@ const fetchTaskList = async () => {
     if (response.success) {
       // 映射数据字段到表格需要的格式
       const rawList = response.data?.mattingTaskList || response.data?.list || []
+      console.log('一键抠图原始数据:', rawList.slice(0, 2)) // 打印前2条数据用于调试
       tableData.value = rawList.map(item => ({
         id: item.mattingId || item.taskId,
         抠图ID: item.mattingId || item.taskId,
         目标: item.mattingNum || item.targetCount,
         成功: item.mattingSuccessNum || item.successCount,
         失败: item.mattingFailNum || item.failedCount,
-        status: item.mattingStatus || item.status, // 保持原始数字状态值
+        mattingStatus: parseInt(item.mattingStatus || item.status || 0), // 确保是数字类型
         创建人: item.createBy || item.creator,
-        // 保留原始数据字段，供详情弹窗使用
-        mattingNum: item.mattingNum,
-        mattingSuccessNum: item.mattingSuccessNum,
-        mattingFailNum: item.mattingFailNum,
-        mattingStatus: item.mattingStatus,
-        mattingId: item.mattingId,
-        _raw: item, // 保存完整的原始数据
-        创建时间: item.createTime || item.createdAt
+        创建时间: item.createTime || item.createdAt,
+        _raw: item // 保存完整的原始数据
       }))
+      console.log('一键抠图映射后数据:', tableData.value.slice(0, 2)) // 打印映射后的前2条数据
     }
   } catch (error) {
     console.error('获取抠图任务列表失败:', error)

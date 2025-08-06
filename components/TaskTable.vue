@@ -208,12 +208,7 @@
               </div>
             </td>
             <td class="px-4 py-4 text-center">
-                <span 
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                  :class="getStatusClass(item)"
-                >
-                  {{ getStatusText(item) }}
-                </span>
+                <TaskStatus :status="getStatus(item)" />
             </td>
             <td class="px-4 py-4 text-center" :style="{ color: 'var(--text-primary)' }">
                 <div class="text-sm truncate" :title="item.创建人 || item.creator || '-'">
@@ -500,6 +495,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 // 定义props和emits
 const props = defineProps({
@@ -726,48 +722,41 @@ const getSuccessCount = (item) => {
 
 // 获取状态
 const getStatus = (item) => {
-  // 处理数字状态值（collection页面）
-  if (typeof item.status === 'number') {
-    return item.status
+  // 按优先级检查各种状态字段
+  const statusFields = [
+    'collectorStatus',   // 商品采集
+    'cropperStatus',     // 智能裁图
+    'mattingStatus',     // 一键抠图
+    'creatorStatus',     // 文生图
+    'fissionStatus',     // 超级裂变
+    'status',            // 侵权检测等通用状态
+    '任务状态'           // 中文状态字段
+  ]
+  
+  // 查找第一个存在的状态字段
+  for (const field of statusFields) {
+    if (item[field] !== undefined && item[field] !== null) {
+      // 调试信息：检查抠图状态
+      if (field === 'mattingStatus' && props.currentApp === 'cutout') {
+        console.log('一键抠图状态调试:', { field, value: item[field], type: typeof item[field], item })
+      }
+      
+      // 如果是数字类型，直接返回
+      if (typeof item[field] === 'number') {
+        return item[field]
+      }
+      // 如果是字符串类型，也返回（兼容旧逻辑）
+      if (typeof item[field] === 'string') {
+        return item[field]
+      }
+    }
   }
   
-  // 处理其他页面的字符串状态值
-  return item.status || item.任务状态 || 'processing'
+  // 默认值
+  return 'processing'
 }
 
-// 将数字状态转换为文字 (collection页面使用)
-const getNumericStatusText = (status) => {
-  const statusMap = {
-    0: '待执行',
-    1: '进行中',
-    2: '已完成', 
-    3: '部分失败',
-    4: '失败'
-  }
-  return statusMap[status] || `状态${status}`
-}
 
-// 获取状态文本
-const getStatusText = (item) => {
-  // 处理数字状态（collection页面）
-  if (typeof item.status === 'number') {
-    return getNumericStatusText(item.status)
-  }
-  
-  // 处理中文状态
-  if (item.任务状态) {
-    return item.任务状态
-  }
-  
-  // 处理英文状态
-  const statusMap = {
-    'processing': '进行中',
-    'completed': '已完成',
-    'failed': '失败',
-    'partial-failed': '部分失败'
-  }
-  return statusMap[getStatus(item)] || '进行中'
-}
 
 // 获取状态背景色
 const getStatusBgColor = (item) => {
@@ -898,35 +887,7 @@ const handleFilterChange = () => {
   applyFilters()
 }
 
-// 获取状态类
-const getStatusClass = (item) => {
-  const status = getStatus(item)
-  
-  // 处理数字状态值（collection页面）
-  if (typeof status === 'number') {
-    if (status === 0) return 'bg-gray-100 text-gray-800'    // 待处理
-    if (status === 1) return 'bg-blue-100 text-blue-800'   // 进行中
-    if (status === 2) return 'bg-green-100 text-green-800' // 已完成
-    if (status === 3) return 'bg-yellow-100 text-yellow-800' // 部分失败
-    if (status === 4) return 'bg-red-100 text-red-800'     // 失败
-  }
-  
-  // 处理中文状态值
-  if (status === '待处理') return 'bg-gray-100 text-gray-800'
-  if (status === '进行中') return 'bg-blue-100 text-blue-800'
-  if (status === '已完成') return 'bg-green-100 text-green-800'
-  if (status === '部分失败') return 'bg-yellow-100 text-yellow-800'
-  if (status === '失败') return 'bg-red-100 text-red-800'
-  
-  // 兼容英文状态值（其他页面可能使用）
-  if (status === 'waiting') return 'bg-gray-100 text-gray-800'
-  if (status === 'processing') return 'bg-blue-100 text-blue-800'
-  if (status === 'completed') return 'bg-green-100 text-green-800'
-  if (status === 'partial-failed') return 'bg-yellow-100 text-yellow-800'
-  if (status === 'failed') return 'bg-red-100 text-red-800'
-  
-  return 'bg-gray-100 text-gray-800'
-}
+
 
 // 显示更多选项
 const showMoreOptions = (item) => {

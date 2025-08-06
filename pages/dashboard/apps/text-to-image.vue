@@ -329,7 +329,7 @@ const fetchTaskList = async () => {
         目标: item.creatorNum || item.cropperNum || item.targetCount || item.size || '0',  // 使用creatorNum作为主要目标数量
         成功: item.creatorSuccessNum || item.current || item.successCount || '0',
         失败: item.creatorFailNum || '0', // 使用接口返回的失败数量
-        任务状态: getStatusText(item.creatorStatus),  // 使用creatorStatus字段
+        creatorStatus: item.creatorStatus,  // 保留原始数字状态值
         创建人: item.creatorId || item.creator || item.createBy,
         创建时间: item.createTime || item.createdAt,
         // 保留原始数据以备后用

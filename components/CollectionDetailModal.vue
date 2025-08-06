@@ -87,17 +87,7 @@
                   </td>
                   <td class="py-3 px-4">${{ item.price }}</td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '已完成',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-blue-500 text-white': item.status === '处理中',
-                        'bg-gray-500 text-white': item.status === '待处理'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.rawData?.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4">
                     <a 
@@ -196,16 +186,7 @@
                   </td>
                   <td class="py-3 px-4">${{ item.price }}</td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-gray-500 text-white': item.status === '处理中'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4">
                     <a href="#" class="text-green-500 hover:underline">访问链接</a>
@@ -303,16 +284,7 @@
                   </td>
                   <td class="py-3 px-4">${{ item.price }}</td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-gray-500 text-white': item.status === '处理中'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4">
                     <a href="#" class="text-green-500 hover:underline">访问链接</a>
@@ -387,16 +359,7 @@
                     <div class="truncate text-green-500">{{ item.url }}</div>
                   </td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-gray-500 text-white': item.status === '处理中'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                 </tr>
               </tbody>
@@ -502,17 +465,7 @@
                     </div>
                   </td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-yellow-500 text-white': item.status === '处理中',
-                        'bg-gray-500 text-white': item.status === '暂停' || item.status === '未知'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4 text-right">
                     <a href="#" @click.prevent="downloadImage(item)" class="text-green-500 hover:underline">下载图片</a>
@@ -609,6 +562,7 @@
 <script setup>
 import { ref, defineProps, defineEmits, computed, onMounted, watch } from 'vue'
 import OptimizedImage from '~/components/OptimizedImage.vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {
@@ -763,7 +717,7 @@ const croppingItems = computed(() => {
       cropperId: item.cropperId,
       originalImage: item.originalImage || item.imageUrl || 'https://via.placeholder.com/150/000000/FFFFFF?text=Original',
       croppedImage: item.croppedImage || item.cropperUrl || item.resultsImageUrl || null,
-      status: getStatusText(item.status || item.cropperStatus),
+      status: item.status || item.cropperStatus || 0, // 保留原始数字状态值
       rawData: item
     }))
   }

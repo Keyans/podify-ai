@@ -87,12 +87,7 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-dark-text-secondary">状态</span>
-                <span 
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                  :class="getStatusClass(product?.status)"
-                >
-                  {{ getStatusText(product?.status) }}
-                </span>
+                <TaskStatus :status="product?.status || 0" size="sm" />
               </div>
               <div class="flex justify-between">
                 <span class="text-dark-text-secondary">分类</span>
@@ -221,6 +216,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import OptimizedImage from '~/components/OptimizedImage.vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {

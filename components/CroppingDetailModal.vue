@@ -105,12 +105,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span 
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="getStatusClass(item.status)"
-                  >
-                    {{ getStatusText(item.status) }}
-                  </span>
+                  <TaskStatus :status="item.status" size="sm" />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text">
                   <a href="#" class="text-green-500 hover:underline" @click.prevent="downloadImage(item)">下载图片</a>
@@ -198,6 +193,7 @@
 <script setup>
 import { ref, computed, defineProps, defineEmits, watch } from 'vue'
 import OptimizedImage from '~/components/OptimizedImage.vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {
@@ -260,7 +256,18 @@ const filteredDetailList = computed(() => {
   let result = [...detailList.value]
   
   if (selectedStatus.value !== '全部') {
-    result = result.filter(item => getStatusText(item.status) === selectedStatus.value)
+    // 将状态文本映射为数字进行比较
+    const statusMap = {
+      '待执行': 0,
+      '进行中': 1,
+      '已完成': 2,
+      '部分失败': 3,
+      '失败': 4
+    }
+    const statusValue = statusMap[selectedStatus.value]
+    if (statusValue !== undefined) {
+      result = result.filter(item => item.status === statusValue)
+    }
   }
   
   return result
@@ -278,30 +285,7 @@ const paginatedDetailList = computed(() => {
   return filteredDetailList.value.slice(start, end)
 })
 
-// 状态文本转换
-const getStatusText = (status) => {
-  const statusMap = {
-    0: '待执行',
-    1: '进行中',
-    2: '已完成',
-    3: '部分失败',
-    4: '失败'
-  }
-  return statusMap[status] || '未知'
-}
 
-// 状态样式
-const getStatusClass = (status) => {
-  const statusText = getStatusText(status)
-  return {
-    'bg-gray-500 text-white': statusText === '待执行',
-    'bg-blue-500 text-white': statusText === '进行中',
-    'bg-green-500 text-white': statusText === '已完成',
-    'bg-orange-500 text-white': statusText === '部分失败',
-    'bg-red-500 text-white': statusText === '失败',
-    'bg-gray-500 text-white': statusText === '未知'
-  }
-}
 
 // 切换全选
 const toggleSelectAll = () => {

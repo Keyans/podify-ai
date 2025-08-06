@@ -47,12 +47,7 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-dark-text-secondary">状态</span>
-                <span 
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                  :class="getStatusClass(image?.status)"
-                >
-                  {{ getStatusText(image?.status) }}
-                </span>
+                <TaskStatus :status="image?.status || 0" size="sm" />
               </div>
               <div class="flex justify-between">
                 <span class="text-dark-text-secondary">创建时间</span>
@@ -179,6 +174,7 @@
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {

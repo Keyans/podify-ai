@@ -303,7 +303,7 @@ const fetchTaskList = async () => {
         目标: item.fissionNum,
         成功: item.fissionSuccessNum,
         失败: item.fissionFailNum,
-        任务状态: getStatusText(item.fissionStatus),
+        fissionStatus: item.fissionStatus, // 保留原始数字状态值
         创建人: item.createBy,
         创建时间: item.createTime,
         // 保留原始数据以备后用

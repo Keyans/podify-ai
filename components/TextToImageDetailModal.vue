@@ -152,12 +152,7 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <span 
-                    class="px-2 py-1 text-xs font-medium rounded-md"
-                    :class="getStatusClass(item.status)"
-                  >
-                    {{ getStatusText(item.status) }}
-                  </span>
+                  <TaskStatus :status="item.status" size="sm" />
                 </td>
                 <td class="py-3 px-4 text-right">
                   <button 
@@ -253,6 +248,7 @@
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, computed, watch } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {
@@ -430,52 +426,7 @@ const filterByStatus = (status) => {
   // 这里可以添加筛选逻辑
 }
 
-const getStatusClass = (status) => {
-  // 处理数字状态码
-  const numericStatus = typeof status === 'number' ? status : null
-  const statusText = typeof status === 'string' ? status : null
-  
-  if (numericStatus !== null) {
-    const numericStatusClasses = {
-      0: 'bg-gray-100 text-gray-800',     // 待执行
-      1: 'bg-yellow-100 text-yellow-800', // 进行中
-      2: 'bg-green-100 text-green-800',   // 已完成
-      3: 'bg-orange-100 text-orange-800', // 部分失败
-      4: 'bg-red-100 text-red-800'        // 失败
-    }
-    return numericStatusClasses[numericStatus] || 'bg-gray-100 text-gray-800'
-  }
-  
-  // 处理字符串状态
-  const statusClasses = {
-    '待执行': 'bg-gray-100 text-gray-800',
-    '进行中': 'bg-yellow-100 text-yellow-800',
-    '已完成': 'bg-green-100 text-green-800',
-    '部分失败': 'bg-orange-100 text-orange-800',
-    '失败': 'bg-red-100 text-red-800',
-    // 兼容旧的状态名称
-    '处理中': 'bg-yellow-100 text-yellow-800',
-    '部分完成': 'bg-orange-100 text-orange-800'
-  }
-  return statusClasses[statusText] || 'bg-gray-100 text-gray-800'
-}
 
-const getStatusText = (status) => {
-  // 处理数字状态码，与列表页面保持一致的状态映射
-  if (typeof status === 'number') {
-    const statusMap = {
-      0: '待执行',
-      1: '进行中',
-      2: '已完成',
-      3: '部分失败',
-      4: '失败'
-    }
-    return statusMap[status] || '未知'
-  }
-  
-  // 处理字符串状态
-  return status || '未知'
-}
 
 const downloadImage = (item) => {
   console.log('下载图片:', item)

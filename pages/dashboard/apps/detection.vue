@@ -341,7 +341,7 @@ const fetchTaskList = async () => {
         目标: item.targetCount || '0',
         成功: item.completedCount || '0',
         失败: '0', // 根据接口返回暂时设为0
-        任务状态: getStatusText(item.status),
+        status: item.status, // 保留原始数字状态值
         创建人: item.operator || 'system',
         创建时间: item.createTime,
         // 保留原始数据以备后用，确保包含taskId字段

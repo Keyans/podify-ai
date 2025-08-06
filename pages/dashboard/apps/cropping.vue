@@ -317,7 +317,7 @@ const fetchTaskList = async () => {
         目标: item.cropperNum,
         成功: item.cropperSuccessNum,
         失败: item.cropperFailNum,
-        任务状态: getStatusText(item.cropperStatus),
+        cropperStatus: item.cropperStatus, // 保留原始数字状态值
         创建人: item.createBy,
         创建时间: item.createTime,
         // 保留原始数据以备后用

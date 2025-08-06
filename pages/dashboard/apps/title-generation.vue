@@ -330,7 +330,7 @@ const fetchTaskList = async () => {
         目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
         成功: item.current || item.successCount || '1',
         失败: '0', // 根据接口文档，暂时设为0
-        任务状态: getStatusText(item.status),
+        status: item.status, // 保留原始数字状态值
         创建人: item.creatorId || item.creator || item.createBy,
         创建时间: item.createTime || item.createdAt,
         // 保留原始数据以备后用
