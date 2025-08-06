@@ -1,334 +1,129 @@
 <template>
   <div 
+    class="relative inline-block"
     :class="containerClass"
-    :style="{ width: width, height: height }"
-    class="relative overflow-hidden bg-gray-800 rounded-md"
-    ref="imageContainer"
   >
-    <!-- 占位图/骨架屏 -->
-    <div 
-      v-if="!imageLoaded && !hasError" 
-      class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900"
-      :class="{ 'animate-pulse': loading }"
+    <!-- 加载状态 -->
+    <div
+      v-if="isLoading"
+      class="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"
+      :class="skeletonClass"
     >
-      <div class="flex flex-col items-center space-y-2">
-        <svg 
-          class="w-8 h-8 text-gray-600 animate-spin" 
-          v-if="loading"
-          fill="none" 
-          viewBox="0 0 24 24"
-        >
-          <circle 
-            class="opacity-25" 
-            cx="12" 
-            cy="12" 
-            r="10" 
-            stroke="currentColor" 
-            stroke-width="4"
-          ></circle>
-          <path 
-            class="opacity-75" 
-            fill="currentColor" 
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
+      <div class="w-full h-full flex items-center justify-center">
+        <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
         </svg>
-        <svg 
-          v-else
-          class="w-8 h-8 text-gray-600" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            stroke-width="2" 
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          ></path>
-        </svg>
-        <span class="text-xs text-gray-500">{{ loading ? '加载中...' : '图片' }}</span>
       </div>
     </div>
 
-    <!-- 错误状态 -->
-    <div 
-      v-if="hasError" 
-      class="absolute inset-0 flex items-center justify-center bg-gray-900"
-    >
-      <div class="flex flex-col items-center space-y-2">
-        <svg 
-          class="w-8 h-8 text-red-500" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            stroke-width="2" 
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z"
-          ></path>
-        </svg>
-        <span class="text-xs text-red-400">加载失败</span>
-      </div>
-    </div>
-
-    <!-- 实际图片 -->
+    <!-- 主图片 -->
     <img
-      v-if="imageLoaded"
-      ref="image"
+      ref="imageRef"
       :src="src"
       :alt="alt"
-      :class="imageClass || 'w-full h-full object-cover'"
-      class="transition-opacity duration-300"
-      :style="{ 
-        opacity: imageLoaded ? 1 : 0,
-        transform: imageLoaded ? 'scale(1)' : 'scale(1.05)'
-      }"
-      @click="handleImageClick"
+      :class="[
+        'transition-all duration-200',
+        zoomable ? 'cursor-zoom-in hover:opacity-80' : '',
+        imageClass,
+        isLoading ? 'opacity-0' : 'opacity-100'
+      ]"
+      :data-zoomable="zoomable"
+      :data-image-viewer="zoomable"
+      @load="handleLoad"
+      @error="handleError"
+      v-bind="$attrs"
     />
 
-    <!-- 放大镜图标 (hover时显示) -->
-    <div 
-      v-if="imageLoaded && zoomable"
-      class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black bg-opacity-40 transition-opacity duration-200 cursor-zoom-in"
-      @click="handleImageClick"
+    <!-- 错误状态 -->
+    <div
+      v-if="hasError"
+      class="absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center rounded"
+      :class="errorClass"
     >
-      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-      </svg>
+      <div class="text-center text-gray-500">
+        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <p class="text-xs">图片加载失败</p>
+      </div>
     </div>
 
-    <!-- 加载进度条 -->
-    <div 
-      v-if="loading && showProgress" 
-      class="absolute bottom-0 left-0 right-0 h-1 bg-gray-700 overflow-hidden"
+    <!-- 放大图标提示 -->
+    <div
+      v-if="zoomable && !isLoading && !hasError && showZoomIcon"
+      class="absolute top-2 right-2 bg-black/50 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200"
     >
-      <div 
-        class="h-full bg-blue-500 transition-all duration-300"
-        :style="{ width: `${loadingProgress}%` }"
-      ></div>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+      </svg>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import imagePreloader from '~/utils/imagePreloader'
-
-const props = defineProps({
-  src: {
-    type: String,
-    required: true
-  },
-  alt: {
-    type: String,
-    default: ''
-  },
-  width: {
-    type: String,
-    default: '100%'
-  },
-  height: {
-    type: String,
-    default: 'auto'
-  },
-  containerClass: {
-    type: String,
-    default: ''
-  },
-  imageClass: {
-    type: String,
-    default: ''
-  },
-  lazy: {
-    type: Boolean,
-    default: true
-  },
-  zoomable: {
-    type: Boolean,
-    default: false
-  },
-  preload: {
-    type: Boolean,
-    default: false
-  },
-  priority: {
-    type: String,
-    default: 'normal', // 'high', 'normal', 'low'
-    validator: (value) => ['high', 'normal', 'low'].includes(value)
-  },
-  showProgress: {
-    type: Boolean,
-    default: false
-  }
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+  src: string,
+  alt?: string,
+  zoomable?: boolean,
+  showZoomIcon?: boolean,
+  containerClass?: string,
+  imageClass?: string,
+  skeletonClass?: string,
+  errorClass?: string
+}>(), {
+  alt: '',
+  zoomable: true,
+  showZoomIcon: true,
+  containerClass: 'group',
+  imageClass: '',
+  skeletonClass: '',
+  errorClass: ''
 })
 
-const emit = defineEmits(['load', 'error', 'click'])
-
-// 响应式数据
-const loading = ref(false)
-const imageLoaded = ref(false)
+// 状态管理
+const isLoading = ref(true)
 const hasError = ref(false)
-const loadingProgress = ref(0)
-const imageContainer = ref(null)
-const image = ref(null)
-const observer = ref(null)
+const imageRef = ref<HTMLImageElement>()
 
-// 图片加载函数
-const loadImage = async () => {
-  if (!props.src || imageLoaded.value) return
-
-  console.log(`🖼️ [OptimizedImage] 开始加载图片: ${props.src}`)
-
-  // 首先检查缓存
-  if (imagePreloader.isCached(props.src)) {
-    console.log(`✅ [OptimizedImage] 图片已缓存，直接显示: ${props.src}`)
-    imageLoaded.value = true
-    emit('load')
-    return
-  }
-
-  loading.value = true
+// 加载完成处理
+const handleLoad = () => {
+  isLoading.value = false
   hasError.value = false
-  loadingProgress.value = 0
-
-  try {
-    console.log(`📥 [OptimizedImage] 开始下载图片: ${props.src}`)
-    
-    // 模拟加载进度
-    const progressInterval = setInterval(() => {
-      if (loadingProgress.value < 80) {
-        loadingProgress.value += Math.random() * 20
-      }
-    }, 100)
-
-    // 使用预加载器加载图片
-    await imagePreloader.preloadImage(props.src, props.priority)
-    
-    console.log(`✅ [OptimizedImage] 图片加载完成: ${props.src}`)
-    
-    clearInterval(progressInterval)
-    loadingProgress.value = 100
-
-    // 短暂延迟以显示完成状态
-    setTimeout(() => {
-      imageLoaded.value = true
-      loading.value = false
-      emit('load')
-    }, 150)
-
-  } catch (error) {
-    console.error(`❌ [OptimizedImage] 图片加载失败: ${props.src}`, error)
-    loading.value = false
-    hasError.value = true
-    emit('error', error)
-  }
-}
-
-// 处理图片点击
-const handleImageClick = (event) => {
-  emit('click', event)
   
-  if (props.zoomable) {
-    // 可以在这里实现图片放大查看功能
-    // 比如打开一个图片预览模态框
-  }
-}
-
-// 懒加载设置
-const setupLazyLoading = () => {
-  if (!props.lazy || !('IntersectionObserver' in window)) {
-    loadImage()
-    return
-  }
-
-  observer.value = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          loadImage()
-          observer.value?.unobserve(entry.target)
-        }
-      })
-    },
-    {
-      rootMargin: '50px' // 提前50px开始加载
+  // 初始化图片查看器
+  nextTick(() => {
+    const { $imageViewer } = useNuxtApp()
+    if (props.zoomable && $imageViewer?.initImageViewer) {
+      $imageViewer.initImageViewer()
     }
-  )
-
-  if (imageContainer.value) {
-    observer.value.observe(imageContainer.value)
-  }
+  })
 }
 
-// 预加载设置
-const setupPreload = () => {
-  if (props.preload && props.src) {
-    imagePreloader.preloadImage(props.src, props.priority)
-  }
+// 错误处理
+const handleError = () => {
+  isLoading.value = false
+  hasError.value = true
 }
 
-// 监听src变化
-watch(() => props.src, (newSrc, oldSrc) => {
-  if (newSrc !== oldSrc) {
-    imageLoaded.value = false
+// 监听src变化，重置状态
+watch(() => props.src, () => {
+  if (props.src) {
+    isLoading.value = true
     hasError.value = false
-    loadingProgress.value = 0
-    
-    if (props.lazy) {
-      setupLazyLoading()
-    } else {
-      loadImage()
-    }
   }
-}, { immediate: false })
+}, { immediate: true })
 
-// 组件挂载
-onMounted(async () => {
-  await nextTick()
-  
-  // 检查是否已经缓存
-  if (imagePreloader.isCached(props.src)) {
-    imageLoaded.value = true
-    return
-  }
-
-  setupPreload()
-  
-  if (props.lazy) {
-    setupLazyLoading()
-  } else {
-    loadImage()
-  }
-})
-
-// 组件卸载清理
-onUnmounted(() => {
-  if (observer.value) {
-    observer.value.disconnect()
-  }
+// 暴露图片元素引用
+defineExpose({
+  imageRef
 })
 </script>
 
 <style scoped>
-/* 图片渐现动画 */
-.transition-opacity {
-  transition-property: opacity;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 骨架屏动画 */
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .7;
-  }
+/* 确保容器具有正确的尺寸 */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 </style>

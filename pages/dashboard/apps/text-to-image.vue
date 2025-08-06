@@ -512,33 +512,26 @@ const handleTaskSubmit = async (formData) => {
   console.log('新建文生图任务:', formData)
   
   try {
+    // 现在只有成功时才会收到事件，所以直接处理成功逻辑
+    console.log('文生图任务创建成功，响应数据:', formData.taskResponse)
+    
     // 关闭弹窗
     showCreateModal.value = false
     
-    // 无论任务创建成功还是失败，都要刷新数据
+    // 刷新数据
     await Promise.all([
       fetchStats(),
       fetchTaskList()
     ])
     
-    // 检查任务创建结果并显示相应提示
-    if (formData.success && formData.taskResponse) {
-      console.log('文生图任务创建成功，响应数据:', formData.taskResponse)
-      console.log('文生图任务创建成功，数据已刷新')
-      
-      // 可以在这里添加成功提示
-      // ElMessage.success('文生图任务创建成功')
-      
-    } else {
-      console.error('文生图任务创建失败:', formData.error || '未知错误')
-      
-      // 可以在这里添加错误提示
-      // ElMessage.error(formData.error || '文生图任务创建失败')
-    }
+    console.log('文生图任务创建成功，数据已刷新')
+    
+    // 可以在这里添加成功提示
+    // ElMessage.success('文生图任务创建成功')
     
   } catch (error) {
     console.error('处理文生图任务提交失败:', error)
-    // 即使出错也要关闭弹窗
+    // 处理异常时关闭弹窗
     showCreateModal.value = false
   }
 }

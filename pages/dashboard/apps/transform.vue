@@ -169,11 +169,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import TaskTable from '~/components/TaskTable.vue'
 import TransformNewTaskModal from '~/components/TransformNewTaskModal.vue'
 import TransformDetailModal from '~/components/TransformDetailModal.vue'
 import { getFissionStats, getFissionTaskList, getFissionTaskDetail } from '~/apis/business/fission'
+
+// 获取当前路由
+const route = useRoute()
 
 // 使用 dashboard 布局
 definePageMeta({
