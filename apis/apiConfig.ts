@@ -120,7 +120,7 @@ export const clearAuthToken = (): void => {
 // 是否已认证（现在检查localStorage中的token）
 export const isAuthenticated = (): boolean => {
   if (process.client) {
-    return !!localStorage.getItem('access_token')
+    return !!localStorage.getItem('auth_token')
   }
   return false
 }

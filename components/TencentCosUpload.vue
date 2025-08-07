@@ -437,10 +437,18 @@ const toggleShowAll = () => {
   showAllFiles.value = !showAllFiles.value
 }
 
+// 清空文件列表
+const clearFiles = () => {
+  files.value = []
+  globalError.value = ''
+  uploading.value = false
+}
+
 // 暴露方法给父组件
 defineExpose({
   uploadAllFiles,
-  getImageInfoList
+  getImageInfoList,
+  clearFiles
 })
 </script>
 

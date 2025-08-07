@@ -13,13 +13,13 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // 添加认证请求头（如果存在）
     if (process.client) {
-      const accessToken = localStorage.getItem('access_token')
+      const authToken = localStorage.getItem('auth_token')
       const userId = localStorage.getItem('user_id')
       const tenantId = localStorage.getItem('tenant_id')
       
       // 设置Authorization header（使用动态token）
-      if (accessToken) {
-        config.headers.set('Authorization', accessToken)
+      if (authToken) {
+        config.headers.set('Authorization', authToken)
       }
       
       // 设置其他必要的头部字段（仅在未设置时设置默认值）

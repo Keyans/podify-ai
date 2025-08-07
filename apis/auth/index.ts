@@ -191,6 +191,32 @@ interface ApiResponse<T> {
   success: boolean
 }
 
+// 团队信息类型
+interface TeamInfo {
+  id: string
+  tenantId: string
+  teamCode: string
+  teamName: string
+  teamDescription: string
+  ownerUserId: string
+  ownerUsername: string
+  platformType: number
+  maxMembers: number
+  currentMemberCount: number | null
+  status: number
+  createTime: string
+}
+
+// 团队响应类型
+interface TeamResponse {
+  code: number
+  message: string
+  data: TeamInfo[]
+  timestamp: string
+  error: boolean
+  success: boolean
+}
+
 // 登录接口 - 支持邮箱或手机号登录
 const login = async (loginData: LoginRequest) => {
   try {
@@ -228,12 +254,45 @@ const getUserInfo = async () => {
 // 获取我的团队信息
 const getMyTeam = async () => {
   try {
-    const data = await post(getPath('myTeam'), {}, {
+    const data: TeamResponse = await post(getPath('myTeam'), {}, {
       headers: getAuthHeaders()
     })
+    
+    // 如果获取成功，将团队数据存储到localStorage
+    if (data && data.success && data.data && Array.isArray(data.data)) {
+      if (process.client) {
+        localStorage.setItem('team_info', JSON.stringify(data.data))
+        // 如果有团队数据，存储第一个团队作为当前团队（通常用户只有一个团队）
+        if (data.data.length > 0) {
+          localStorage.setItem('current_team', JSON.stringify(data.data[0]))
+        }
+      }
+    }
+    
     return data
   } catch (error) {
     console.error('获取团队信息失败:', error)
+    throw error
+  }
+}
+
+// 创建团队接口请求类型
+interface CreateTeamRequest {
+  teamName: string
+  teamDescription: string
+  teamImgUrl: string
+}
+
+// 创建新团队
+const createNewTeam = async (teamData: CreateTeamRequest) => {
+  try {
+    const data = await post('/pod/tenant/api/v1/teams', teamData, {
+      headers: getAuthHeaders()
+    })
+    
+    return data
+  } catch (error) {
+    console.error('创建团队失败:', error)
     throw error
   }
 }
@@ -261,6 +320,8 @@ const logout = async () => {
       localStorage.removeItem('isLoggedIn')
       localStorage.removeItem('userInfo')
       localStorage.removeItem('teamInfo')
+      localStorage.removeItem('team_info')
+      localStorage.removeItem('current_team')
       
       // 清除旧的token key（兼容）
       localStorage.removeItem('auth_token')
@@ -302,12 +363,55 @@ const isLoggedIn = () => {
   return false
 }
 
+// 获取存储的团队信息
+const getStoredTeamInfo = (): TeamInfo[] | null => {
+  if (process.client) {
+    const teamInfo = localStorage.getItem('team_info')
+    if (teamInfo) {
+      try {
+        return JSON.parse(teamInfo)
+      } catch (error) {
+        console.error('解析团队信息失败:', error)
+        return null
+      }
+    }
+  }
+  return null
+}
+
+// 获取当前团队信息
+const getCurrentTeamInfo = (): TeamInfo | null => {
+  if (process.client) {
+    const currentTeam = localStorage.getItem('current_team')
+    if (currentTeam) {
+      try {
+        return JSON.parse(currentTeam)
+      } catch (error) {
+        console.error('解析当前团队信息失败:', error)
+        return null
+      }
+    }
+  }
+  return null
+}
+
+// 设置当前团队（当用户有多个团队时可以切换）
+const setCurrentTeam = (team: TeamInfo) => {
+  if (process.client) {
+    localStorage.setItem('current_team', JSON.stringify(team))
+  }
+}
+
 export {
   login,
   register,
   logout,
   getUserInfo,
   getMyTeam,
+  createNewTeam,
+  getStoredTeamInfo,
+  getCurrentTeamInfo,
+  setCurrentTeam,
   initAuth,
   isLoggedIn,
   getAuthHeaders,
@@ -323,6 +427,10 @@ export default {
   logout,
   getUserInfo,
   getMyTeam,
+  createNewTeam,
+  getStoredTeamInfo,
+  getCurrentTeamInfo,
+  setCurrentTeam,
   initAuth,
   isLoggedIn,
   getAuthHeaders,
