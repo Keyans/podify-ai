@@ -517,10 +517,22 @@
                       class="sr-only"
                       required
                     >
-                    <div class="w-5 h-5 bg-gray-800 border border-gray-600 rounded transition-all group-hover:border-cyan-400 flex items-center justify-center"
-                         :class="{ 'bg-gradient-to-r from-blue-500 to-cyan-500 border-cyan-400': agreeToTerms }">
-                      <svg v-if="agreeToTerms" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    <!-- 未选中状态：深灰色背景，灰色边框 -->
+                    <!-- 选中状态：亮蓝色背景，蓝色边框，白色对勾 -->
+                    <div class="w-5 h-5 rounded border-2 transition-all duration-300 ease-in-out flex items-center justify-center transform"
+                         :class="agreeToTerms 
+                           ? 'bg-blue-500 border-blue-500 scale-110 shadow-lg shadow-blue-500/50' 
+                           : 'bg-gray-700 border-gray-500 group-hover:border-gray-400 group-hover:bg-gray-600'">
+                      <!-- 对勾图标，仅在选中时显示 -->
+                      <svg v-if="agreeToTerms" 
+                           class="w-3.5 h-3.5 text-white animate-in slide-in-from-top-2 duration-200" 
+                           fill="none" 
+                           stroke="currentColor" 
+                           viewBox="0 0 24 24">
+                        <path stroke-linecap="round" 
+                              stroke-linejoin="round" 
+                              stroke-width="3" 
+                              d="M5 13l4 4L19 7"/>
                       </svg>
                     </div>
                   </div>
@@ -548,11 +560,22 @@
               <button 
                 type="submit"
                 :disabled="isLoading || (isRegisterMode && !agreeToTerms)"
-                class="w-full relative group overflow-hidden"
+                class="w-full relative group overflow-hidden transition-all duration-300"
+                :class="(isLoading || (isRegisterMode && !agreeToTerms)) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'"
               >
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl transition-all group-hover:from-blue-400 group-hover:to-cyan-400"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div class="relative px-6 py-4 text-white font-semibold text-lg flex items-center justify-center space-x-2">
+                <!-- 正常状态背景 -->
+                <div v-if="!(isLoading || (isRegisterMode && !agreeToTerms))" 
+                     class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl transition-all group-hover:from-blue-400 group-hover:to-cyan-400"></div>
+                <!-- 禁用状态背景 -->
+                <div v-else 
+                     class="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-500 rounded-xl"></div>
+                
+                <!-- 悬停叠加层 - 仅在非禁用状态显示 -->
+                <div v-if="!(isLoading || (isRegisterMode && !agreeToTerms))" 
+                     class="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div class="relative px-6 py-4 font-semibold text-lg flex items-center justify-center space-x-2"
+                     :class="(isLoading || (isRegisterMode && !agreeToTerms)) ? 'text-gray-300' : 'text-white'">
                   <span v-if="!isLoading">{{ getSubmitButtonText }}</span>
                   <span v-else class="loading-dots">
                     <div></div>
@@ -560,8 +583,10 @@
                     <div></div>
                   </span>
                 </div>
-                <!-- 闪光效果 -->
-                <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
+                
+                <!-- 闪光效果 - 仅在非禁用状态显示 -->
+                <div v-if="!(isLoading || (isRegisterMode && !agreeToTerms))" 
+                     class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"></div>
               </button>
 
               <!-- 切换登录/注册模式 -->
@@ -915,7 +940,7 @@ const handleSubmit = async () => {
         }
       
       registerData.contactPhone = loginForm.value.phone
-      registerData.smsCode = loginForm.value.smsCode
+      registerData.verificationCode = loginForm.value.smsCode
       registerData.inviteCode = loginForm.value.inviteCode
     }
     
@@ -1015,8 +1040,7 @@ const handleSubmit = async () => {
       const { $auth } = useNuxtApp()
       let loginResult
       
-      // 统一登录接口 - 使用account字段
-      let account = ''
+      // 统一登录接口 - 使用username字段
       let loginData = {}
       
       if (authMethod.value === 'email') {
@@ -1031,9 +1055,8 @@ const handleSubmit = async () => {
           return
         }
         
-        account = loginForm.value.email
         loginData = {
-          account: account,
+          username: loginForm.value.email,
           password: loginForm.value.password
         }
       } else {
@@ -1048,8 +1071,6 @@ const handleSubmit = async () => {
           return
         }
         
-        account = loginForm.value.phone
-        
         if (phoneLoginMethod.value === 'sms') {
           // 手机号验证码登录
           if (!/^\d{6}$/.test(loginForm.value.loginSmsCode)) {
@@ -1058,13 +1079,13 @@ const handleSubmit = async () => {
           }
           
           loginData = {
-            account: account,
-            captcha: loginForm.value.loginSmsCode
+            username: loginForm.value.phone,
+            verificationCode: loginForm.value.loginSmsCode
           }
         } else {
           // 手机号密码登录
           loginData = {
-            account: account,
+            username: loginForm.value.phone,
             password: loginForm.value.password
           }
         }
@@ -1073,30 +1094,40 @@ const handleSubmit = async () => {
       // 统一调用login接口
       loginResult = await $auth.login(loginData)
       
-      // 修复：检查success字段和data.accessToken
+      // 检查登录结果和data中的accessToken
       if (loginResult && loginResult.success && loginResult.data && loginResult.data.accessToken) {
-        const userData = loginResult.data
+        const loginData = loginResult.data
         
         // 保存登录状态到localStorage (兼容现有逻辑)
         localStorage.setItem('isLoggedIn', 'true')
         
-        // 保存认证相关信息（用于API调用）- 修复token键名不一致问题
-        localStorage.setItem('auth_token', userData.accessToken) // 修复：使用auth_token而不是access_token
-        localStorage.setItem('access_token', userData.accessToken) // 保留兼容性
-        localStorage.setItem('user_id', userData.userId)
-        localStorage.setItem('tenant_id', userData.tenantId)
+        // 调用setAuthHeaders设置认证信息（这会自动保存所需的数据）
+        const { $auth } = useNuxtApp()
+        $auth.setAuthHeaders(loginData)
         
         // 保存完整用户信息
         localStorage.setItem('userInfo', JSON.stringify({
-          email: userData.email || userData.username, // 处理email/username字段差异
-          name: userData.nickname || '用户',
-          avatar: userData.avatar || '',
-          userId: userData.userId,
-          tenantId: userData.tenantId,
-          tenantCode: userData.tenantCode,
-          tenantName: userData.tenantName,
-          permissions: userData.permissions || []
+          email: loginData.userInfo.email || loginData.userInfo.username,
+          name: loginData.userInfo.nickname || loginData.userInfo.displayName || '用户',
+          avatar: '',
+          userId: loginData.userInfo.userId,
+          tenantId: loginData.userInfo.tenantId,
+          platformType: loginData.userInfo.platformType,
+          clientType: loginData.userInfo.clientType
         }))
+
+        // 获取团队信息
+        try {
+          const teamData = await $auth.getMyTeam()
+          if (teamData) {
+            // 保存团队信息到localStorage
+            localStorage.setItem('teamInfo', JSON.stringify(teamData))
+            console.log('团队信息获取成功:', teamData)
+          }
+        } catch (error) {
+          console.error('获取团队信息失败:', error)
+          // 团队信息获取失败不影响登录流程，继续执行
+        }
 
         // 如果记住密码，则保存到localStorage (密码登录时，包括邮箱和手机号)
         if (rememberPassword.value && (authMethod.value === 'email' || phoneLoginMethod.value === 'password')) {

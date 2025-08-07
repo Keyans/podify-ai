@@ -377,10 +377,16 @@ onMounted(async () => {
 })
 
 // 退出登录
-const handleLogout = () => {
-  localStorage.removeItem('isLoggedIn')
-  localStorage.removeItem('userInfo')
-  navigateTo('/login')
+const handleLogout = async () => {
+  try {
+    const { $auth } = useNuxtApp()
+    await $auth.logout()
+    await navigateTo('/login')
+  } catch (error) {
+    console.error('登出失败:', error)
+    // 即使登出失败，也跳转到登录页
+    await navigateTo('/login')
+  }
 }
 
 // 页面元数据
