@@ -235,7 +235,7 @@ import TaskTable from '~/components/TaskTable.vue'
 import PodSynthesisNewTaskModal from '~/components/PodSynthesisNewTaskModal.vue'
 import PodSynthesisDetailModal from '~/components/PodSynthesisDetailModal.vue'
 import TaskStatus from '~/components/TaskStatus.vue'
-import { getPodComposerStats, getPodComposerTaskList, getPodComposerTaskDetail } from '~/apis/business/pod-composer'
+import { getPodComposerStats, getPodComposerTaskList, getPodComposerTaskDetail, getPodComposerList } from '~/apis/business/pod-composer'
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -413,18 +413,18 @@ const showTaskDetail = async (task) => {
   }
 }
 
-// 获取任务详情
+// 获取任务详情 - 调用合成列表接口
 const fetchTaskDetail = async (taskId) => {
   try {
     const params = {
       taskId,
       page: 1,
-      limit: 10
+      limit: 100
     }
     
-    console.log('获取POD合成任务详情，参数:', params)
-    const response = await getPodComposerTaskDetail(params)
-    console.log('POD合成任务详情响应:', response)
+    console.log('获取POD合成详情列表，参数:', params)
+    const response = await getPodComposerList(params)
+    console.log('POD合成详情列表响应:', response)
     
     if (response.success) {
       // 处理详情数据并更新到currentTaskData
@@ -434,14 +434,14 @@ const fetchTaskDetail = async (taskId) => {
         detailList: detailList,
         detailPagination: {
           page: parseInt(response.data?.current || 1),
-          limit: parseInt(response.data?.size || 10),
+          limit: parseInt(response.data?.size || 100),
           total: parseInt(response.data?.total || detailList.length),
           pages: parseInt(response.data?.pages || 1)
         }
       }
     }
   } catch (error) {
-    console.error('获取POD合成任务详情失败:', error)
+    console.error('获取POD合成详情列表失败:', error)
   }
 }
 
