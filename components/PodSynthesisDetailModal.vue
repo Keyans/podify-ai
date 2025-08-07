@@ -65,8 +65,8 @@
                 <th class="py-3 px-4 text-left">产品</th>
                 <th class="py-3 px-4 text-left">图案</th>
                 <th class="py-3 px-4 text-left">结果</th>
-                <th class="py-3 px-4 text-left">SKU</th>
                 <th class="py-3 px-4 text-left">生成时间</th>
+                <th class="py-3 px-4 text-left">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -93,10 +93,15 @@
                     </div>
                   </div>
                 </td>
-                <td class="py-3 px-4">
-                  <span class="text-blue-400">{{ item.sku }}</span>
-                </td>
                 <td class="py-3 px-4">{{ item.createdTime }}</td>
+                <td class="py-3 px-4">
+                  <button 
+                    @click="viewSkuDetail(item)"
+                    class="px-3 py-1 text-sm text-green-400 hover:text-green-300 border border-green-400 hover:border-green-300 rounded"
+                  >
+                    查看详情
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -163,11 +168,23 @@
         </div>
       </div>
     </div>
+    
+    <!-- SKU详情弹窗 -->
+    <PodComposerSkuDetailModal
+      :isOpen="showSkuModal"
+      :taskId="taskData?.id || ''"
+      :spuId="selectedSpuId"
+      :productInfo="selectedProductInfo"
+      @close="closeSkuModal"
+      @export="handleSkuExport"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits, watch } from 'vue'
+import { ref, reactive, defineProps, defineEmits, watch, onMounted } from 'vue'
+import { getPodComposerList } from '~/apis/business/pod-composer'
+import PodComposerSkuDetailModal from './PodComposerSkuDetailModal.vue'
 
 const props = defineProps({
   isOpen: {
@@ -188,11 +205,24 @@ const showProductDropdown = ref(false)
 const showMoreActions = ref(false)
 const selectedProduct = ref('全部')
 const totalItems = ref(5)
+const loading = ref(false)
+
+// SKU详情弹窗相关状态
+const showSkuModal = ref(false)
+const selectedSpuId = ref('')
+const selectedProductInfo = ref({
+  name: '',
+  sku: '',
+  mainImage: '',
+  patternImage: ''
+})
 
 // 合成数据
 const synthesisItems = ref([
   { 
     selected: false, 
+    spuId: '1953076229559767040',
+    productName: '男款短袖T恤欧版',
     productImage: 'https://via.placeholder.com/150/FFFFFF?text=T-shirt', 
     patternImage: 'https://via.placeholder.com/150/FF5733/FFFFFF?text=Pattern',
     resultImage: 'https://via.placeholder.com/150/000000/FFFFFF?text=Result', 
@@ -259,8 +289,70 @@ const exportDetail = () => {
   emits('download', selectedItems)
 }
 
+// 获取合成列表数据
+const fetchComposerList = async () => {
+  if (!props.taskData?.id) return
+  
+  loading.value = true
+  try {
+    const params = {
+      taskId: props.taskData.id,
+      page: 1,
+      limit: 100
+    }
+    
+    const response = await getPodComposerList(params)
+    if (response.success && response.data) {
+      synthesisItems.value = response.data.list || []
+      totalItems.value = response.data.total || 0
+    }
+  } catch (error) {
+    console.error('获取合成列表失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 查看SKU详情
+const viewSkuDetail = (item) => {
+  selectedSpuId.value = item.spuId
+  selectedProductInfo.value = {
+    name: item.productName || '产品名称',
+    sku: item.sku,
+    mainImage: item.productImage,
+    patternImage: item.patternImage
+  }
+  showSkuModal.value = true
+}
+
+// 关闭SKU详情弹窗
+const closeSkuModal = () => {
+  showSkuModal.value = false
+  selectedSpuId.value = ''
+}
+
+// 处理SKU导出
+const handleSkuExport = (selectedSkus) => {
+  console.log('导出SKU详情:', selectedSkus)
+  // 这里可以添加导出逻辑
+}
+
 // 关闭弹窗
 const close = () => {
   emits('close')
 }
+
+// 监听弹窗打开状态
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    fetchComposerList()
+  }
+})
+
+// 组件挂载时获取数据
+onMounted(() => {
+  if (props.isOpen) {
+    fetchComposerList()
+  }
+})
 </script> 

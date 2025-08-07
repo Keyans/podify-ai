@@ -27,6 +27,21 @@ export interface PodComposerTaskDetailParams {
   limit?: number
 }
 
+// POD合成列表参数
+export interface PodComposerListParams {
+  taskId: string
+  page?: number
+  limit?: number
+}
+
+// SKU列表参数
+export interface PodComposerSkuListParams {
+  taskId: string
+  spuId: string
+  page?: number
+  limit?: number
+}
+
 // API响应类型
 export interface ApiResponse<T> {
   success: boolean
@@ -57,4 +72,16 @@ export const getPodComposerTaskDetail = async (params: PodComposerTaskDetailPara
 export const createPodComposerTask = async (data: any): Promise<ApiResponse<any>> => {
   const url = buildApiPath('/pod/composer/create')
   return post(url, data)
+}
+
+// 获取POD合成列表（第一层详情弹窗）
+export const getPodComposerList = async (params: PodComposerListParams): Promise<ApiResponse<any>> => {
+  const url = buildApiPath('/pod/composer/getList')
+  return get(url, params)
+}
+
+// 获取SKU列表（第二层详情弹窗）
+export const getPodComposerSkuList = async (params: PodComposerSkuListParams): Promise<ApiResponse<any>> => {
+  const url = buildApiPath('/pod/composer/getSkuList')
+  return get(url, params)
 }
