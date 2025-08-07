@@ -128,7 +128,7 @@
           <div class="text-sm text-blue-400 mb-3">这项可以稍等，训练好了再开放</div>
           
           <!-- 尺寸选项 - 8块布局 -->
-          <div class="grid grid-cols-4 gap-3">
+          <div class="grid grid-cols-4 gap-3 mb-4">
             <!-- 预设尺寸选项 -->
             <button 
               v-for="size in sizeOptions" 
@@ -159,8 +159,8 @@
             </button>
           </div>
           
-          <!-- 自定义尺寸输入框 -->
-          <div v-if="selectedSizeValue === 0" class="mt-4 p-4 border border-dark-border rounded-lg bg-dark-input">
+          <!-- 宽度高度输入框 - 永远显示 -->
+          <div class="p-4 border border-dark-border rounded-lg bg-dark-input">
             <div class="flex items-center space-x-3">
               <div class="flex-1">
                 <label class="text-xs text-dark-text-secondary mb-1 block">宽度</label>
@@ -206,6 +206,29 @@
               <option value="5">5</option>
             </select>
             <span class="text-sm text-dark-text-secondary ml-3">最小1张，最多每次10张</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 错误信息显示 -->
+      <div v-if="errorMessage" class="px-5 pb-3">
+        <div class="p-3 bg-red-50 border border-red-300 rounded-lg">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="flex-1">
+              <p class="text-sm text-red-700 font-medium">提交失败</p>
+              <p class="text-sm text-red-600 mt-1">{{ errorMessage }}</p>
+            </div>
+            <button 
+              @click="errorMessage = ''"
+              class="ml-2 text-red-400 hover:text-red-600"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -282,9 +305,8 @@ const emits = defineEmits(['close', 'submit'])
 // 表单数据 - 按照新的API接口要求
 const formData = reactive({
   promptWord: '',
-  creatorSize: 4, // 默认选择 1:1 (对应value=4)
-  creatorWidth: 100,
-  creatorHeight: 100,
+  creatorWidth: 512, // 默认512（1:1比例）
+  creatorHeight: 512, // 默认512（1:1比例）
   creatorNum: 3,
   uploadType: 1, // 1: 本地上传, 2: 图库上传
   // 以下字段只有上传示例图时才会有
@@ -298,6 +320,7 @@ const formData = reactive({
 
 // 提交状态
 const submitting = ref(false)
+const errorMessage = ref('')
 
 // 参考图相关
 const referenceImages = ref([])
@@ -452,19 +475,17 @@ const uploadFileToCos = async (file) => {
 // 选择预设尺寸
 const selectSize = (size) => {
   selectedSizeValue.value = size.value
-  formData.creatorSize = size.value
-  // 清空自定义尺寸
-  formData.creatorWidth = 100
-  formData.creatorHeight = 100
+  // 设置对应的宽度和高度值
+  formData.creatorWidth = size.width
+  formData.creatorHeight = size.height
 }
 
 // 选择自定义尺寸
 const selectCustomSize = () => {
   selectedSizeValue.value = 0
-  formData.creatorSize = 0
-  // 设置默认的自定义尺寸
-  if (!formData.creatorWidth || formData.creatorWidth === 100) formData.creatorWidth = 512
-  if (!formData.creatorHeight || formData.creatorHeight === 100) formData.creatorHeight = 512
+  // 保持当前的宽度和高度值，用户可以自由修改
+  if (!formData.creatorWidth || formData.creatorWidth < 64) formData.creatorWidth = 512
+  if (!formData.creatorHeight || formData.creatorHeight < 64) formData.creatorHeight = 512
 }
 
 // 切换图片选项菜单
@@ -643,25 +664,30 @@ const close = () => {
 const submit = async () => {
   try {
     submitting.value = true
+    errorMessage.value = '' // 清除之前的错误信息
     
     // 构建API请求参数
     const taskParams = {
       promptWord: formData.promptWord.trim(),
-      creatorSize: formData.creatorSize,
-      creatorWidth: formData.creatorWidth,
-      creatorHeight: formData.creatorHeight,
+      creatorWidth: parseInt(formData.creatorWidth),
+      creatorHeight: parseInt(formData.creatorHeight),
       creatorNum: parseInt(formData.creatorNum)
     }
     
-    // 如果有参考图，处理图片上传
+    // 如果有参考图，处理图片上传并添加相关参数
     if (referenceImages.value.length > 0) {
       const lastImage = referenceImages.value[referenceImages.value.length - 1]
       
       if (!lastImage.isFromGallery && lastImage.file) {
-        // 本地上传的图片，现在上传到COS
-        console.log('上传本地图片到COS...')
+        // 本地上传的图片，在提交时获取最新token并上传到COS
+        console.log('获取最新COS凭证并上传本地图片...')
+        
+        // 获取最新的COS凭证
+        await initCOS()
+        
         const uploadResult = await uploadFileToCos(lastImage.file)
         
+        // 添加图片相关参数
         taskParams.uploadType = 1
         taskParams.imageName = lastImage.name
         taskParams.imageUrl = uploadResult.url
@@ -698,27 +724,19 @@ const submit = async () => {
     } else {
       console.error('文生图任务创建失败:', response)
       
-      const resultData = {
-        taskParams: taskParams,
-        taskResponse: null,
-        success: false,
-        error: response.message || '创建文生图任务失败'
-      }
+      // 显示错误信息在弹窗中
+      errorMessage.value = response.message || '创建文生图任务失败'
       
-      emits('submit', resultData)
+      // 不发送事件给父组件，保持弹窗打开
     }
     
   } catch (error) {
     console.error('提交文生图任务失败:', error)
     
-    const resultData = {
-      taskParams: formData,
-      taskResponse: null,
-      success: false,
-      error: error.message || '提交文生图任务失败'
-    }
+    // 显示错误信息在弹窗中
+    errorMessage.value = error.message || '提交文生图任务失败'
     
-    emits('submit', resultData)
+    // 不发送事件给父组件，保持弹窗打开
   } finally {
     submitting.value = false
   }
@@ -727,9 +745,8 @@ const submit = async () => {
 // 重置表单
 const resetForm = () => {
   formData.promptWord = ''
-  formData.creatorSize = 4
-  formData.creatorWidth = 100
-  formData.creatorHeight = 100
+  formData.creatorWidth = 512
+  formData.creatorHeight = 512
   formData.creatorNum = 3
   formData.uploadType = 1
   formData.imageName = ''
@@ -741,6 +758,7 @@ const resetForm = () => {
   selectedSizeValue.value = 4 // 重置为 1:1
   referenceImages.value = []
   submitting.value = false
+  errorMessage.value = '' // 清除错误信息
   showGalleryModal.value = false
   selectedGalleryImages.value = []
   showImageOptions.value = false
@@ -750,9 +768,7 @@ const resetForm = () => {
 watch(() => props.isOpen, (newVal) => {
   if (!newVal) {
     resetForm()
-  } else {
-    // 弹窗打开时初始化COS
-    initCOS()
   }
+  // 移除弹窗打开时的COS初始化，改为在提交时获取最新token
 })
 </script> 

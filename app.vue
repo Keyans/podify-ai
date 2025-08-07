@@ -3,6 +3,9 @@
     <NuxtLayout>
     <NuxtPage />
     </NuxtLayout>
+    
+    <!-- 全局图片查看器 -->
+    <ImageViewer />
   </div>
 </template>
 

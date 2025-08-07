@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-dark-card rounded-lg w-full max-w-5xl max-h-[90vh] overflow-hidden text-dark-text">
+    <div class="bg-dark-card rounded-lg w-full max-w-7xl max-h-[95vh] overflow-hidden text-dark-text">
       <!-- Header -->
       <div class="p-4 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium text-dark-text">素材详情</h3>
@@ -11,15 +11,50 @@
         </button>
       </div>
 
-      <div class="flex">
+      <div class="flex h-[calc(95vh-80px)]">
         <!-- 预览区域 -->
-        <div class="flex-1 p-6 bg-gray-50 flex items-center justify-center">
-          <div class="max-w-full max-h-[500px] overflow-hidden rounded-lg shadow-md bg-white">
-            <img 
-              :src="material?.preview" 
-              :alt="material?.title"
-              class="max-w-full max-h-full object-contain"
+        <div class="flex-1 p-3 bg-gray-50 flex items-center justify-center relative">
+          <!-- 左箭头 -->
+          <button 
+            v-if="canGoPrevious"
+            @click="goToPrevious"
+            class="absolute left-6 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+
+          <div class="w-full h-full overflow-hidden rounded-lg shadow-md bg-white">
+            <OptimizedImage
+              :src="material?.imageUrl || material?.preview"
+              :alt="material?.imageName || material?.title"
+              width="100%"
+              height="100%"
+              container-class="w-full h-full"
+              image-class="w-full h-full object-contain"
+              :lazy="false"
+              :zoomable="true"
+              priority="high"
+              :show-progress="true"
+              @click="handleImageZoom"
             />
+          </div>
+
+          <!-- 右箭头 -->
+          <button 
+            v-if="canGoNext"
+            @click="goToNext"
+            class="absolute right-6 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- 当前位置指示器 -->
+          <div v-if="materialList.length > 1" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+            {{ currentIndex + 1 }} / {{ materialList.length }}
           </div>
         </div>
 
@@ -28,22 +63,10 @@
           <!-- 标题和标签 -->
           <div class="mb-6">
             <div class="flex items-start justify-between mb-3">
-              <h4 class="text-lg font-semibold text-dark-text">{{ material?.title }}</h4>
-              <span 
-                v-if="material?.isPremium"
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-              >
-                高级
-              </span>
-              <span 
-                v-else
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-              >
-                免费
-              </span>
+              <h4 class="text-lg font-semibold text-dark-text">{{ material?.imageName || material?.title || '未知素材' }}</h4>
             </div>
             <p class="text-sm text-dark-text-secondary leading-relaxed">
-              {{ material?.description || '暂无描述' }}
+              {{ material?.description || '创作者: ' + (material?.createBy || '未知') }}
             </p>
           </div>
 
@@ -52,12 +75,12 @@
             <h5 class="text-sm font-semibold text-dark-text mb-3">基本信息</h5>
             <div class="space-y-2">
               <div class="flex justify-between text-sm">
-                <span class="text-dark-text-secondary">格式</span>
-                <span class="text-dark-text font-medium">{{ material?.format }}</span>
+                <span class="text-dark-text-secondary">素材ID</span>
+                <span class="text-dark-text font-mono text-xs">{{ material?.id || '未知' }}</span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-dark-text-secondary">尺寸</span>
-                <span class="text-dark-text">{{ material?.dimensions }}</span>
+                <span class="text-dark-text-secondary">格式</span>
+                <span class="text-dark-text font-medium">{{ getImageFormat(material?.imageUrl) }}</span>
               </div>
               <div class="flex justify-between text-sm">
                 <span class="text-dark-text-secondary">分类</span>
@@ -65,11 +88,15 @@
               </div>
               <div class="flex justify-between text-sm">
                 <span class="text-dark-text-secondary">下载量</span>
-                <span class="text-dark-text">{{ material?.downloads }}</span>
+                <span class="text-dark-text">{{ material?.downloads || 0 }}</span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-dark-text-secondary">上传时间</span>
-                <span class="text-dark-text">{{ material?.uploadedAt }}</span>
+                <span class="text-dark-text-secondary">创建时间</span>
+                <span class="text-dark-text">{{ material?.createTime || material?.uploadedAt || '未知' }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-dark-text-secondary">创建者</span>
+                <span class="text-dark-text">{{ material?.createBy || '未知' }}</span>
               </div>
             </div>
           </div>
@@ -203,10 +230,63 @@
       </div>
     </div>
   </div>
+
+  <!-- 图片放大预览 -->
+  <div v-if="showImageZoom" class="fixed inset-0 bg-black bg-opacity-90 z-60 flex items-center justify-center p-4" @click="closeImageZoom">
+    <!-- 左箭头 -->
+    <button 
+      v-if="canGoPrevious"
+      @click.stop="goToPrevious"
+      class="absolute left-8 top-1/2 transform -translate-y-1/2 z-10 w-16 h-16 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <div class="max-w-full max-h-full overflow-hidden rounded-lg">
+      <OptimizedImage
+        :src="material?.imageUrl || material?.preview"
+        :alt="material?.imageName || material?.title"
+        width="auto"
+        height="auto"
+        container-class="max-w-screen max-h-screen"
+        :lazy="false"
+        priority="high"
+      />
+    </div>
+
+    <!-- 右箭头 -->
+    <button 
+      v-if="canGoNext"
+      @click.stop="goToNext"
+      class="absolute right-8 top-1/2 transform -translate-y-1/2 z-10 w-16 h-16 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+
+    <!-- 当前位置指示器 -->
+    <div v-if="materialList.length > 1" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-4 py-2 rounded-full text-lg">
+      {{ currentIndex + 1 }} / {{ materialList.length }}
+    </div>
+
+    <!-- 关闭按钮 -->
+    <button 
+      @click.stop="closeImageZoom"
+      class="absolute top-8 right-8 w-12 h-12 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all duration-200"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import OptimizedImage from '~/components/OptimizedImage.vue'
 
 const props = defineProps({
   isOpen: {
@@ -216,10 +296,88 @@ const props = defineProps({
   material: {
     type: Object,
     default: () => null
+  },
+  materialList: {
+    type: Array,
+    default: () => []
+  },
+  currentIndex: {
+    type: Number,
+    default: 0
   }
 })
 
-const emits = defineEmits(['close', 'download', 'favorite'])
+const emits = defineEmits(['close', 'download', 'favorite', 'change-material'])
+
+// 响应式数据
+const showImageZoom = ref(false)
+
+// 导航计算属性
+const canGoPrevious = computed(() => {
+  return props.materialList.length > 1 && props.currentIndex > 0
+})
+
+const canGoNext = computed(() => {
+  return props.materialList.length > 1 && props.currentIndex < props.materialList.length - 1
+})
+
+// 处理图片放大
+const handleImageZoom = () => {
+  showImageZoom.value = true
+}
+
+// 关闭图片放大
+const closeImageZoom = () => {
+  showImageZoom.value = false
+}
+
+// 导航方法
+const goToPrevious = () => {
+  if (canGoPrevious.value) {
+    const newIndex = props.currentIndex - 1
+    const newMaterial = props.materialList[newIndex]
+    emits('change-material', newMaterial, newIndex)
+  }
+}
+
+const goToNext = () => {
+  if (canGoNext.value) {
+    const newIndex = props.currentIndex + 1
+    const newMaterial = props.materialList[newIndex]
+    emits('change-material', newMaterial, newIndex)
+  }
+}
+
+// 键盘事件处理
+const handleKeydown = (event) => {
+  if (!props.isOpen) return
+  
+  switch (event.key) {
+    case 'ArrowLeft':
+      event.preventDefault()
+      goToPrevious()
+      break
+    case 'ArrowRight':
+      event.preventDefault()
+      goToNext()
+      break
+    case 'Escape':
+      event.preventDefault()
+      if (showImageZoom.value) {
+        closeImageZoom()
+      } else {
+        close()
+      }
+      break
+  }
+}
+
+// 获取图片格式
+const getImageFormat = (imageUrl) => {
+  if (!imageUrl) return '未知'
+  const extension = imageUrl.split('.').pop()?.toUpperCase()
+  return extension || '未知'
+}
 
 // 获取分类名称
 const getCategoryName = (category) => {
@@ -386,4 +544,13 @@ const handleCopyLink = async () => {
 const close = () => {
   emits('close')
 }
+
+// 生命周期钩子
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script> 

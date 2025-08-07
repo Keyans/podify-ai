@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
     <div class="flex-shrink-0 p-4 border-b border-dark-border">
       <div class="grid grid-cols-4 gap-4">
@@ -45,7 +45,10 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
+                  :style="{
+                    backgroundColor: 'var(--accent-color)'
+                  }"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -86,10 +89,11 @@
                   }"
                 >
                   <option value="">全部状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">检测中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待执行</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -151,7 +155,10 @@
               <!-- 搜索按钮 -->
               <button 
                 @click="handleSearch"
-                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
+                :style="{
+                  backgroundColor: 'var(--accent-color)'
+                }"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -182,7 +189,7 @@
   <!-- 新建侵权检测任务弹窗 -->
   <DetectionNewTaskModal 
     :isOpen="showCreateModal" 
-    @close="showCreateModal = false"
+    @close="() => { console.log('父组件: 收到close事件'); showCreateModal = false; console.log('父组件: showCreateModal设为false'); }"
     @submit="handleTaskSubmit"
   />
 
@@ -272,6 +279,14 @@ const pageParams = ref({
   limit: 10
 })
 
+// 分页状态
+const pagination = ref({
+  total: 0,
+  current: 1,
+  size: 10,
+  pages: 1
+})
+
 // 筛选参数
 const filterParams = ref({
   taskId: '',
@@ -324,20 +339,33 @@ const fetchTaskList = async () => {
     }
     const response = await getDetectionTaskList(params)
     if (response.success) {
-      // 根据新的API返回结构映射数据字段到表格需要的格式
-      const rawList = response.data?.list || response.data?.creatorList || []
+      // 根据API返回结构映射数据字段到表格需要的格式
+      const rawList = response.data?.records || []
       tableData.value = rawList.map(item => ({
-        id: item.taskId || item.id,
-        检测ID: item.taskId || item.id,
-        目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
-        成功: item.current || item.successCount || '1',
-        失败: '0', // 根据接口文档，暂时设为0
-        任务状态: getStatusText(item.status),
-        创建人: item.creatorId || item.creator || item.createBy,
-        创建时间: item.createTime || item.createdAt,
-        // 保留原始数据以备后用
-        _raw: item
+        id: item.id,
+        检测ID: item.taskNo || item.id,
+        目标: item.targetCount || '0',
+        成功: item.completedCount || '0',
+        失败: '0', // 根据接口返回暂时设为0
+        status: item.status, // 保留原始数字状态值
+        创建人: item.operator || 'system',
+        创建时间: item.createTime,
+        // 保留原始数据以备后用，确保包含taskId字段
+        _raw: {
+          ...item,
+          taskId: item.taskId || item.id // 确保有taskId字段
+        }
       }))
+      
+      // 更新分页信息
+      if (response.data) {
+        pagination.value = {
+          total: parseInt(response.data.total || 0),
+          current: response.data.pageNum || 1,
+          size: response.data.pageSize || 10,
+          pages: response.data.pages || 1
+        }
+      }
     }
   } catch (error) {
     console.error('获取侵权检测任务列表失败:', error)
@@ -349,10 +377,11 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -373,8 +402,10 @@ const showTaskDetail = async (item) => {
   
   showDetailModal.value = true
   
-  // 获取详情数据，使用 taskId 或 id
-  const taskId = item.id || item.检测ID || item._raw?.taskId || item._raw?.id
+  // 获取详情数据，优先使用原始数据中的taskId，然后使用id
+  const taskId = item._raw?.taskId || item._raw?.id || item.id || item.检测ID
+  console.log('点击查看详情，item数据:', item)
+  console.log('使用的taskId:', taskId)
   if (taskId) {
     // 并行获取任务详情列表和任务统计信息
     await Promise.all([
@@ -398,8 +429,11 @@ const fetchTaskDetail = async (taskId) => {
     console.log('侵权检测任务详情响应:', response)
     
     if (response.success) {
-      // 根据新的API返回结构处理详情数据
-      const detailList = response.data?.data || response.data?.list || []
+      // 根据API返回结构处理详情数据（data直接是数组）
+      const detailList = Array.isArray(response.data) ? response.data : (response.data?.data || response.data?.list || [])
+      
+      console.log('处理后的详情数据:', detailList)
+      console.log('详情数据长度:', detailList.length)
       
       // 更新当前任务数据中的详情信息
       currentTaskData.value = {
@@ -577,6 +611,18 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+.search-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style>
 
 <style scoped>
 /* 自定义样式 */

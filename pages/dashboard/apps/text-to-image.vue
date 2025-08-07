@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
     <div class="flex-shrink-0 p-4 border-b border-dark-border">
       <div class="grid grid-cols-4 gap-4">
@@ -45,7 +45,10 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
+                  :style="{
+                    backgroundColor: 'var(--accent-color)'
+                  }"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -86,10 +89,11 @@
                   }"
                 >
                   <option value="">全部状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">生成中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待执行</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -129,7 +133,10 @@
               <!-- 搜索按钮 -->
               <button 
                 @click="handleSearch"
-                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
+                :style="{
+                  backgroundColor: 'var(--accent-color)'
+                }"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -325,10 +332,10 @@ const fetchTaskList = async () => {
       tableData.value = rawList.map(item => ({
         id: item.creatorId || item.id,        // 使用creatorId作为主键
         生图ID: item.creatorId || item.id,    // 生图ID使用creatorId字段
-        目标: item.cropperNum || item.targetCount || item.size || '0',  // 使用cropperNum作为主要目标数量
-        成功: item.current || item.successCount || '1',
-        失败: '0', // 根据接口文档，暂时设为0
-        任务状态: getStatusText(item.status),
+        目标: item.creatorNum || item.cropperNum || item.targetCount || item.size || '0',  // 使用creatorNum作为主要目标数量
+        成功: item.creatorSuccessNum || item.current || item.successCount || '0',
+        失败: item.creatorFailNum || '0', // 使用接口返回的失败数量
+        creatorStatus: item.creatorStatus,  // 保留原始数字状态值
         创建人: item.creatorId || item.creator || item.createBy,
         创建时间: item.createTime || item.createdAt,
         // 保留原始数据以备后用
@@ -345,10 +352,11 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -412,9 +420,9 @@ const fetchTaskDetail = async (taskId) => {
         referenceImage: item.imageUrl, // 原图作为参考图
         resultImages: item.resultsImageUrl || [], // 结果图片数组
         dimensions: item.dimensions || '1024×1024', // 尺寸
-        description: item.description || item.prompt || '文生图任务', // 描述
-        prompt: item.prompt || '文生图提示词',
-        status: getDetailStatusText(item.status), // 转换状态文本
+        description: item.description || item.promptWord || '文生图任务', // 描述
+        prompt: item.promptWord || item.prompt || '文生图提示词',
+        status: item.status, // 详情接口返回的状态字段是status，不是creatorStatus
         selected: false,
         _raw: item // 保留原始数据
       }))
@@ -449,16 +457,7 @@ const fetchTaskDetail = async (taskId) => {
   }
 }
 
-// 详情状态文本转换
-const getDetailStatusText = (status) => {
-  const statusMap = {
-    0: '处理中',
-    1: '已完成', 
-    2: '失败',
-    3: '部分完成'
-  }
-  return statusMap[status] || '未知'
-}
+
 
 // 处理详情页面变化
 const handleDetailPageChange = async (pagination) => {
@@ -512,33 +511,26 @@ const handleTaskSubmit = async (formData) => {
   console.log('新建文生图任务:', formData)
   
   try {
+    // 现在只有成功时才会收到事件，所以直接处理成功逻辑
+    console.log('文生图任务创建成功，响应数据:', formData.taskResponse)
+    
     // 关闭弹窗
     showCreateModal.value = false
     
-    // 无论任务创建成功还是失败，都要刷新数据
+    // 刷新数据
     await Promise.all([
       fetchStats(),
       fetchTaskList()
     ])
     
-    // 检查任务创建结果并显示相应提示
-    if (formData.success && formData.taskResponse) {
-      console.log('文生图任务创建成功，响应数据:', formData.taskResponse)
-      console.log('文生图任务创建成功，数据已刷新')
-      
-      // 可以在这里添加成功提示
-      // ElMessage.success('文生图任务创建成功')
-      
-    } else {
-      console.error('文生图任务创建失败:', formData.error || '未知错误')
-      
-      // 可以在这里添加错误提示
-      // ElMessage.error(formData.error || '文生图任务创建失败')
-    }
+    console.log('文生图任务创建成功，数据已刷新')
+    
+    // 可以在这里添加成功提示
+    // ElMessage.success('文生图任务创建成功')
     
   } catch (error) {
     console.error('处理文生图任务提交失败:', error)
-    // 即使出错也要关闭弹窗
+    // 处理异常时关闭弹窗
     showCreateModal.value = false
   }
 }
@@ -612,4 +604,16 @@ onBeforeUnmount(() => {
   // 清理事件监听
   window.removeEventListener('page-force-refresh', handleForceRefresh)
 })
-</script> 
+</script>
+
+<style scoped>
+.search-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style> 

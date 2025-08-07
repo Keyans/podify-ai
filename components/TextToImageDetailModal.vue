@@ -85,12 +85,14 @@
                 <td class="py-3 px-4">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img 
+                    <OptimizedImage 
                       v-if="item.referenceImage || item.imageUrl" 
                       :src="item.referenceImage || item.imageUrl" 
                       alt="参考图" 
-                      class="w-full h-full object-cover"
-                      @error="$event.target.style.display='none'"
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
                     />
                     <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <span class="text-xs text-gray-500">无参考图</span>
@@ -105,12 +107,13 @@
                         :key="imgIndex" 
                         class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden flex-shrink-0"
                       >
-                        <img 
+                        <OptimizedImage 
                           :src="resultImg" 
                           alt="结果图" 
-                          class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                          @click="previewImage(resultImg)"
-                          @error="$event.target.style.display='none'"
+                          container-class="w-full h-full"
+                          image-class="w-full h-full object-cover"
+                          :zoomable="true"
+                          :lazy="false"
                         />
                       </div>
                     </template>
@@ -120,12 +123,13 @@
                         :key="imgIndex" 
                         class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden flex-shrink-0"
                       >
-                        <img 
+                        <OptimizedImage 
                           :src="resultImg" 
                           alt="结果图" 
-                          class="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                          @click="previewImage(resultImg)"
-                          @error="$event.target.style.display='none'"
+                          container-class="w-full h-full"
+                          image-class="w-full h-full object-cover"
+                          :zoomable="true"
+                          :lazy="false"
                         />
                       </div>
                     </template>
@@ -148,12 +152,7 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <span 
-                    class="px-2 py-1 text-xs font-medium rounded-md"
-                    :class="getStatusClass(item.status)"
-                  >
-                    {{ getStatusText(item.status) }}
-                  </span>
+                  <TaskStatus :status="item.status" size="sm" />
                 </td>
                 <td class="py-3 px-4 text-right">
                   <button 
@@ -249,6 +248,7 @@
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, computed, watch } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {
@@ -426,47 +426,7 @@ const filterByStatus = (status) => {
   // 这里可以添加筛选逻辑
 }
 
-const getStatusClass = (status) => {
-  // 处理数字状态码
-  const numericStatus = typeof status === 'number' ? status : null
-  const statusText = typeof status === 'string' ? status : null
-  
-  if (numericStatus !== null) {
-    const numericStatusClasses = {
-      0: 'bg-yellow-100 text-yellow-800', // 处理中
-      1: 'bg-green-100 text-green-800',   // 已完成
-      2: 'bg-red-100 text-red-800',       // 失败
-      3: 'bg-orange-100 text-orange-800'  // 部分完成
-    }
-    return numericStatusClasses[numericStatus] || 'bg-gray-100 text-gray-800'
-  }
-  
-  // 处理字符串状态
-  const statusClasses = {
-    '已完成': 'bg-green-100 text-green-800',
-    '处理中': 'bg-yellow-100 text-yellow-800',
-    '失败': 'bg-red-100 text-red-800',
-    '部分失败': 'bg-orange-100 text-orange-800',
-    '部分完成': 'bg-orange-100 text-orange-800'
-  }
-  return statusClasses[statusText] || 'bg-gray-100 text-gray-800'
-}
 
-const getStatusText = (status) => {
-  // 处理数字状态码
-  if (typeof status === 'number') {
-    const statusMap = {
-      0: '处理中',
-      1: '已完成',
-      2: '失败',
-      3: '部分完成'
-    }
-    return statusMap[status] || '未知'
-  }
-  
-  // 处理字符串状态
-  return status || '未知'
-}
 
 const downloadImage = (item) => {
   console.log('下载图片:', item)
@@ -504,13 +464,7 @@ const exportDetail = () => {
   showMoreActions.value = false
 }
 
-// 图片预览功能
-const previewImage = (imageUrl) => {
-  if (imageUrl) {
-    // 在新窗口中打开图片
-    window.open(imageUrl, '_blank')
-  }
-}
+// 图片预览功能已由OptimizedImage组件内置的ImageViewer提供
 
 // 监听任务数据变化，重置分页
 watch(() => props.taskData, (newData) => {

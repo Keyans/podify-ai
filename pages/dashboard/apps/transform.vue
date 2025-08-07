@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
     <div class="flex-shrink-0 p-4 border-b border-dark-border">
       <div class="grid grid-cols-4 gap-4">
@@ -25,6 +25,7 @@
       :data="tableData"
       :loading="loading"
       :currentApp="'transform'"
+      :totalItems="pagination.total"
       idLabel="裂变"
       typeLabel="裂变"
       quantityLabel="裂变"
@@ -45,7 +46,10 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
+                  :style="{
+                    backgroundColor: 'var(--accent-color)'
+                  }"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -86,10 +90,11 @@
                     }"
                   >
                     <option value="">全部状态</option>
-                    <option value="waiting">等待中</option>
-                    <option value="processing">裂变中</option>
-                    <option value="completed">已完成</option>
-                    <option value="failed">失败</option>
+                    <option value="0">待执行</option>
+                    <option value="1">进行中</option>
+                    <option value="2">已完成</option>
+                    <option value="3">部分失败</option>
+                    <option value="4">失败</option>
                   </select>
                   <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -121,10 +126,13 @@
                 />
 
                 <!-- 搜索按钮 -->
-                <button 
-                  @click="handleSearch"
-                  class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                >
+                              <button 
+                @click="handleSearch"
+                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
+                :style="{
+                  backgroundColor: 'var(--accent-color)'
+                }"
+              >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
@@ -169,11 +177,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import TaskTable from '~/components/TaskTable.vue'
 import TransformNewTaskModal from '~/components/TransformNewTaskModal.vue'
 import TransformDetailModal from '~/components/TransformDetailModal.vue'
 import { getFissionStats, getFissionTaskList, getFissionTaskDetail } from '~/apis/business/fission'
+
+// 获取当前路由
+const route = useRoute()
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -243,6 +254,14 @@ const pageParams = ref({
   limit: 10
 })
 
+// 分页信息
+const pagination = ref({
+  total: 0,
+  current: 1,
+  size: 10,
+  pages: 1
+})
+
 // 筛选参数
 const filterParams = ref({
   taskId: '',
@@ -283,19 +302,27 @@ const fetchTaskList = async () => {
     const response = await getFissionTaskList(params)
     if (response.success) {
       // 映射数据字段到表格需要的格式
-      const rawList = response.data?.fissionTaskList || []
+      const rawList = response.data?.fissionList || []
       tableData.value = rawList.map(item => ({
         id: item.fissionId,
         裂变ID: item.fissionId,
         目标: item.fissionNum,
         成功: item.fissionSuccessNum,
         失败: item.fissionFailNum,
-        任务状态: getStatusText(item.fissionStatus),
+        fissionStatus: item.fissionStatus, // 保留原始数字状态值
         创建人: item.createBy,
         创建时间: item.createTime,
         // 保留原始数据以备后用
         _raw: item
       }))
+      
+      // 更新分页信息
+      pagination.value = {
+        total: parseInt(response.data?.total || '0'),
+        current: parseInt(response.data?.current || '1'),
+        size: parseInt(response.data?.size || '10'),
+        pages: parseInt(response.data?.pages || '1')
+      }
     }
   } catch (error) {
     console.error('获取任务列表失败:', error)
@@ -361,8 +388,11 @@ const fetchTaskDetail = async (taskId) => {
         fissionId: item.fissionId,
         imageUrl: item.imageUrl,
         originalImage: item.imageUrl,
-        fissionUrl: item.resultsImageUrl,
-        fissionedImage: item.resultsImageUrl,
+        // 保持resultsImageUrl的原始数组格式
+        resultsImageUrl: item.resultsImageUrl,
+        // 兼容旧字段，如果是数组则取第一个
+        fissionUrl: Array.isArray(item.resultsImageUrl) ? item.resultsImageUrl[0] : item.resultsImageUrl,
+        fissionedImage: Array.isArray(item.resultsImageUrl) ? item.resultsImageUrl[0] : item.resultsImageUrl,
         status: item.status,
         fissionStatus: item.status,
         // 保留原始数据
@@ -387,6 +417,16 @@ const fetchTaskDetail = async (taskId) => {
       console.log('✅ 任务详情数据已格式化:', {
         detailList: formattedDetailList,
         pagination: currentTaskData.value.detailPagination
+      })
+      
+      // 专门调试resultsImageUrl数据
+      formattedDetailList.forEach((item, index) => {
+        console.log(`详情项 ${index + 1}:`, {
+          fissionId: item.fissionId,
+          resultsImageUrl: item.resultsImageUrl,
+          isArray: Array.isArray(item.resultsImageUrl),
+          length: Array.isArray(item.resultsImageUrl) ? item.resultsImageUrl.length : 'N/A'
+        })
       })
     }
   } catch (error) {
@@ -550,6 +590,18 @@ onBeforeUnmount(() => {
   window.removeEventListener('page-force-refresh', handleForceRefresh)
 })
 </script>
+
+<style scoped>
+.search-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style>
 
 <style scoped>
 /* 页面特定样式 */

@@ -70,7 +70,7 @@
                 <input 
                   type="text" 
                   v-model="searchKeyword"
-                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text text-sm"
+                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-dark-accent focus:border-transparent text-dark-text text-sm"
                   placeholder="高级搜索"
                 >
               </div>
@@ -80,7 +80,7 @@
                 <select 
                   v-model="searchPlatform"
                   :disabled="selectedPlatform !== 'all'"
-                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text text-sm"
+                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-dark-accent focus:border-transparent text-dark-text text-sm"
                   :class="{ 'opacity-50 cursor-not-allowed': selectedPlatform !== 'all' }"
                   @change="handlePlatformSearch"
                 >
@@ -95,7 +95,7 @@
               <div class="min-w-[120px]">
                 <select 
                   v-model="searchCreator"
-                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text text-sm"
+                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-dark-accent focus:border-transparent text-dark-text text-sm"
                 >
                   <option value="">创建人</option>
                   <option value="admin">admin</option>
@@ -107,14 +107,14 @@
                 <input 
                   type="text" 
                   v-model="minPrice"
-                  class="w-20 px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text text-sm"
+                  class="w-20 px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-dark-accent focus:border-transparent text-dark-text text-sm"
                   placeholder="最低价格"
                 >
                 <span class="text-dark-text-secondary text-sm">~</span>
                 <input 
                   type="text" 
                   v-model="maxPrice"
-                  class="w-20 px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text text-sm"
+                  class="w-20 px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-dark-accent focus:border-transparent text-dark-text text-sm"
                   placeholder="最高价格"
                 >
               </div>
@@ -124,7 +124,7 @@
                 <input 
                   type="text" 
                   v-model="searchTitle"
-                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text text-sm"
+                  class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-dark-accent focus:border-transparent text-dark-text text-sm"
                   placeholder="商品标题"
                 >
               </div>
@@ -132,7 +132,7 @@
               <!-- 查询按钮 -->
               <button 
                 @click="handleSearch"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+                class="px-4 py-2 bg-dark-accent text-white rounded-md hover:bg-dark-accent-hover transition-colors text-sm"
               >
                 查询
               </button>

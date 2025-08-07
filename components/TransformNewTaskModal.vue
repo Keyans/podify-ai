@@ -346,7 +346,7 @@ const submit = async () => {
     // 1. 先上传所有文件到 COS
     let cosImageList = []
     if (cosUploadRef.value) {
-      await cosUploadRef.value.uploadAllFilesToCos()
+      await cosUploadRef.value.uploadAllFiles()
       cosImageList = cosUploadRef.value.getImageInfoList()
     }
     
@@ -374,9 +374,7 @@ const submit = async () => {
     const taskParams = {
       uploadType: cosImageList.length > 0 ? 1 : 2, // 如果有 COS 上传的图片就是本地上传，否则是图库上传
       fissionNum: parseInt(fissionCount.value), // 裂变数量
-      imageList: allImageList,
-      // 如果启用了一键抠图，可以在这里添加相关参数
-      autoCutout: enableAutoCutout.value
+      imageList: allImageList
     }
     
     console.log('创建复变任务参数:', taskParams)

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
     <div class="flex-shrink-0 p-4 border-b border-dark-border">
       <div class="grid grid-cols-4 gap-4">
@@ -45,7 +45,10 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
+                  :style="{
+                    backgroundColor: 'var(--accent-color)'
+                  }"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -86,10 +89,11 @@
                   }"
                 >
                   <option value="">任务状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">裁图中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待执行</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -129,7 +133,10 @@
               <!-- 搜索按钮 -->
               <button 
                 @click="handleSearch"
-                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
+                :style="{
+                  backgroundColor: 'var(--accent-color)'
+                }"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -165,10 +172,9 @@
   />
 
   <!-- 裁图任务详情弹窗 -->
-  <CollectionDetailModal
+  <CroppingDetailModal
     :isOpen="showDetailModal"
     :taskData="currentTaskData"
-    type="cropping"
     @close="showDetailModal = false"
     @download="handleDownloadImages"
     @page-change="handleDetailPageChange"
@@ -178,7 +184,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import TaskTable from '~/components/TaskTable.vue'
-import CollectionDetailModal from '~/components/CollectionDetailModal.vue'
+import CroppingDetailModal from '~/components/CroppingDetailModal.vue'
 import CroppingNewTaskModal from '~/components/CroppingNewTaskModal.vue'
 import { getCropperStats, getCropperTaskList, getCropperTaskDetail } from '~/apis/business/cropper'
 
@@ -317,7 +323,7 @@ const fetchTaskList = async () => {
         目标: item.cropperNum,
         成功: item.cropperSuccessNum,
         失败: item.cropperFailNum,
-        任务状态: getStatusText(item.cropperStatus),
+        cropperStatus: item.cropperStatus, // 保留原始数字状态值
         创建人: item.createBy,
         创建时间: item.createTime,
         // 保留原始数据以备后用
@@ -334,10 +340,11 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中', 
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -534,3 +541,15 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+.search-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style>

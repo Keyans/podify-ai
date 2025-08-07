@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
     <div class="flex-shrink-0 p-4 border-b border-dark-border">
       <div class="grid grid-cols-4 gap-4">
@@ -44,7 +44,10 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
+                  :style="{
+                    backgroundColor: 'var(--accent-color)'
+                  }"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -170,7 +173,10 @@
               <!-- 搜索按钮 -->
               <button 
                 @click="handleSearch"
-                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
+                :style="{
+                  backgroundColor: 'var(--accent-color)'
+                }"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -530,3 +536,15 @@ onMounted(() => {
   console.log('批量刊登页面已加载')
 })
 </script>
+
+<style scoped>
+.search-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style>

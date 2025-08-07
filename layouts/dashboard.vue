@@ -66,9 +66,9 @@
                 <a 
                   href="#" 
                   @click.prevent="openInTab('/dashboard', '驾驶舱')"
-                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-cyan-400" 
-                  :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard' }"
-                  :style="{ color: currentActivePath === '/dashboard' ? '#22d3ee' : 'var(--text-secondary)' }"
+                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text dashboard-menu-item" 
+                  :class="{ 'dashboard-menu-active': currentActivePath === '/dashboard' }"
+                  :style="{ color: currentActivePath === '/dashboard' ? 'var(--accent-color)' : 'var(--text-secondary)' }"
                 >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
@@ -106,40 +106,40 @@
               </svg>
             </div>
             <div v-show="isMyAppsOpen" class="ml-6 space-y-1">
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input hover:text-cyan-400" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/collection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/collection' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/collection' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/collection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/collection' }" :style="{ color: currentActivePath === '/dashboard/apps/collection' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/collection' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>商品采集</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/cropping', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cropping' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/cropping' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/cropping', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cropping' }" :style="{ color: currentActivePath === '/dashboard/apps/cropping' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/cropping' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>智能裁图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/cutout', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cutout' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/cutout' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/cutout', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cutout' }" :style="{ color: currentActivePath === '/dashboard/apps/cutout' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/cutout' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>一键抠图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/text-to-image', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/text-to-image' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/text-to-image' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/text-to-image', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/text-to-image' }" :style="{ color: currentActivePath === '/dashboard/apps/text-to-image' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/text-to-image' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>文生图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/transform', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/transform' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/transform' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/transform', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/transform' }" :style="{ color: currentActivePath === '/dashboard/apps/transform' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/transform' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>超级裂变</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/detection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/detection' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/detection' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/detection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/detection' }" :style="{ color: currentActivePath === '/dashboard/apps/detection' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/detection' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>侵权检测</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/pod-synthesis', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/pod-synthesis' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/pod-synthesis' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/pod-synthesis', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/pod-synthesis' }" :style="{ color: currentActivePath === '/dashboard/apps/pod-synthesis' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/pod-synthesis' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>POD合成</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/title-generation', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/title-generation' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/title-generation' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/title-generation', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/title-generation' }" :style="{ color: currentActivePath === '/dashboard/apps/title-generation' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/title-generation' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>标题生成</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/batch-listing', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/batch-listing' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/batch-listing' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/batch-listing', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/batch-listing' }" :style="{ color: currentActivePath === '/dashboard/apps/batch-listing' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/batch-listing' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>批量刊登</span>
               </a>
             </div>
@@ -148,8 +148,8 @@
           <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 px-4 py-2 text-sm hover:bg-dark-input hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/workflow', 'text-dark-text-secondary': currentActivePath !== '/dashboard/workflow' }">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" :class="currentActivePath === '/dashboard/workflow' ? 'text-cyan-400' : 'text-dark-text-secondary'">
+                <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input dashboard-menu-item" :class="{ 'dashboard-menu-active': currentActivePath === '/dashboard/workflow', 'text-dark-text-secondary': currentActivePath !== '/dashboard/workflow' }" :style="{ color: currentActivePath === '/dashboard/workflow' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" :style="{ color: currentActivePath === '/dashboard/workflow' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
                     <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
                   </svg>
                   <span>工作流</span>
@@ -556,7 +556,7 @@
         </div>
 
         <!-- 页面内容区域 -->
-        <main class="flex-1 overflow-auto">
+        <main class="flex-1 overflow-hidden flex flex-col">
         <slot />
       </main>
       </div>
@@ -1417,5 +1417,23 @@ onBeforeUnmount(() => {
 
 .logo-hover:hover .logo-pulse {
   animation: techPulse 1.5s ease-in-out infinite;
+}
+
+/* Dashboard 菜单样式 */
+.dashboard-menu-item:hover {
+  border-right: 2px solid var(--accent-color);
+}
+
+.dashboard-menu-active {
+  background-color: rgba(34, 211, 238, 0.1) !important;
+  border-right: 4px solid var(--accent-color) !important;
+}
+
+.dashboard-sub-menu-item:hover {
+  color: var(--accent-color) !important;
+}
+
+.dashboard-sub-menu-active {
+  background-color: rgba(34, 211, 238, 0.1) !important;
 }
 </style>

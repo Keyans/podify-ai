@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
+  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
     <!-- 统计卡片 -->
     <div class="flex-shrink-0 p-4 border-b border-dark-border">
       <div class="grid grid-cols-4 gap-4">
@@ -45,7 +45,10 @@
               <div class="flex space-x-3">
                 <button 
                   @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
+                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
+                  :style="{
+                    backgroundColor: 'var(--accent-color)'
+                  }"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -86,13 +89,32 @@
                   }"
                 >
                   <option value="">全部状态</option>
-                  <option value="waiting">等待中</option>
-                  <option value="processing">抠图中</option>
-                  <option value="completed">已完成</option>
-                  <option value="failed">失败</option>
+                  <option value="0">待处理</option>
+                  <option value="1">进行中</option>
+                  <option value="2">已完成</option>
+                  <option value="3">部分失败</option>
+                  <option value="4">失败</option>
                 </select>
                 <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+
+              <!-- 创建人搜索 -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  v-model="filters.userId" 
+                  placeholder="搜索创建人"
+                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)'
+                  }"
+                >
+                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
               </div>
 
@@ -129,7 +151,10 @@
               <!-- 搜索按钮 -->
               <button 
                 @click="handleSearch"
-                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
+                :style="{
+                  backgroundColor: 'var(--accent-color)'
+                }"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -264,7 +289,8 @@ const filters = ref({
   taskId: '',
   status: '',
   startDate: '',
-  endDate: ''
+  endDate: '',
+  userId: ''
 })
 
 // 重置筛选条件
@@ -273,7 +299,8 @@ const resetFilters = () => {
     taskId: '',
     status: '',
     startDate: '',
-    endDate: ''
+    endDate: '',
+    userId: ''
   }
   // 更新filterParams并重新获取数据
   filterParams.value = {
@@ -281,7 +308,7 @@ const resetFilters = () => {
     status: filters.value.status || '',
     startTime: filters.value.startDate || '',
     endTime: filters.value.endDate || '',
-    userId: ''
+    userId: filters.value.userId || ''
   }
   pageParams.value.page = 1
   fetchTaskList()
@@ -311,25 +338,19 @@ const fetchTaskList = async () => {
     if (response.success) {
       // 映射数据字段到表格需要的格式
       const rawList = response.data?.mattingTaskList || response.data?.list || []
+      console.log('一键抠图原始数据:', rawList.slice(0, 2)) // 打印前2条数据用于调试
       tableData.value = rawList.map(item => ({
         id: item.mattingId || item.taskId,
         抠图ID: item.mattingId || item.taskId,
         目标: item.mattingNum || item.targetCount,
         成功: item.mattingSuccessNum || item.successCount,
         失败: item.mattingFailNum || item.failedCount,
-        任务状态: getStatusText(item.mattingStatus || item.status),
+        mattingStatus: parseInt(item.mattingStatus || item.status || 0), // 确保是数字类型
         创建人: item.createBy || item.creator,
-        // 保留原始数据字段，供详情弹窗使用
-        mattingNum: item.mattingNum,
-        mattingSuccessNum: item.mattingSuccessNum,
-        mattingFailNum: item.mattingFailNum,
-        mattingStatus: item.mattingStatus,
-        mattingId: item.mattingId,
-        _raw: item, // 保存完整的原始数据
         创建时间: item.createTime || item.createdAt,
-        // 保留原始数据以备后用
-        _raw: item
+        _raw: item // 保存完整的原始数据
       }))
+      console.log('一键抠图映射后数据:', tableData.value.slice(0, 2)) // 打印映射后的前2条数据
     }
   } catch (error) {
     console.error('获取抠图任务列表失败:', error)
@@ -341,10 +362,11 @@ const fetchTaskList = async () => {
 // 状态文本转换
 const getStatusText = (status) => {
   const statusMap = {
-    0: '进行中',
-    1: '已完成',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -461,7 +483,7 @@ const handleSearch = () => {
     status: filters.value.status || '',
     startTime: filters.value.startDate || '',
     endTime: filters.value.endDate || '',
-    userId: ''
+    userId: filters.value.userId || ''
   }
   pageParams.value.page = 1 // 重置到第一页
   fetchTaskList()
@@ -533,3 +555,15 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+.search-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+
+.create-button:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style>

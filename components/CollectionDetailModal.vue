@@ -68,7 +68,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.title"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[300px]">
@@ -76,17 +87,7 @@
                   </td>
                   <td class="py-3 px-4">${{ item.price }}</td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '已完成',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-blue-500 text-white': item.status === '处理中',
-                        'bg-gray-500 text-white': item.status === '待处理'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.rawData?.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4">
                     <a 
@@ -166,7 +167,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.title"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[300px]">
@@ -174,16 +186,7 @@
                   </td>
                   <td class="py-3 px-4">${{ item.price }}</td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-gray-500 text-white': item.status === '处理中'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4">
                     <a href="#" class="text-green-500 hover:underline">访问链接</a>
@@ -262,7 +265,18 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.title"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[300px]">
@@ -270,16 +284,7 @@
                   </td>
                   <td class="py-3 px-4">${{ item.price }}</td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-gray-500 text-white': item.status === '处理中'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4">
                     <a href="#" class="text-green-500 hover:underline">访问链接</a>
@@ -336,23 +341,25 @@
                   <td class="py-3 px-4">{{ index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.image" :alt="item.url" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.image"
+                        :alt="item.url"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4 max-w-[400px]">
                     <div class="truncate text-green-500">{{ item.url }}</div>
                   </td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-gray-500 text-white': item.status === '处理中'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                 </tr>
               </tbody>
@@ -423,29 +430,42 @@
                   <td class="py-3 px-4">{{ (pagination.page - 1) * pagination.limit + index + 1 }}</td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img :src="item.originalImage" alt="原图" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        :src="item.originalImage"
+                        alt="原图"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                     </div>
                   </td>
                   <td class="py-3 px-4">
                     <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                      <img v-if="item.croppedImage" :src="item.croppedImage" alt="裁剪图" class="w-full h-full object-cover" />
+                      <OptimizedImage
+                        v-if="item.croppedImage"
+                        :src="item.croppedImage"
+                        alt="裁剪图"
+                        width="64px"
+                        height="64px"
+                        container-class="w-16 h-16"
+                        :lazy="false"
+                        :zoomable="true"
+                        priority="high"
+                        :show-progress="true"
+                        @click="handleImageClick(item)"
+                      />
                       <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                         <span class="text-xs text-gray-500">无图片</span>
                       </div>
                     </div>
                   </td>
                   <td class="py-3 px-4">
-                    <span 
-                      class="px-2 py-1 text-xs font-medium rounded-md"
-                      :class="{
-                        'bg-green-500 text-white': item.status === '成功',
-                        'bg-red-500 text-white': item.status === '失败',
-                        'bg-yellow-500 text-white': item.status === '处理中',
-                        'bg-gray-500 text-white': item.status === '暂停' || item.status === '未知'
-                      }"
-                    >
-                      {{ item.status }}
-                    </span>
+                    <TaskStatus :status="item.status || 0" size="sm" />
                   </td>
                   <td class="py-3 px-4 text-right">
                     <a href="#" @click.prevent="downloadImage(item)" class="text-green-500 hover:underline">下载图片</a>
@@ -541,6 +561,8 @@
 
 <script setup>
 import { ref, defineProps, defineEmits, computed, onMounted, watch } from 'vue'
+import OptimizedImage from '~/components/OptimizedImage.vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {
@@ -695,7 +717,7 @@ const croppingItems = computed(() => {
       cropperId: item.cropperId,
       originalImage: item.originalImage || item.imageUrl || 'https://via.placeholder.com/150/000000/FFFFFF?text=Original',
       croppedImage: item.croppedImage || item.cropperUrl || item.resultsImageUrl || null,
-      status: getStatusText(item.status || item.cropperStatus),
+      status: item.status || item.cropperStatus || 0, // 保留原始数字状态值
       rawData: item
     }))
   }
@@ -738,10 +760,11 @@ const croppingItems = computed(() => {
 // 状态文本转换函数
 const getStatusText = (status) => {
   const statusMap = {
-    0: '处理中',
-    1: '成功', 
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中', 
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[status] || '未知'
 }
@@ -830,6 +853,13 @@ const handlePageChange = (newPage) => {
     page: newPage,
     limit: pagination.value.limit
   })
+}
+
+// 处理图片点击
+const handleImageClick = (item) => {
+  console.log('点击图片:', item)
+  // 可以在这里实现图片放大查看功能
+  // 比如打开一个图片预览模态框
 }
 
 // 初始化

@@ -313,12 +313,15 @@
   </div>
 
   <!-- 图片详情弹窗 -->
-  <ImageDetailModal
+  <MaterialDetailModal
     :isOpen="showDetailModal"
-    :image="selectedImage"
+    :material="selectedImage"
+    :materialList="images"
+    :currentIndex="selectedImageIndex"
     @close="showDetailModal = false"
     @download="downloadImage"
-    @delete="deleteImage"
+    @favorite="toggleFavorite"
+    @change-material="handleChangeImage"
   />
 
   <!-- 上传图片弹窗 -->
@@ -332,7 +335,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import ImageDetailModal from '~/components/ImageDetailModal.vue'
+import MaterialDetailModal from '~/components/MaterialDetailModal.vue'
 import GalleryUploadModal from '~/components/GalleryUploadModal.vue'
 import { getGalleryStats, getGalleryImageList, GalleryType } from '~/apis/business/gallery'
 
@@ -363,6 +366,7 @@ const pageSize = ref(24)
 const showDetailModal = ref(false)
 const showUploadModal = ref(false)
 const selectedImage = ref(null)
+const selectedImageIndex = ref(0) // 当前选中图片的索引
 
 // 图片数据和加载状态
 const images = ref([])
@@ -440,6 +444,7 @@ const getStatusClass = (status) => {
 // 操作方法
 const openImageDetail = (image) => {
   selectedImage.value = image
+  selectedImageIndex.value = images.value.findIndex(img => img.id === image.id || img.imageName === image.imageName)
   showDetailModal.value = true
 }
 
@@ -488,7 +493,23 @@ const batchMove = () => {
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
+    fetchImages()
   }
+}
+
+// 处理图片切换
+const handleChangeImage = (newImage, newIndex) => {
+  selectedImage.value = newImage
+  selectedImageIndex.value = newIndex
+}
+
+const toggleFavorite = (image) => {
+  // 切换收藏状态（如果图片对象有isFavorite属性）
+  if (image.isFavorite !== undefined) {
+    image.isFavorite = !image.isFavorite
+  }
+  console.log('切换收藏状态:', image.imageName)
+  // 实际应用中应该调用收藏API
 }
 
 // 防抖定时器

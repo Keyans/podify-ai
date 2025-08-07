@@ -130,7 +130,6 @@
               class="px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
             >
               <option value="">选择标签</option>
-              <option value="free">免费</option>
               <option value="premium">高级</option>
               <option value="trending">热门</option>
               <option value="new">最新</option>
@@ -409,18 +408,7 @@
 
                 <!-- 标签 -->
                 <div class="absolute top-2 right-2 z-10">
-                  <span 
-                    v-if="material.isPremium"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-                  >
-                    高级
-                  </span>
-                  <span 
-                    v-else
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                  >
-                    免费
-                  </span>
+                  <!-- 移除免费/高级标签显示 -->
                 </div>
 
                 <!-- 图片 -->
@@ -531,18 +519,7 @@
 
                 <!-- 标签 -->
                 <div class="absolute top-2 right-2 z-10">
-                  <span 
-                    v-if="material.isPremium"
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-                  >
-                    高级
-                  </span>
-                  <span 
-                    v-else
-                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                  >
-                    免费
-                  </span>
+                  <!-- 移除免费/高级标签显示 -->
                 </div>
 
                 <!-- 图片 -->
@@ -633,9 +610,12 @@
   <MaterialDetailModal
     :isOpen="showDetailModal"
     :material="selectedMaterial"
+    :materialList="materials"
+    :currentIndex="selectedMaterialIndex"
     @close="showDetailModal = false"
     @download="downloadMaterial"
     @favorite="toggleFavorite"
+    @change-material="handleChangeMaterial"
   />
 
   <!-- 上传素材弹窗 -->
@@ -774,6 +754,7 @@ const showDetailModal = ref(false)
 const showUploadModal = ref(false)
 const showAddCategoryModal = ref(false)
 const selectedMaterial = ref(null)
+const selectedMaterialIndex = ref(0) // 当前选中素材的索引
 
 // 分类管理
 const editingCategory = ref(null)
@@ -984,6 +965,7 @@ const cancelCategoryEdit = () => {
 // 操作方法
 const openMaterialDetail = (material) => {
   selectedMaterial.value = material
+  selectedMaterialIndex.value = materials.value.findIndex(m => m.id === material.id || m.imageName === material.imageName)
   showDetailModal.value = true
 }
 
@@ -993,6 +975,12 @@ const previewMaterial = (material) => {
 
 const downloadMaterial = (material) => {
   console.log('下载素材:', material.imageName)
+}
+
+// 处理素材切换
+const handleChangeMaterial = (newMaterial, newIndex) => {
+  selectedMaterial.value = newMaterial
+  selectedMaterialIndex.value = newIndex
 }
 
 const toggleFavorite = (material) => {

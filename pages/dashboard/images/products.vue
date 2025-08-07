@@ -53,7 +53,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-dark-text-secondary">存储空间</p>
-                <p class="text-2xl font-bold text-dark-text">{{ stats.storageUsed }}</p>
+                <p class="text-2xl font-bold text-dark-text">{{ stats.storageUsed }} GB</p>
               </div>
               <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,6 +217,19 @@
             </svg>
             <span class="flex-1">全部</span>
             <span class="text-xs bg-dark-input px-2 py-1 rounded">{{ totalItems }}</span>
+          </div>
+
+          <!-- 未分类 -->
+          <div 
+            @click="selectCategory('uncategorized')"
+            :class="selectedCategory === '0' ? 'bg-blue-600 text-white' : 'text-dark-text hover:bg-dark-hover'"
+            class="flex items-center px-4 py-3 cursor-pointer transition-colors"
+          >
+            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="flex-1">未分类</span>
+            <span class="text-xs bg-dark-input px-2 py-1 rounded">{{ uncategorizedCount }}</span>
           </div>
 
           <!-- 用户自定义分类 -->
@@ -576,13 +589,16 @@
     </div>
   </div>
 
-  <!-- 图片详情弹窗 -->
-  <ImageDetailModal
+  <!-- 商品详情弹窗 -->
+  <ProductDetailModal
     :isOpen="showDetailModal"
-    :image="selectedImage"
+    :product="selectedImage"
+    :productList="products"
+    :currentIndex="selectedImageIndex"
+    :categories="categories"
     @close="showDetailModal = false"
-    @download="downloadImage"
-    @delete="deleteImage"
+    @download="handleProductDownload"
+    @change-product="handleChangeProduct"
   />
 
   <!-- 上传图片弹窗 -->
@@ -687,8 +703,8 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import ImageDetailModal from '~/components/ImageDetailModal.vue'
-import GalleryUploadModal from '~/components/GalleryUploadModal.vue' // 导入上传弹窗组件
+import ProductDetailModal from '~/components/ProductDetailModal.vue'
+import GalleryUploadModal from '~/components/GalleryUploadModal.vue'
 import { getGalleryStats, getGalleryCategories, addGalleryCategory, GalleryType } from '~/apis/business/gallery'
 import { getProductSuccessList } from '~/apis/business/product'
 
@@ -715,6 +731,7 @@ const showDetailModal = ref(false)
 const showUploadModal = ref(false) // 添加上传弹窗状态
 const showAddCategoryModal = ref(false) // 添加分类弹窗状态
 const selectedImage = ref(null)
+const selectedImageIndex = ref(0) // 当前选中图片的索引
 
 // 分页相关
 const currentPage = ref(1)
@@ -777,6 +794,13 @@ const pagination = ref({
 const totalItems = computed(() => parseInt(pagination.value.total))
 const totalPages = computed(() => parseInt(pagination.value.pages))
 
+// 计算未分类商品数量
+const uncategorizedCount = computed(() => {
+  return products.value.filter(product => 
+    product.categoryId === '0' || product.categoryId === 0 || !product.categoryId
+  ).length
+})
+
 // 获取平台名称
 const getPlatformName = (platform) => {
   const platformMap = {
@@ -793,6 +817,8 @@ const getPlatformName = (platform) => {
 const selectCategory = (category) => {
   if (category === 'all') {
     selectedCategory.value = ''
+  } else if (category === 'uncategorized') {
+    selectedCategory.value = '0'
   } else {
     selectedCategory.value = category
     
@@ -819,6 +845,7 @@ const selectCategory = (category) => {
 // 获取分类显示名称
 const getCategoryName = (categoryValue) => {
   if (!categoryValue) return '全部'
+  if (categoryValue === '0' || categoryValue === 0) return '未分类'
   
   const findCategory = (categories, value) => {
     for (const cat of categories) {
@@ -954,6 +981,7 @@ const cancelCategoryEdit = () => {
 // 图片操作方法
 const openImageDetail = (image) => {
   selectedImage.value = image
+  selectedImageIndex.value = products.value.findIndex(p => p.id === image.id)
   showDetailModal.value = true
 }
 
@@ -963,6 +991,17 @@ const previewImage = (image) => {
 
 const downloadImage = (image) => {
   console.log('下载图片:', image.name)
+}
+
+const handleProductDownload = (product) => {
+  console.log('商品图片下载完成:', product)
+  showNotification('success', '图片下载成功！')
+}
+
+// 处理商品切换
+const handleChangeProduct = (newProduct, newIndex) => {
+  selectedImage.value = newProduct
+  selectedImageIndex.value = newIndex
 }
 
 const deleteImage = (image) => {
@@ -997,23 +1036,6 @@ const goToPage = (page) => {
     currentPage.value = page
     fetchProducts()
   }
-}
-
-// 格式化文件大小
-const formatFileSize = (sizeStr) => {
-  // 如果已经是格式化的字符串，直接返回
-  if (typeof sizeStr === 'string' && sizeStr.includes('B')) {
-    return sizeStr
-  }
-  
-  const bytes = parseInt(sizeStr) || 0
-  if (bytes === 0) return '0 B'
-  
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // 获取商品列表数据
@@ -1074,7 +1096,7 @@ const fetchStats = async () => {
     if (response.success && response.data) {
       const data = response.data
       stats.value.totalImages = data.imageCount
-      stats.value.storageUsed = formatFileSize(data.fileSizeTotal)
+      stats.value.storageUsed = data.fileSizeTotal
       stats.value.todayUploads = data.todayUploadCount
     }
   } catch (error) {

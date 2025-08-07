@@ -22,10 +22,11 @@
             }"
             >
               <option value="all">全部状态</option>
-              <option value="waiting">等待中</option>
-              <option value="processing">处理中</option>
-              <option value="completed">已完成</option>
-              <option value="failed">失败</option>
+              <option value="0">待执行</option>
+              <option value="1">进行中</option>
+              <option value="2">已完成</option>
+              <option value="3">部分失败</option>
+              <option value="4">失败</option>
           </select>
             <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -77,7 +78,10 @@
         <button 
             v-if="showNewButton"
             @click="handleNewTask"
-            class="px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 flex items-center text-sm"
+            class="px-4 py-2 text-white rounded-lg flex items-center text-sm task-table-primary-btn"
+            :style="{
+              backgroundColor: 'var(--accent-color)'
+            }"
           >
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -146,7 +150,7 @@
       </div>
       
       <!-- 表格内容区域 - 精确自适应高度，确保内部滚动 -->
-      <div class="flex-1 min-h-0 overflow-auto" :style="{ backgroundColor: 'var(--bg-secondary)' }">
+      <div class="flex-1 min-h-0 overflow-auto relative" :style="{ backgroundColor: 'var(--bg-secondary)' }">
         <table class="w-full table-fixed">
           <colgroup>
             <col style="width: 50px;">  <!-- 复选框列 -->
@@ -167,6 +171,7 @@
               :key="item.id"
             class="hover:bg-opacity-50" 
             :style="{ backgroundColor: 'var(--bg-secondary)' }"
+            @mouseenter="handleRowHover(item)"
           >
             <td class="px-6 py-4 text-center">
               <input type="checkbox" class="rounded border-gray-300" v-model="selectedItems" :value="item.id">
@@ -206,12 +211,7 @@
               </div>
             </td>
             <td class="px-4 py-4 text-center">
-                <span 
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                  :class="getStatusClass(item)"
-                >
-                  {{ getStatusText(item) }}
-                </span>
+                <TaskStatus :status="getStatus(item)" />
             </td>
             <td class="px-4 py-4 text-center" :style="{ color: 'var(--text-primary)' }">
                 <div class="text-sm truncate" :title="item.创建人 || item.creator || '-'">
@@ -362,21 +362,33 @@
               </div>
             </td>
           </tr>
-          
-            <!-- 无数据时的占位内容 - 使用最小高度确保填充 -->
-          <tr v-if="filteredData.length === 0">
-              <td :colspan="showType ? 8 : 7" class="px-6 py-20">
-                <div class="flex flex-col items-center justify-center text-center" :style="{ color: 'var(--text-secondary)', minHeight: '300px' }">
-                  <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  <p class="text-lg font-medium mb-2">暂无数据</p>
-                  <p class="text-sm opacity-75">还没有任何任务记录</p>
-                </div>
-            </td>
-          </tr>
+
         </tbody>
       </table>
+      
+      <!-- 加载状态的居中显示 -->
+      <div 
+        v-if="loading" 
+        class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
+        :style="{ color: 'var(--text-secondary)' }"
+      >
+        <div class="w-8 h-8 border-2 border-current border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-lg font-medium mb-2">加载中...</p>
+        <p class="text-sm opacity-75">正在获取数据</p>
+      </div>
+      
+      <!-- 无数据时的居中显示 -->
+      <div 
+        v-else-if="filteredData.length === 0" 
+        class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
+        :style="{ color: 'var(--text-secondary)' }"
+      >
+        <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="text-lg font-medium mb-2">暂无数据</p>
+        <p class="text-sm opacity-75">还没有任何任务记录</p>
+      </div>
       </div>
       
       <!-- 分页区域 - 固定高度 -->
@@ -440,7 +452,14 @@
           </button>
 
           <!-- 页码 -->
-          <span class="px-3 py-1.5 text-sm rounded border bg-blue-600 text-white">
+          <span 
+            class="px-3 py-1.5 text-sm rounded border"
+            :style="{
+              backgroundColor: 'var(--accent-color)',
+              color: 'white',
+              borderColor: 'var(--accent-color)'
+            }"
+          >
             {{ pagination.currentPage }}
           </span>
 
@@ -498,6 +517,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 // 定义props和emits
 const props = defineProps({
@@ -562,7 +582,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'newTask', 'quick-action'])
+const emit = defineEmits(['view', 'delete', 'page-change', 'filter-change', 'newTask', 'quick-action', 'preload'])
 
 // 选中项
 const selectAll = ref(false)
@@ -591,14 +611,30 @@ watch(() => props.pageSize, (newPageSize) => {
 
 // 根据筛选条件过滤数据
 const filteredData = computed(() => {
-  let result = [...props.data]
-  
-  // 按状态筛选
-  if (filters.value.status !== 'all') {
-    result = result.filter(item => getStatus(item) === filters.value.status)
+  // 如果使用服务端分页（totalItems > 0），跳过客户端筛选
+  if (props.totalItems > 0) {
+    return props.data
   }
   
-  // 按ID搜索
+  let result = [...props.data]
+  
+  // 按状态筛选 - 仅在客户端分页时使用
+  if (filters.value.status !== 'all') {
+    result = result.filter(item => {
+      const itemStatus = getStatus(item)
+      const filterStatus = filters.value.status
+      
+      // 处理数字状态值比较（如cutout、collection等页面）
+      if (typeof itemStatus === 'number') {
+        return itemStatus == filterStatus // 使用 == 而不是 === 来处理数字和字符串比较
+      }
+      
+      // 处理字符串状态值比较
+      return itemStatus === filterStatus
+    })
+  }
+  
+  // 按ID搜索 - 仅在客户端分页时使用
   if (filters.value.search) {
     const searchLower = filters.value.search.toLowerCase()
     result = result.filter(item => {
@@ -611,9 +647,9 @@ const filteredData = computed(() => {
 
 // 计算分页后的数据 - 支持服务端分页
 const paginatedData = computed(() => {
-  // 如果使用服务端分页（totalItems > 0），直接返回传入的数据
+  // 如果使用服务端分页（totalItems > 0），直接返回传入的数据，不进行客户端筛选
   if (props.totalItems > 0) {
-    return filteredData.value
+    return props.data
   }
   
   // 否则使用客户端分页
@@ -708,41 +744,41 @@ const getSuccessCount = (item) => {
 
 // 获取状态
 const getStatus = (item) => {
-  // 处理英文状态
-  if (item.status) {
-    return item.status
-  }
+  // 按优先级检查各种状态字段
+  const statusFields = [
+    'collectorStatus',   // 商品采集
+    'cropperStatus',     // 智能裁图
+    'mattingStatus',     // 一键抠图
+    'creatorStatus',     // 文生图
+    'fissionStatus',     // 超级裂变
+    'status',            // 侵权检测等通用状态
+    '任务状态'           // 中文状态字段
+  ]
   
-  // 处理中文状态
-  if (item.任务状态) {
-    const statusMap = {
-      '进行中': 'processing',
-      '已完成': 'completed',
-      '失败': 'failed',
-      '部分失败': 'partial-failed'
+  // 查找第一个存在的状态字段
+  for (const field of statusFields) {
+    if (item[field] !== undefined && item[field] !== null) {
+      // 调试信息：检查抠图状态
+      if (field === 'mattingStatus' && props.currentApp === 'cutout') {
+        console.log('一键抠图状态调试:', { field, value: item[field], type: typeof item[field], item })
+      }
+      
+      // 如果是数字类型，直接返回
+      if (typeof item[field] === 'number') {
+        return item[field]
+      }
+      // 如果是字符串类型，也返回（兼容旧逻辑）
+      if (typeof item[field] === 'string') {
+        return item[field]
+      }
     }
-    return statusMap[item.任务状态] || 'processing'
   }
   
+  // 默认值
   return 'processing'
 }
 
-// 获取状态文本
-const getStatusText = (item) => {
-  // 处理中文状态
-  if (item.任务状态) {
-    return item.任务状态
-  }
-  
-  // 处理英文状态
-  const statusMap = {
-    'processing': '进行中',
-    'completed': '已完成',
-    'failed': '失败',
-    'partial-failed': '部分失败'
-  }
-  return statusMap[getStatus(item)] || '进行中'
-}
+
 
 // 获取状态背景色
 const getStatusBgColor = (item) => {
@@ -832,6 +868,27 @@ const applyFilters = () => {
   emit('filter-change', filters.value)
 }
 
+// 处理行悬停预加载
+const handleRowHover = async (item) => {
+  // 只在商品采集页面预加载图片
+  if (props.currentApp !== 'collection') return
+  
+  // 防抖，避免频繁hover触发预加载
+  if (handleRowHover.timer) {
+    clearTimeout(handleRowHover.timer)
+  }
+  
+  handleRowHover.timer = setTimeout(async () => {
+    try {
+      const { default: imagePreloader } = await import('~/utils/imagePreloader')
+      // 发射预加载事件到父组件
+      emit('preload', item)
+    } catch (error) {
+      console.log('预加载初始化失败:', error)
+    }
+  }, 300) // 300ms后开始预加载
+}
+
 // 查看任务详情
 const handleView = (item) => {
   emit('view', item)
@@ -852,15 +909,7 @@ const handleFilterChange = () => {
   applyFilters()
 }
 
-// 获取状态类
-const getStatusClass = (item) => {
-  const status = getStatus(item)
-  if (status === 'processing') return 'bg-blue-100 text-blue-800'
-  if (status === 'completed') return 'bg-green-100 text-green-800'
-  if (status === 'failed') return 'bg-red-100 text-red-800'
-  if (status === 'partial-failed') return 'bg-yellow-100 text-yellow-800'
-  return 'bg-gray-100 text-gray-800'
-}
+
 
 // 显示更多选项
 const showMoreOptions = (item) => {
@@ -932,4 +981,11 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-</script> 
+</script>
+
+<style scoped>
+.task-table-primary-btn:hover {
+  filter: brightness(0.9);
+  transition: all 0.2s ease;
+}
+</style> 
