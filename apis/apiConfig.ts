@@ -70,21 +70,34 @@ export const getApiConfig = (): EnvironmentConfig => {
   return environments[env] || environments.development
 }
 
-// 获取API前缀
-export const getApiPrefix = (): string => {
+// 服务前缀枚举
+export enum ServicePrefix {
+  CUZCUZ_AI = 'cuzcuz-ai',
+  TENANT = 'tenant', 
+  PUBLISH_GOODS = 'publish-goods'
+}
+
+// 获取API前缀（默认使用cuzcuz-ai）
+export const getApiPrefix = (service?: ServicePrefix): string => {
   // 优先使用运行时配置
   const runtimeConfig = getRuntimeConfig()
-  if (runtimeConfig?.apiPrefix) {
+  if (runtimeConfig?.apiPrefix && !service) {
     return runtimeConfig.apiPrefix
   }
   
+  // 根据服务类型返回对应前缀
+  const basePrefix = '/pod'
+  if (service) {
+    return `${basePrefix}/${service}`
+  }
+  
   // 兜底使用默认前缀
-  return '/pod/cuzcuz-ai'
+  return `${basePrefix}/${ServicePrefix.CUZCUZ_AI}`
 }
 
 // 构建完整API路径
-export const buildApiPath = (path: string): string => {
-  const prefix = getApiPrefix()
+export const buildApiPath = (path: string, service?: ServicePrefix): string => {
+  const prefix = getApiPrefix(service)
   return `${prefix}${path}`
 }
 
@@ -128,6 +141,7 @@ export const isAuthenticated = (): boolean => {
 export default {
   environments,
   HttpStatusCode,
+  ServicePrefix,
   getCurrentEnv,
   getApiConfig,
   getApiPrefix,

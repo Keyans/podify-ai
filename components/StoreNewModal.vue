@@ -11,11 +11,22 @@
       </div>
       
       <div class="p-6">
+        <!-- 店铺名称 -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-dark-text mb-2">店铺名称</label>
+          <input 
+            type="text" 
+            v-model="form.storeName" 
+            class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
+            placeholder="请输入店铺名称"
+          >
+        </div>
+
         <!-- 所属平台 -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-dark-text mb-2">所属平台</label>
           <select 
-            v-model="form.platform" 
+            v-model="form.storePlatform" 
             class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
           >
             <option value="">请选择所属平台</option>
@@ -25,31 +36,17 @@
           </select>
         </div>
 
-        <!-- 店铺类型 -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-dark-text mb-2">店铺类型</label>
-          <select 
-            v-model="form.storeType" 
-            class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
-          >
-            <option value="">请选择店铺类型</option>
-            <option v-for="type in storeTypeOptions" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- 授权秘钥 -->
+        <!-- 访问令牌 -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-dark-text mb-2">
-            授权秘钥
+            访问令牌
             <span class="text-orange-500 text-xs ml-1">如何获取？</span>
           </label>
           <input 
             type="text" 
-            v-model="form.authKey" 
+            v-model="form.accessToken" 
             class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
-            placeholder="请输入Temu店铺秘钥"
+            placeholder="请输入访问令牌"
           >
         </div>
 
@@ -67,11 +64,11 @@
               </h3>
               <div class="mt-2 text-sm text-orange-700">
                 <div class="mb-2">
-                  <span class="font-medium">三三手机号平台说明</span>：如果您还不支持 Temu 平台
+                  <span class="font-medium">支持平台</span>：TEMU、亚马逊、SHEIN等主流跨境电商平台
                 </div>
                 <div class="text-xs space-y-1">
-                  <div><span class="font-medium">学校：</span>店铺类型（货源）：半托管，全托管</div>
-                  <div><span class="font-medium">学校：</span>授权秘钥（第入口）：</div>
+                  <div><span class="font-medium">店铺类型</span>：半托管、全托管</div>
+                  <div><span class="font-medium">授权秘钥</span>：请联系对应平台获取访问令牌</div>
                 </div>
               </div>
             </div>
@@ -103,7 +100,7 @@
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, watch, computed, onMounted } from 'vue'
-import { getPlatformOptions, getStoreTypeOptions } from '~/apis/business/store'
+import { getPlatformOptions } from '~/apis/business/store'
 
 const props = defineProps({
   isOpen: {
@@ -116,54 +113,37 @@ const emits = defineEmits(['close', 'submit'])
 
 // 表单数据
 const form = reactive({
-  platform: '',
-  storeType: '',
-  authKey: ''
+  storeName: '',
+  storePlatform: '',
+  accessToken: ''
 })
 
 // 选项数据
-const platformOptions = ref([])
-const storeTypeOptions = ref([])
+const platformOptions = ref([
+  { value: 'TEMU', label: 'TEMU' },
+  { value: 'AMAZON', label: '亚马逊' },
+  { value: 'SHEIN', label: 'SHEIN' }
+])
 
 // 验证表单是否可提交
 const canSubmit = computed(() => {
-  return form.platform && form.storeType && form.authKey.trim()
+  return form.storeName.trim() && form.storePlatform && form.accessToken.trim()
 })
 
 // 获取平台选项
 const loadPlatformOptions = async () => {
   try {
     const response = await getPlatformOptions()
-    if (response.success) {
+    if (response && response.success && response.data && Array.isArray(response.data)) {
       platformOptions.value = response.data
     }
   } catch (error) {
     console.error('获取平台选项失败:', error)
-    // 使用默认选项
-    platformOptions.value = [
-      { value: 'temu', label: 'Temu' },
-      { value: 'amazon', label: '亚马逊' },
-      { value: 'shein', label: 'Shein' }
-    ]
+    // 保持默认选项，不需要重新设置
   }
 }
 
-// 获取店铺类型选项
-const loadStoreTypeOptions = async () => {
-  try {
-    const response = await getStoreTypeOptions()
-    if (response.success) {
-      storeTypeOptions.value = response.data
-    }
-  } catch (error) {
-    console.error('获取店铺类型选项失败:', error)
-    // 使用默认选项
-    storeTypeOptions.value = [
-      { value: 'semi-managed', label: '半托管' },
-      { value: 'full-managed', label: '全托管' }
-    ]
-  }
-}
+
 
 // 关闭弹窗
 const close = () => {
@@ -177,7 +157,9 @@ const submit = () => {
   }
   
   const formData = {
-    ...form
+    storeName: form.storeName,
+    storePlatform: form.storePlatform,
+    accessToken: form.accessToken
   }
   emits('submit', formData)
 }
@@ -185,9 +167,9 @@ const submit = () => {
 // 重置表单
 const resetForm = () => {
   Object.assign(form, {
-    platform: '',
-    storeType: '',
-    authKey: ''
+    storeName: '',
+    storePlatform: '',
+    accessToken: ''
   })
 }
 
@@ -196,7 +178,6 @@ watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     // 弹窗打开时加载选项数据
     loadPlatformOptions()
-    loadStoreTypeOptions()
   } else {
     // 弹窗关闭时重置表单
     resetForm()
@@ -206,6 +187,5 @@ watch(() => props.isOpen, (newVal) => {
 // 组件挂载时加载选项数据
 onMounted(() => {
   loadPlatformOptions()
-  loadStoreTypeOptions()
 })
 </script> 

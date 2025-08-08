@@ -196,7 +196,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import DataTableLayout from '~/components/DataTableLayout.vue'
 import StoreNewModal from '~/components/StoreNewModal.vue'
 import StoreDetailModal from '~/components/StoreDetailModal.vue'
-import { getStoreList, getStoreStats, addStore } from '~/apis/business/store'
+import { getStoreList, getStoreStats, addStore, getPlatformList } from '~/apis/business/store'
 
 // 页面配置
 definePageMeta({
@@ -235,13 +235,18 @@ const searchTitle = ref('')
 
 // 平台列表
 const platformList = ref([
-  { key: 'all', name: '全部平台', count: 0, color: 'bg-gray-500' },
-  { key: 'amazon', name: '亚马逊', count: 421, color: 'bg-orange-500' },
-  { key: 'temu', name: 'Temu', count: 31, color: 'bg-blue-500' },
-  { key: 'tiktok', name: 'Tiktok', count: 341, color: 'bg-gray-800' },
-  { key: 'shopify', name: 'Shopify', count: 67, color: 'bg-green-500' },
-  { key: 'aliexpress', name: '速卖通', count: 312, color: 'bg-red-500' }
+  { key: 'all', name: '全部平台', count: 0, color: 'bg-gray-500' }
 ])
+
+// 平台颜色映射
+const platformColors = {
+  'TEMU': 'bg-blue-500',
+  'AMAZON': 'bg-orange-500',
+  'TIKTOK': 'bg-gray-800',
+  'SHOPIFY': 'bg-green-500',
+  'ALIEXPRESS': 'bg-red-500',
+  'SHEIN': 'bg-purple-500'
+}
 
 // 计算可用的平台选项（用于搜索下拉框）
 const availablePlatformOptions = computed(() => {
@@ -323,6 +328,36 @@ const badgeConfig = ref({
   'expiring_soon': 'bg-orange-100 text-orange-800'
 })
 
+// 加载平台列表
+const loadPlatformList = async () => {
+  try {
+    const response = await getPlatformList()
+    if (response && response.success && response.data && Array.isArray(response.data)) {
+      // 构建平台列表，保留"全部平台"选项
+      const platforms = [
+        { key: 'all', name: '全部平台', count: 0, color: 'bg-gray-500' }
+      ]
+      
+      // 添加从API获取的平台
+      response.data.forEach(platform => {
+        if (platform.enabled) {
+          platforms.push({
+            key: platform.code.toLowerCase(),
+            name: platform.name,
+            count: 0, // 初始计数为0，稍后会在updatePlatformCounts中更新
+            color: platformColors[platform.code] || 'bg-gray-400'
+          })
+        }
+      })
+      
+      platformList.value = platforms
+      updatePlatformCounts() // 更新计数
+    }
+  } catch (error) {
+    console.error('加载平台列表失败:', error)
+  }
+}
+
 // 计算筛选后的全部数据
 const allFilteredData = computed(() => {
   let filtered = tableData.value
@@ -391,12 +426,19 @@ const loadData = async () => {
     
     // 获取统计数据
     try {
-      const statsResponse = await getStoreStats()
+      // 根据当前选择的平台获取统计数据
+      const platform = selectedPlatform.value === 'all' ? '' : selectedPlatform.value
+      const statsResponse = await getStoreStats({ platform })
       if (statsResponse.success) {
         updateStatsData(statsResponse.data)
       }
     } catch (error) {
       console.error('获取统计数据失败:', error)
+    }
+    
+    // 加载平台列表（仅在首次加载时）
+    if (platformList.value.length <= 1) {
+      await loadPlatformList()
     }
     
   } catch (error) {
@@ -459,14 +501,24 @@ const loadMockData = () => {
   tableData.value = mockData
   totalItems.value = mockData.length
   
-  // 更新平台计数
-  updatePlatformCounts()
+  // 确保平台列表已加载
+  if (platformList.value.length <= 1) {
+    loadPlatformList().then(() => {
+      updatePlatformCounts()
+    })
+  } else {
+    updatePlatformCounts()
+  }
 }
 
 // 更新统计数据
 const updateStatsData = (data) => {
-  statsData.value[0].value = data.temuStores?.toString() || '0'
-  statsData.value[3].value = data.unauthorizedStores?.toString() || '0'
+  // 根据新的数据结构更新统计数据
+  // statsData数组结构：[半托管, 全托管, 授权异常, 接收异常]
+  statsData.value[0].value = (data.totalStores - data.managedStores)?.toString() || '0' // 半托管 = 总数 - 全托管
+  statsData.value[1].value = data.managedStores?.toString() || '0' // 全托管
+  statsData.value[2].value = data.rejectedStores?.toString() || '0' // 授权异常（被驳回）
+  statsData.value[3].value = data.failedStores?.toString() || '0' // 接收异常（接驳失败）
 }
 
 // 获取平台标签
@@ -544,7 +596,7 @@ const formatTime = (time) => {
 }
 
 // 选择平台
-const selectPlatform = (platformKey) => {
+const selectPlatform = async (platformKey) => {
   selectedPlatform.value = platformKey
   currentPage.value = 1 // 重置页码
   
@@ -553,6 +605,17 @@ const selectPlatform = (platformKey) => {
     searchPlatform.value = '' // 全部平台时清空采集平台筛选
   } else {
     searchPlatform.value = platformKey // 选择具体平台时同步到搜索条件
+  }
+  
+  // 重新加载统计数据
+  try {
+    const platform = platformKey === 'all' ? '' : platformKey
+    const statsResponse = await getStoreStats({ platform })
+    if (statsResponse.success) {
+      updateStatsData(statsResponse.data)
+    }
+  } catch (error) {
+    console.error('获取统计数据失败:', error)
   }
 }
 
@@ -609,10 +672,12 @@ const handleBatchExport = (selectedItems) => {
 const handleAddStore = async (formData) => {
   try {
     const response = await addStore(formData)
-    if (response.success) {
+    if (response && response.success) {
       showNewModal.value = false
       loadData() // 重新加载数据
       console.log('添加店铺成功')
+    } else {
+      console.error('添加店铺失败:', response?.message || '未知错误')
     }
   } catch (error) {
     console.error('添加店铺失败:', error)

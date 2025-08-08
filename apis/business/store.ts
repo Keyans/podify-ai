@@ -1,21 +1,21 @@
 import { get, post, put, del } from '../index'
-import { buildApiPath } from '../apiConfig'
+import { buildApiPath, ServicePrefix } from '../apiConfig'
 import type { ApiResponse } from '../apiConfig'
 
 // 店铺模块API路径配置（相对路径，不包含前缀）
 const storeApiPaths = {
-  list: '/store/list',
+  list: '/store/authorization/getStorePageList',
   add: '/store/add',
   detail: '/store/detail',
   update: '/store/update',
   delete: '/store/delete',
-  stats: '/store/stats',
-  platforms: '/store/platforms',
+  stats: '/store/authorization/statistics',
+  platforms: '/api/platforms/enabled',
   types: '/store/types'
 }
 
-// 构建完整路径的辅助方法
-const getPath = (path: keyof typeof storeApiPaths) => buildApiPath(storeApiPaths[path])
+// 构建完整路径的辅助方法（使用publish-goods服务前缀）
+const getPath = (path: keyof typeof storeApiPaths) => buildApiPath(storeApiPaths[path], ServicePrefix.PUBLISH_GOODS)
 
 // 店铺信息接口
 export interface StoreInfo {
@@ -56,18 +56,19 @@ export interface StoreListData {
 
 // 店铺统计数据
 export interface StoreStatsData {
-  totalStores: number // 总店铺数
-  activeStores: number // 活跃店铺
-  temuStores: number // Temu店铺
-  authorizedStores: number // 已授权
-  unauthorizedStores: number // 未授权
+  totalStores: number // 共计（总店铺数）
+  managedStores: number // 全托管
+  rejectedStores: number // 被驳回
+  failedStores: number // 接驳失败
+  authorizedStores?: number // 已授权（可选，兼容旧版本）
+  unauthorizedStores?: number // 未授权（可选，兼容旧版本）
 }
 
 // 添加店铺参数
 export interface AddStoreParams {
-  platform: string // 所属平台
-  storeType: string // 店铺类型
-  authKey: string // 授权秘钥
+  storeName: string // 店铺名称
+  storePlatform: string // 所属平台
+  accessToken: string // 访问令牌（授权秘钥）
 }
 
 // 更新店铺参数
@@ -82,6 +83,19 @@ export interface UpdateStoreParams {
 export interface PlatformOption {
   value: string
   label: string
+}
+
+// 平台详细信息（从API获取的完整数据）
+export interface PlatformInfo {
+  id: string
+  code: string
+  name: string
+  description: string
+  logo: string | null
+  enabled: boolean
+  createTime: string
+  updateTime: string
+  categories: any
 }
 
 // 店铺类型选项
@@ -101,10 +115,15 @@ export const getStoreList = async (params?: StoreListParams): Promise<ApiRespons
   }
 }
 
+// 店铺统计查询参数
+export interface StoreStatsParams {
+  platform?: string // 平台筛选，为空时查询全部
+}
+
 // 获取店铺统计数据
-export const getStoreStats = async (): Promise<ApiResponse<StoreStatsData>> => {
+export const getStoreStats = async (params?: StoreStatsParams): Promise<ApiResponse<StoreStatsData>> => {
   try {
-    const data = await get(getPath('stats'))
+    const data = await get(getPath('stats'), params)
     return data
   } catch (error) {
     console.error('获取店铺统计数据失败:', error)
@@ -119,7 +138,13 @@ export const addStore = async (params: AddStoreParams): Promise<ApiResponse<any>
     return data
   } catch (error) {
     console.error('添加店铺失败:', error)
-    throw error
+    // 返回错误响应而不是抛出错误
+    return {
+      code: 500,
+      message: error instanceof Error ? error.message : '添加店铺失败',
+      success: false,
+      data: null
+    }
   }
 }
 
@@ -156,14 +181,70 @@ export const deleteStore = async (id: string): Promise<ApiResponse<any>> => {
   }
 }
 
-// 获取平台选项
+// 获取平台选项（转换为选项格式）
 export const getPlatformOptions = async (): Promise<ApiResponse<PlatformOption[]>> => {
+  try {
+    const response = await getPlatformList()
+    if (response && response.success && response.data && Array.isArray(response.data)) {
+      // 转换平台数据为选项格式
+      const options = response.data
+        .filter(platform => platform.enabled)
+        .map(platform => ({
+          value: platform.code,
+          label: platform.name
+        }))
+      
+      return {
+        code: response.code,
+        message: response.message,
+        success: response.success,
+        data: options
+      }
+    }
+    
+    throw new Error('Invalid platform data')
+  } catch (error) {
+    console.error('获取平台选项失败:', error)
+    // 返回默认数据而不是抛出错误
+    return {
+      code: 200,
+      message: '使用默认平台选项',
+      success: true,
+      data: [
+        { value: 'TEMU', label: 'TEMU' },
+        { value: 'AMAZON', label: '亚马逊' },
+        { value: 'SHEIN', label: 'SHEIN' }
+      ]
+    }
+  }
+}
+
+// 获取平台详细信息列表
+export const getPlatformList = async (): Promise<ApiResponse<PlatformInfo[]>> => {
   try {
     const data = await get(getPath('platforms'))
     return data
   } catch (error) {
-    console.error('获取平台选项失败:', error)
-    throw error
+    console.error('获取平台列表失败:', error)
+    // 返回默认数据而不是抛出错误
+    return {
+      code: 200,
+      message: '使用默认平台列表',
+      success: true,
+      data: [
+        {
+          id: '1',
+          code: 'TEMU',
+          name: 'TEMU',
+          description: 'TEMU电商平台',
+          logo: null,
+          enabled: true,
+          createTime: '2025-08-07 16:02:57',
+          updateTime: '2025-08-07 16:02:57',
+          categories: null
+        }
+      ]
+    }
   }
 }
 
@@ -186,5 +267,6 @@ export default {
   updateStore,
   deleteStore,
   getPlatformOptions,
+  getPlatformList,
   getStoreTypeOptions
 } 
