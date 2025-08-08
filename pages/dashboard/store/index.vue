@@ -11,10 +11,10 @@
             v-for="platform in platformList" 
             :key="platform.key"
             class="flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors"
-            :class="selectedPlatform === platform.key 
+            :class="selectedPlatform === platform.code 
               ? 'bg-cyan-400/10 border border-cyan-400/20' 
               : 'hover:bg-dark-input'"
-            @click="selectPlatform(platform.key)"
+            @click="selectPlatform(platform.code)"
           >
             <div class="flex items-center space-x-3">
               <div 
@@ -29,6 +29,7 @@
               </span>
             </div>
             <span 
+              v-if="platform.key !== 'all' && platform.key !== 'temu'"
               class="text-sm font-medium"
               :class="selectedPlatform === platform.key ? 'text-cyan-400' : 'text-dark-text-secondary'"
             >
@@ -85,7 +86,7 @@
                   @change="handlePlatformSearch"
                 >
                   <option value="">采集平台</option>
-                  <option v-for="platform in availablePlatformOptions" :key="platform.key" :value="platform.key">
+                  <option v-for="platform in availablePlatformOptions" :key="platform.key" :value="platform.code || platform.key">
                     {{ platform.name }}
                   </option>
                 </select>
@@ -143,7 +144,7 @@
         <!-- 自定义列插槽 -->
         <template #column-storeInfo="{ item }">
           <div class="flex flex-col">
-            <span class="text-sm font-medium text-dark-text">{{ item.storeId }}</span>
+            <span class="text-sm font-medium text-dark-text">{{ item.sellerId }}</span>
             <span class="text-xs text-dark-text-secondary">{{ item.storeName }}</span>
           </div>
         </template>
@@ -158,16 +159,22 @@
         </template>
 
         <template #column-authStatus="{ item }">
-          <div class="flex flex-col space-y-1">
+          <div class="flex flex-col space-y-2">
             <span 
               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-              :class="getAuthStatusBadgeClass(item.authStatus)"
+              :class="getAuthStatusBadgeClass(item.authStatusDesc)"
             >
-              {{ getAuthStatusLabel(item.authStatus) }}
+              {{ getAuthStatusLabel(item.authStatusDesc) }}
             </span>
-            <div class="text-xs text-dark-text-secondary">
-              <div>授权：{{ formatTime(item.authTime) }}</div>
-              <div>到期：{{ formatTime(item.expireTime) }}</div>
+            <div class="text-xs text-dark-text-secondary space-y-1">
+              <div class="flex items-center">
+                <span class="w-16 flex-shrink-0">授权时间：</span>
+                <TimeFormatter :time="item.createTime" class-name="text-xs text-dark-text-secondary" />
+              </div>
+              <div class="flex items-center">
+                <span class="w-16 flex-shrink-0">到期时间：</span>
+                <TimeFormatter :time="item.expireTime" class-name="text-xs text-dark-text-secondary" />
+              </div>
             </div>
           </div>
         </template>
@@ -183,7 +190,7 @@
       <!-- 查看详情弹窗 -->
       <StoreDetailModal 
         :is-open="showDetailModal"
-        :store-id="selectedStoreId"
+        :store-data="selectedStoreData"
         @close="showDetailModal = false"
         @updated="handleStoreUpdated"
       />
@@ -196,12 +203,19 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import DataTableLayout from '~/components/DataTableLayout.vue'
 import StoreNewModal from '~/components/StoreNewModal.vue'
 import StoreDetailModal from '~/components/StoreDetailModal.vue'
-import { getStoreList, getStoreStats, addStore, getPlatformList } from '~/apis/business/store'
+import TimeFormatter from '~/components/TimeFormatter.vue'
+import { getStoreList, getStoreStats, addStore } from '~/apis/business/store'
+import { usePlatformStore } from '~/stores/platform'
+
 
 // 页面配置
 definePageMeta({
   layout: 'dashboard'
 })
+
+// 使用平台store
+const platformStore = usePlatformStore()
+
 
 useHead({
   title: '店铺管理 - CUZCUZAI',
@@ -223,7 +237,7 @@ const selectedPlatform = ref('all')
 // 弹窗状态
 const showNewModal = ref(false)
 const showDetailModal = ref(false)
-const selectedStoreId = ref('')
+const selectedStoreData = ref(null)
 
 // 搜索状态
 const searchKeyword = ref('')
@@ -233,20 +247,9 @@ const minPrice = ref('')
 const maxPrice = ref('')
 const searchTitle = ref('')
 
-// 平台列表
-const platformList = ref([
-  { key: 'all', name: '全部平台', count: 0, color: 'bg-gray-500' }
-])
 
-// 平台颜色映射
-const platformColors = {
-  'TEMU': 'bg-blue-500',
-  'AMAZON': 'bg-orange-500',
-  'TIKTOK': 'bg-gray-800',
-  'SHOPIFY': 'bg-green-500',
-  'ALIEXPRESS': 'bg-red-500',
-  'SHEIN': 'bg-purple-500'
-}
+// 使用store中的平台列表
+const platformList = computed(() => platformStore.getPlatformList || [])
 
 // 计算可用的平台选项（用于搜索下拉框）
 const availablePlatformOptions = computed(() => {
@@ -283,7 +286,7 @@ const statsData = ref([
     iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.884-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z'
   },
   {
-    label: '接收异常',
+    label: '授权临期',
     value: '2',
     iconBg: 'bg-yellow-100',
     iconColor: 'text-yellow-600',
@@ -328,35 +331,7 @@ const badgeConfig = ref({
   'expiring_soon': 'bg-orange-100 text-orange-800'
 })
 
-// 加载平台列表
-const loadPlatformList = async () => {
-  try {
-    const response = await getPlatformList()
-    if (response && response.success && response.data && Array.isArray(response.data)) {
-      // 构建平台列表，保留"全部平台"选项
-      const platforms = [
-        { key: 'all', name: '全部平台', count: 0, color: 'bg-gray-500' }
-      ]
-      
-      // 添加从API获取的平台
-      response.data.forEach(platform => {
-        if (platform.enabled) {
-          platforms.push({
-            key: platform.code.toLowerCase(),
-            name: platform.name,
-            count: 0, // 初始计数为0，稍后会在updatePlatformCounts中更新
-            color: platformColors[platform.code] || 'bg-gray-400'
-          })
-        }
-      })
-      
-      platformList.value = platforms
-      updatePlatformCounts() // 更新计数
-    }
-  } catch (error) {
-    console.error('加载平台列表失败:', error)
-  }
-}
+
 
 // 计算筛选后的全部数据
 const allFilteredData = computed(() => {
@@ -372,7 +347,7 @@ const allFilteredData = computed(() => {
     const keyword = searchKeyword.value.toLowerCase()
     filtered = filtered.filter(item => 
       item.storeName.toLowerCase().includes(keyword) ||
-      item.storeId.toLowerCase().includes(keyword)
+      item.sellerId.toLowerCase().includes(keyword)
     )
   }
   
@@ -403,7 +378,7 @@ const filteredTableData = computed(() => {
 
 // 计算筛选后的总数量
 const filteredTotalItems = computed(() => {
-  return allFilteredData.value.length
+  return allFilteredData.value?.length
 })
 
 // 加载数据
@@ -417,8 +392,9 @@ const loadData = async () => {
     })
     
     if (listResponse.success) {
-      tableData.value = listResponse.data.storeList
-      totalItems.value = listResponse.data.total
+      // 处理新的API响应格式：data.records数组，total为字符串
+      tableData.value = listResponse.data.records || []
+      totalItems.value = parseInt(listResponse.data.total) || 0
     } else {
       // 使用模拟数据
       loadMockData()
@@ -436,10 +412,8 @@ const loadData = async () => {
       console.error('获取统计数据失败:', error)
     }
     
-    // 加载平台列表（仅在首次加载时）
-    if (platformList.value.length <= 1) {
-      await loadPlatformList()
-    }
+    // 确保平台数据已加载
+    await platformStore.loadPlatforms()
     
   } catch (error) {
     console.error('获取店铺数据失败:', error)
@@ -486,39 +460,35 @@ const loadMockData = () => {
     
     mockData.push({
       id: i.toString(),
-      storeId: `${storeIdPrefix}${String(i).padStart(3, '0')}`,
+      sellerId: `${storeIdPrefix}${String(i).padStart(3, '0')}`,
       storeName: company,
       platform: platform,
       storeType: storeType,
-      authStatus: authStatus,
+      authStatusDesc: authStatus,
       authTime: '2025-08-02 17:23:19',
-      expireTime: '2025-08-02 17:23:19',
       creator: 'admin',
-      createTime: '2025-07-23 11:45:06'
+      createTime: '2025-07-23 11:45:06',
+      expireTime: '2025-12-31 23:59:59'
     })
   }
   
   tableData.value = mockData
   totalItems.value = mockData.length
   
-  // 确保平台列表已加载
-  if (platformList.value.length <= 1) {
-    loadPlatformList().then(() => {
-      updatePlatformCounts()
-    })
-  } else {
+  // 确保平台数据已加载，然后更新计数
+  platformStore.loadPlatforms().then(() => {
     updatePlatformCounts()
-  }
+  })
 }
 
 // 更新统计数据
 const updateStatsData = (data) => {
   // 根据新的数据结构更新统计数据
-  // statsData数组结构：[半托管, 全托管, 授权异常, 接收异常]
-  statsData.value[0].value = (data.totalStores - data.managedStores)?.toString() || '0' // 半托管 = 总数 - 全托管
-  statsData.value[1].value = data.managedStores?.toString() || '0' // 全托管
-  statsData.value[2].value = data.rejectedStores?.toString() || '0' // 授权异常（被驳回）
-  statsData.value[3].value = data.failedStores?.toString() || '0' // 接收异常（接驳失败）
+  // statsData数组结构：[半托管, 全托管, 授权异常, 授权临期]
+  statsData.value[0].value = data.semiManagedCount?.toString() || '0' // 半托管
+  statsData.value[1].value = data.fullyManagedCount?.toString() || '0' // 全托管
+  statsData.value[2].value = data.abnormalCount?.toString() || '0' // 授权异常
+  statsData.value[3].value = data.expiringCount?.toString() || '0' // 授权临期
 }
 
 // 获取平台标签
@@ -553,16 +523,16 @@ const getStoreTypeLabel = (type) => {
 // 获取店铺类型徽章样式
 const getStoreTypeBadgeClass = (type) => {
   const classMap = {
-    'semi-managed': 'bg-gray-100 text-gray-800',
-    'full-managed': 'bg-blue-100 text-blue-800'
+    'semi-managed': 'bg-gray-100 text-gray-800 border border-gray-200',
+    'full-managed': 'bg-blue-100 text-blue-800 border border-blue-200'
   }
-  return classMap[type] || 'bg-gray-100 text-gray-800'
+  return classMap[type] || 'bg-gray-100 text-gray-800 border border-gray-200'
 }
 
 // 获取授权状态标签
 const getAuthStatusLabel = (status) => {
   const statusMap = {
-    'authorized': '授权成功',
+    'authorized': '已授权',
     'unauthorized': '授权失败',
     'expired': '授权过期',
     'pending': '即将到期',
@@ -574,29 +544,20 @@ const getAuthStatusLabel = (status) => {
 // 获取授权状态徽章样式
 const getAuthStatusBadgeClass = (status) => {
   const classMap = {
-    'authorized': 'bg-green-100 text-green-800',
-    'unauthorized': 'bg-red-100 text-red-800',
-    'expired': 'bg-red-100 text-red-800',
-    'pending': 'bg-orange-100 text-orange-800',
-    'expiring_soon': 'bg-orange-100 text-orange-800'
+    'authorized': 'bg-green-100 text-green-800 border border-green-200',
+    'unauthorized': 'bg-red-100 text-red-800 border border-red-200',
+    'expired': 'bg-red-100 text-red-800 border border-red-200',
+    'pending': 'bg-orange-100 text-orange-800 border border-orange-200',
+    'expiring_soon': 'bg-orange-100 text-orange-800 border border-orange-200'
   }
-  return classMap[status] || 'bg-gray-100 text-gray-800'
+  return classMap[status] || 'bg-gray-100 text-gray-800 border border-gray-200'
 }
 
-// 格式化时间
-const formatTime = (time) => {
-  if (!time) return '-'
-  
-  try {
-    const date = new Date(time)
-    return date.toLocaleDateString('zh-CN')
-  } catch (error) {
-    return time
-  }
-}
+
 
 // 选择平台
 const selectPlatform = async (platformKey) => {
+  console.log('选择平台:', platformKey)
   selectedPlatform.value = platformKey
   currentPage.value = 1 // 重置页码
   
@@ -645,7 +606,7 @@ const handleActionClick = (action) => {
 // 处理行操作
 const handleRowAction = ({ action, item }) => {
   if (action === 'view') {
-    selectedStoreId.value = item.id
+    selectedStoreData.value = item
     showDetailModal.value = true
   }
 }
@@ -669,12 +630,28 @@ const handleBatchExport = (selectedItems) => {
 }
 
 // 处理添加店铺
-const handleAddStore = async (formData) => {
+const handleAddStore = async (storeData) => {
   try {
-    const response = await addStore(formData)
+    const apiData = {
+      storeName: storeData.storeName,
+      storePlatform: storeData.platform, // ✅ 修正字段名
+      accessToken: storeData.accessToken
+    }
+    
+    // 目前只有TEMU平台已接入，添加对应的授权信息
+    if (storeData.platform === 'temu') {
+      apiData.accessToken = storeData.accessToken
+    }
+    // 其他平台的配置可以在这里扩展
+    
+    console.log('提交店铺数据:', apiData)
+    
+    const response = await addStore(apiData)
     if (response && response.success) {
+      // 确保关闭弹窗
       showNewModal.value = false
-      loadData() // 重新加载数据
+      // 重新加载数据以显示新添加的店铺
+      await loadData()
       console.log('添加店铺成功')
     } else {
       console.error('添加店铺失败:', response?.message || '未知错误')
@@ -710,4 +687,4 @@ const handlePlatformSearch = () => {
 onMounted(() => {
   loadData()
 })
-</script> 
+</script>

@@ -5,10 +5,10 @@ import type { ApiResponse } from '../apiConfig'
 // 店铺模块API路径配置（相对路径，不包含前缀）
 const storeApiPaths = {
   list: '/store/authorization/getStorePageList',
-  add: '/store/add',
+  add: '/store/authorization/create',
   detail: '/store/detail',
-  update: '/store/update',
-  delete: '/store/delete',
+  update: '/store/authorization/update',
+  delete: '/store/authorization/delete',
   stats: '/store/authorization/statistics',
   platforms: '/api/platforms/enabled',
   types: '/store/types'
@@ -222,11 +222,13 @@ export const getPlatformOptions = async (): Promise<ApiResponse<PlatformOption[]
 // 获取平台详细信息列表
 export const getPlatformList = async (): Promise<ApiResponse<PlatformInfo[]>> => {
   try {
+    // 尝试使用API，如果失败则使用默认数据
     const data = await get(getPath('platforms'))
+    console.log('平台列表API响应:', data) // 调试日志
     return data
   } catch (error) {
-    console.error('获取平台列表失败:', error)
-    // 返回默认数据而不是抛出错误
+    console.error('获取平台列表失败，使用默认数据:', error)
+    // 直接返回默认数据，不抛出错误
     return {
       code: 200,
       message: '使用默认平台列表',
