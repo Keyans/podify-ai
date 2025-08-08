@@ -1,22 +1,23 @@
 import { post, get } from '../index'
-import apiConfig, { setAuthToken, buildApiPath } from '../apiConfig'
+import apiConfig, { setAuthToken, buildApiPath, ServicePrefix } from '../apiConfig'
 
 // 认证模块API路径配置（相对路径，不包含前缀）
 const authApiPaths = {
-  login: '/pod/tenant/api/v1/tenants/login',
-  loginBySms: '/pod/tenant/api/v1/tenants/login-by-sms', // 添加验证码登录接口
-  register: '/pod/tenant/api/v1/tenants/register',
-  sendSmsCode: '/pod/tenant/api/v1/sms/send-code',
-  sendEmailCode: '/pod/tenant/api/v1/email/send-code', // 添加邮箱验证码接口
+  login: '/api/v1/tenants/login',
+  loginBySms: '/api/v1/tenants/login-by-sms', // 添加验证码登录接口
+  register: '/api/v1/tenants/register',
+  sendSmsCode: '/api/v1/sms/send-code',
+  sendEmailCode: '/api/v1/email/send-code', // 添加邮箱验证码接口
   info: '/user/info'
 }
 
 // 构建完整路径的辅助方法
 const getPath = (path: keyof typeof authApiPaths) => {
-  // 登录、注册、短信、邮箱接口不需要cuzcuz-ai前缀
+  // 登录、注册、短信、邮箱接口使用tenant服务前缀
   if (path === 'login' || path === 'loginBySms' || path === 'register' || path === 'sendSmsCode' || path === 'sendEmailCode') {
-    return authApiPaths[path]
+    return buildApiPath(authApiPaths[path], ServicePrefix.TENANT)
   }
+  // 其他接口使用默认cuzcuz-ai前缀
   return buildApiPath(authApiPaths[path])
 }
 
