@@ -268,22 +268,52 @@ const handleRegister = async () => {
     
     console.log('开始注册，数据:', registerData)
     
-    // 调用注册API
-    const response = await register(registerData)
+    // 使用Nuxt的auth插件调用注册API
+    const { $auth } = useNuxtApp()
+    const response = await $auth.register(registerData)
     
     console.log('注册响应:', response)
     
-    // 检查注册是否成功
-    if (response && (response.success || response.code === 200)) {
-      console.log('注册成功，准备跳转到登录页面')
+    // 检查注册是否成功并且返回了accessToken
+    if (response && response.success && response.data && response.data.accessToken) {
+      const userData = response.data
+      
+      console.log('注册成功，保存登录状态并跳转到dashboard')
+      
+      // 保存登录状态到localStorage (兼容现有逻辑)
+      localStorage.setItem('isLoggedIn', 'true')
+      
+      // 保存认证相关信息（用于API调用）
+      localStorage.setItem('auth_token', userData.accessToken)
+      localStorage.setItem('access_token', userData.accessToken) // 保留兼容性
+      localStorage.setItem('user_id', userData.userId)
+      localStorage.setItem('tenant_id', userData.tenantId)
+      
+      // 保存完整用户信息
+      localStorage.setItem('userInfo', JSON.stringify({
+        email: userData.email || userData.username,
+        name: userData.nickname || '用户',
+        avatar: userData.avatar || '',
+        userId: userData.userId,
+        tenantId: userData.tenantId,
+        tenantCode: userData.tenantCode,
+        tenantName: userData.tenantName,
+        permissions: userData.permissions || []
+      }))
       
       // 显示成功提示
-      showMessage('注册成功！即将跳转到登录页面...', 'success')
+      showMessage('注册成功，欢迎使用CUZCUZAI！', 'success')
       
-      // 延迟跳转，让用户看到成功消息
+      // 延迟跳转，确保认证状态已保存
       setTimeout(async () => {
-        await navigateTo('/login')
-      }, 2000)
+        try {
+          await navigateTo('/dashboard')
+        } catch (error) {
+          console.error('跳转失败:', error)
+          // 强制刷新到dashboard页面
+          window.location.href = '/dashboard'
+        }
+      }, 500)
     } else {
       // 注册失败，显示错误信息
       const errorMessage = response?.message || '注册失败，请重试'

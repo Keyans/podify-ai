@@ -3,9 +3,9 @@ import apiConfig, { setAuthToken, buildApiPath, ServicePrefix } from '../apiConf
 
 // 认证模块API路径配置（相对路径，不包含前缀）
 const authApiPaths = {
-  login: '/api/v1/tenants/login',
+  login: '/api/v1/auth/login',
   loginBySms: '/api/v1/tenants/login-by-sms', // 添加验证码登录接口
-  register: '/api/v1/tenants/register',
+  register: '/api/v1/users/multi-platform/register',
   sendSmsCode: '/api/v1/sms/send-code',
   sendEmailCode: '/api/v1/email/send-code', // 添加邮箱验证码接口
   info: '/user/info'
