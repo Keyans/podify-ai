@@ -520,10 +520,12 @@
               </p>
               
               <button 
-                class="px-6 py-2 rounded-md text-sm text-white hover:opacity-80 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1"
+                @click="handleLogout"
+                :disabled="isLoading"
+                class="px-6 py-2 rounded-md text-sm text-white hover:opacity-80 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
               >
-                安全退出登录
+                {{ isLoading ? '退出中...' : '安全退出登录' }}
               </button>
             </div>
           </div>
@@ -538,6 +540,27 @@
 definePageMeta({
   layout: 'dashboard'
 })
+
+// 加载状态
+const isLoading = ref(false)
+
+// 处理登出
+const handleLogout = async () => {
+  if (isLoading.value) return
+  
+  isLoading.value = true
+  try {
+    const { $auth } = useNuxtApp()
+    await $auth.logout()
+    await navigateTo('/login')
+  } catch (error) {
+    console.error('登出失败:', error)
+    // 即使登出失败，也跳转到登录页
+    await navigateTo('/login')
+  } finally {
+    isLoading.value = false
+  }
+}
 
 useHead({
   title: '退出登录 - CUZCUZAI',

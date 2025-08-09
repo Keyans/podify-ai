@@ -13,21 +13,33 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // 添加认证请求头（如果存在）
     if (process.client) {
-      const accessToken = localStorage.getItem('access_token')
+      const authToken = localStorage.getItem('auth_token')
       const userId = localStorage.getItem('user_id')
       const tenantId = localStorage.getItem('tenant_id')
       
       // 设置Authorization header（使用动态token）
-      if (accessToken) {
-        config.headers.set('Authorization', accessToken)
+      if (authToken) {
+        config.headers.set('Authorization', authToken)
       }
       
-      // 设置其他必要的头部字段
+      // 设置其他必要的头部字段（仅在未设置时设置默认值）
       if (userId && tenantId) {
-        config.headers.set('X-Tenant-Id', tenantId)
-        config.headers.set('X-Auth-User-Id', userId)
-        config.headers.set('X-Auth-Platform-Type', 'web')
-        config.headers.set('X-Client-Type', 'pod-admin')
+        const platformType = localStorage.getItem('platform_type') || 'AI_PROJECT'
+        const clientType = localStorage.getItem('client_type') || 'AI_C_WEB'
+        
+        // 只在没有设置时才设置默认值，避免覆盖函数中明确设置的值
+        if (!config.headers.get('X-Tenant-Id')) {
+          config.headers.set('X-Tenant-Id', tenantId)
+        }
+        if (!config.headers.get('X-Auth-User-Id')) {
+          config.headers.set('X-Auth-User-Id', userId)
+        }
+        if (!config.headers.get('X-Auth-Platform-Type')) {
+          config.headers.set('X-Auth-Platform-Type', platformType)
+        }
+        if (!config.headers.get('X-Client-Type')) {
+          config.headers.set('X-Client-Type', clientType)
+        }
       }
     }
     
