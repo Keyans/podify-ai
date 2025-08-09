@@ -98,9 +98,9 @@
                   </span>
                   <div v-else-if="column.type === 'user'" class="flex items-center">
                     <div class="w-6 h-6 bg-dark-accent rounded-full flex items-center justify-center mr-2">
-                      <span class="text-dark-bg text-xs">{{ item[column.key].charAt(0).toUpperCase() }}</span>
+                      <span class="text-dark-bg text-xs">{{ item[column.key] && typeof item[column.key] === 'string' ? item[column.key].charAt(0).toUpperCase() : '?' }}</span>
                     </div>
-                    <span class="text-sm text-dark-text">{{ item[column.key] }}</span>
+                    <span class="text-sm text-dark-text">{{ item[column.key] || '' }}</span>
                   </div>
                   <div v-else-if="column.key === 'actions'" class="flex space-x-2">
                     <button v-for="(action, actionIndex) in rowActions" :key="actionIndex" 

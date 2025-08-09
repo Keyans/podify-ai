@@ -67,15 +67,17 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <h4 class="font-medium text-dark-text mb-2">授权时间</h4>
-              <p class="text-dark-text-secondary text-sm">
-                {{ formatTime(storeDetail.authTime) }}
-              </p>
+              <TimeFormatter 
+                :time="storeDetail.authTime" 
+                class-name="text-dark-text-secondary text-sm"
+              />
             </div>
             <div>
               <h4 class="font-medium text-dark-text mb-2">到期时间</h4>
-              <p class="text-dark-text-secondary text-sm">
-                {{ formatTime(storeDetail.expireTime) }}
-              </p>
+              <TimeFormatter 
+                :time="storeDetail.expireTime" 
+                class-name="text-dark-text-secondary text-sm"
+              />
             </div>
           </div>
         </div>
@@ -91,9 +93,10 @@
             </div>
             <div>
               <h4 class="font-medium text-dark-text mb-2">创建时间</h4>
-              <p class="text-dark-text-secondary text-sm">
-                {{ formatTime(storeDetail.createTime) }}
-              </p>
+              <TimeFormatter 
+                :time="storeDetail.createTime" 
+                class-name="text-dark-text-secondary text-sm"
+              />
             </div>
           </div>
         </div>
@@ -120,6 +123,7 @@
 <script setup>
 import { ref, reactive, defineProps, defineEmits, watch, onMounted } from 'vue'
 import { getStoreDetail, updateStore } from '~/apis/business/store'
+import TimeFormatter from '~/components/TimeFormatter.vue'
 
 const props = defineProps({
   isOpen: {
@@ -129,6 +133,10 @@ const props = defineProps({
   storeId: {
     type: String,
     default: ''
+  },
+  storeData: {
+    type: Object,
+    default: null
   }
 })
 
@@ -145,6 +153,14 @@ const editForm = reactive({
 
 // 加载店铺详情
 const loadStoreDetail = async () => {
+  // 优先使用传入的店铺数据
+  if (props.storeData) {
+    storeDetail.value = props.storeData
+    editForm.authKey = props.storeData.authKey || ''
+    return
+  }
+  
+  // 如果没有传入数据，则通过API获取
   if (!props.storeId) return
   
   try {
@@ -237,17 +253,7 @@ const getPlatformBadgeClass = (platform) => {
   return classMap[platform] || 'bg-gray-500 text-white'
 }
 
-// 格式化时间
-const formatTime = (time) => {
-  if (!time) return '-'
-  
-  try {
-    const date = new Date(time)
-    return date.toLocaleString('zh-CN')
-  } catch (error) {
-    return time
-  }
-}
+
 
 // 关闭弹窗
 const close = () => {
@@ -262,17 +268,17 @@ const resetData = () => {
 
 // 监听弹窗打开事件
 watch(() => props.isOpen, (newVal) => {
-  if (newVal && props.storeId) {
+  if (newVal && (props.storeData || props.storeId)) {
     loadStoreDetail()
   } else if (!newVal) {
     resetData()
   }
 })
 
-// 监听店铺ID变化
-watch(() => props.storeId, (newVal) => {
-  if (newVal && props.isOpen) {
+// 监听店铺ID或店铺数据变化
+watch(() => [props.storeId, props.storeData], () => {
+  if (props.isOpen && (props.storeData || props.storeId)) {
     loadStoreDetail()
   }
 })
-</script> 
+</script>
