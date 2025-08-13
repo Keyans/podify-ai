@@ -37,7 +37,7 @@ export interface PodComposerListParams {
 // SKU列表参数
 export interface PodComposerSkuListParams {
   taskId: string
-  spuId: string
+  composerId: string
   page?: number
   limit?: number
 }
@@ -84,4 +84,10 @@ export const getPodComposerList = async (params: PodComposerListParams): Promise
 export const getPodComposerSkuList = async (params: PodComposerSkuListParams): Promise<ApiResponse<any>> => {
   const url = buildApiPath('/pod/composer/getSkuList')
   return get(url, params)
+}
+
+// 添加POD合成任务
+export const addPodComposerTask = async (data: any): Promise<ApiResponse<any>> => {
+  const url = buildApiPath('/pod/composer/addTask')
+  return post(url, data)
 }

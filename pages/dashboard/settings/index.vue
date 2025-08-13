@@ -97,7 +97,7 @@
                   <path d="M9 14.9V21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6.1a5 5 0 1 1 6 0zM6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm13 6.1V21a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-6.1a5 5 0 1 1 6 0zM16 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                 </svg>
               </span>
-              <span class="text-sm">子账号管理</span>
+              <span class="text-sm">团队成员</span>
             </button>
             
             <button 
@@ -228,7 +228,7 @@ const tabTitles = {
   'basic': '基本信息',
   'charge': '账号充值',
   'transactions': '交易记录',
-  'subaccounts': '子账号管理',
+  'subaccounts': '团队成员',
   'permissions': '权限设置',
   'team-resources': '团队资源权限',
   'logout': '退出登录'

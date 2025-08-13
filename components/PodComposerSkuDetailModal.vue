@@ -79,14 +79,16 @@
                   </td>
                   <td class="px-4 py-3 text-sm text-gray-300">{{ index + 1 }}</td>
                   <td class="px-4 py-3">
-                    <div class="text-sm text-dark-text">{{ item.color }} · {{ item.size }}</div>
-                    <div class="text-xs text-gray-400">{{ item.sku }}</div>
+                    <div class="flex items-center space-x-2">
+                      <img :src="item.skuImage" alt="SKU图片" class="w-10 h-10 rounded object-cover cursor-pointer" data-zoomable>
+                      <div class="text-sm text-dark-text">{{ item.skuTitle }}</div>
+                    </div>
                   </td>
                   <td class="px-4 py-3">
-                    <img :src="item.mainImage" alt="主图" class="w-10 h-10 rounded object-cover">
+                    <img :src="item.mainImage" alt="主图" class="w-10 h-10 rounded object-cover cursor-pointer" data-zoomable>
                   </td>
                   <td class="px-4 py-3">
-                    <img :src="item.resultImage" alt="结果" class="w-10 h-10 rounded object-cover">
+                    <img :src="item.resultImage" alt="结果" class="w-10 h-10 rounded object-cover cursor-pointer" data-zoomable>
                   </td>
                   <td class="px-4 py-3 text-sm text-gray-400">{{ item.createdTime }}</td>
                 </tr>
@@ -169,7 +171,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  spuId: {
+  composerId: {
     type: String,
     required: true
   },
@@ -233,8 +235,11 @@ const skuList = ref([
   }
 ])
 
+// 总数据量
+const totalItems = ref(0)
+
 // 计算属性
-const totalPages = computed(() => Math.ceil(skuList.value.length / pageSize.value))
+const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value))
 
 const visiblePages = computed(() => {
   const pages = []
@@ -249,21 +254,40 @@ const visiblePages = computed(() => {
 
 // 获取SKU列表数据
 const fetchSkuList = async () => {
-  if (!props.taskId || !props.spuId) return
+  if (!props.taskId || !props.composerId) return
   
   loading.value = true
   try {
     const params = {
       taskId: props.taskId,
-      spuId: props.spuId,
+      composerId: props.composerId,
       page: currentPage.value,
       limit: pageSize.value
     }
     
+    console.log('获取SKU列表参数:', params)
     const response = await getPodComposerSkuList(params)
+    console.log('SKU列表API响应:', response)
+    
     if (response.success && response.data) {
-      // 处理响应数据
-      skuList.value = response.data.list || []
+      // 处理响应数据，将API返回的字段映射到组件期望的数据结构
+      const skuData = response.data.composerList || []
+      skuList.value = skuData.map(item => ({
+        selected: false,
+        composerId: item.composerId,
+        skuTitle: item.skuTitle || '',
+        skuImage: item.skuImageUrl || 'https://via.placeholder.com/150/FFFFFF?text=SKU',
+        mainImage: item.imageUrl || 'https://via.placeholder.com/150/FFFFFF?text=Product',
+        resultImage: item.resultsImageUrl || '',
+        createdTime: item.createTime || '',
+        status: item.status || 0
+      }))
+      
+      // 更新总数据量
+      totalItems.value = response.data.total || skuData.length
+      
+      console.log('处理后的SKU数据:', skuList.value)
+      console.log('总数据量:', totalItems.value)
     }
   } catch (error) {
     console.error('获取SKU列表失败:', error)

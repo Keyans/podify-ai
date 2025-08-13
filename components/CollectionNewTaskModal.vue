@@ -3,7 +3,7 @@
     <div class="bg-dark-card rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto text-dark-text">
       <div class="p-5 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium">新建采集任务</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-300">
+        <button @click.stop="close" class="text-gray-400 hover:text-gray-300">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"></path>
           </svg>
@@ -186,7 +186,7 @@
       </div>
       
       <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
+        <button @click.stop="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
         <button @click="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">开始采集<span v-if="form.type === 'product' || form.type === 'search' || form.type === 'store'"> (5秒内)</span></button>
       </div>
     </div>
@@ -252,4 +252,4 @@ watch(() => props.isOpen, (newVal) => {
     resetForm()
   }
 })
-</script> 
+</script>

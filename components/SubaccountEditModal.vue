@@ -28,9 +28,9 @@
         </div>
         
         <div class="relative z-10">
-          <h3 class="text-lg font-medium text-white">{{ subaccount.id ? '编辑子账号' : '添加子账号' }}</h3>
+          <h3 class="text-lg font-medium text-white">{{ subaccount.id ? '编辑团队成员' : '添加团队成员' }}</h3>
           <p class="text-sm text-white opacity-80 mt-1">
-            {{ subaccount.id ? '修改子账号信息和权限设置' : '创建新的子账号并设置权限' }}
+            {{ subaccount.id ? '修改成员信息和权限设置' : '创建新的团队成员并设置权限' }}
           </p>
         </div>
         
@@ -56,270 +56,47 @@
         </div>
       </div>
 
-      <!-- 表单内容 -->
+      <!-- 表单内容（精简为符合 API 的字段） -->
       <div 
         class="p-6"
-        :style="{
-          backgroundColor: 'var(--bg-secondary)'
-        }"
+        :style="{ backgroundColor: 'var(--bg-secondary)' }"
       >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- 基本信息 -->
-          <div 
-            class="p-4 border rounded-lg"
-            :style="{
-              backgroundColor: 'var(--bg-tertiary)',
-              borderColor: 'var(--border-color)'
-            }"
-          >
-            <h4 
-              class="font-medium mb-4 flex items-center"
-              :style="{ color: 'var(--text-primary)' }"
-            >
+          <!-- 用户ID输入 -->
+          <div class="p-4 border rounded-lg" :style="{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)' }">
+            <h4 class="font-medium mb-4 flex items-center" :style="{ color: 'var(--text-primary)' }">
               <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'var(--accent-color)' }"></div>
-              基本信息
+              成员信息
             </h4>
-            
             <div class="space-y-4">
               <div>
-                <label 
-                  class="block text-sm font-medium mb-2"
-                  :style="{ color: 'var(--text-primary)' }"
-                >
-                  用户名
-                </label>
-                <input 
-                  v-model="subaccount.username"
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
-                  :style="{
-                    backgroundColor: 'var(--bg-input)',
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)',
-                    '--tw-ring-color': 'var(--accent-color)'
-                  }"
-                  placeholder="请输入用户名"
-                />
-              </div>
-              
-              <div>
-                <label 
-                  class="block text-sm font-medium mb-2"
-                  :style="{ color: 'var(--text-primary)' }"
-                >
-                  邮箱
-                </label>
-                <input 
-                  v-model="subaccount.email"
-                  type="email" 
-                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
-                  :style="{
-                    backgroundColor: 'var(--bg-input)',
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)',
-                    '--tw-ring-color': 'var(--accent-color)'
-                  }"
-                  placeholder="请输入邮箱地址"
-                />
-              </div>
-              
-              <div>
-                <label 
-                  class="block text-sm font-medium mb-2"
-                  :style="{ color: 'var(--text-primary)' }"
-                >
-                  手机号
-                </label>
-                <input 
-                  v-model="subaccount.phone"
-                  type="tel" 
-                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
-                  :style="{
-                    backgroundColor: 'var(--bg-input)',
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)',
-                    '--tw-ring-color': 'var(--accent-color)'
-                  }"
-                  placeholder="请输入手机号"
-                />
-              </div>
-              
-              <div>
-                <label 
-                  class="block text-sm font-medium mb-2"
-                  :style="{ color: 'var(--text-primary)' }"
-                >
-                  状态
-                </label>
-                <select 
-                  v-model="subaccount.status"
-                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
-                  :style="{
-                    backgroundColor: 'var(--bg-input)',
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)',
-                    '--tw-ring-color': 'var(--accent-color)'
-                  }"
-                >
-                  <option value="active">激活</option>
-                  <option value="inactive">停用</option>
-                  <option value="pending">待激活</option>
-                </select>
+                <label class="block text-sm font-medium mb-2" :style="{ color: 'var(--text-primary)' }">用户ID</label>
+                <input v-model.number="subaccount.userId" type="number" class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-opacity-50"
+                  :style="{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-color)' }" placeholder="请输入用户ID" />
+                <p class="text-xs mt-1" :style="{ color: 'var(--text-secondary)' }">将该用户加入当前团队</p>
               </div>
             </div>
           </div>
 
-          <!-- 权限设置 -->
-          <div 
-            class="p-4 border rounded-lg"
-            :style="{
-              backgroundColor: 'var(--bg-tertiary)',
-              borderColor: 'var(--border-color)'
-            }"
-          >
-            <h4 
-              class="font-medium mb-4 flex items-center"
-              :style="{ color: 'var(--text-primary)' }"
-            >
+          <!-- 角色类型选择 -->
+          <div class="p-4 border rounded-lg" :style="{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)' }">
+            <h4 class="font-medium mb-4 flex items-center" :style="{ color: 'var(--text-primary)' }">
               <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'var(--accent-color)' }"></div>
-              权限设置
+              角色设置
             </h4>
-            
-            <div class="space-y-3">
+            <div class="space-y-4">
               <div>
-                <label 
-                  class="block text-sm font-medium mb-2"
-                  :style="{ color: 'var(--text-primary)' }"
-                >
-                  角色
-                </label>
-                <select 
-                  v-model="subaccount.role"
-                  class="w-full px-3 py-2 border rounded-md text-sm transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
-                  :style="{
-                    backgroundColor: 'var(--bg-input)',
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--text-primary)',
-                    '--tw-ring-color': 'var(--accent-color)'
-                  }"
-                >
-                  <option value="admin">管理员</option>
-                  <option value="operator">操作员</option>
-                  <option value="viewer">查看员</option>
+                <label class="block text-sm font-medium mb-2" :style="{ color: 'var(--text-primary)' }">角色类型</label>
+                <select v-model.number="subaccount.roleType" class="w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-opacity-50"
+                  :style="{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-color)' }">
+                  <option :value="10">所有者 (10)</option>
+                  <option :value="20">管理员 (20)</option>
+                  <option :value="30">普通成员 (30)</option>
                 </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label 
-                  class="block text-sm font-medium"
-                  :style="{ color: 'var(--text-primary)' }"
-                >
-                  功能权限
-                </label>
-                
-                <div class="space-y-2">
-                  <label class="flex items-center">
-                    <input 
-                      v-model="subaccount.permissions.canViewProducts" 
-                      type="checkbox" 
-                      class="mr-2 w-4 h-4 rounded"
-                    />
-                    <span 
-                      class="text-sm"
-                      :style="{ color: 'var(--text-primary)' }"
-                    >
-                      查看产品
-                    </span>
-                  </label>
-                  
-                  <label class="flex items-center">
-                    <input 
-                      v-model="subaccount.permissions.canEditProducts" 
-                      type="checkbox" 
-                      class="mr-2 w-4 h-4 rounded"
-                    />
-                    <span 
-                      class="text-sm"
-                      :style="{ color: 'var(--text-primary)' }"
-                    >
-                      编辑产品
-                    </span>
-                  </label>
-                  
-                  <label class="flex items-center">
-                    <input 
-                      v-model="subaccount.permissions.canViewImages" 
-                      type="checkbox" 
-                      class="mr-2 w-4 h-4 rounded"
-                    />
-                    <span 
-                      class="text-sm"
-                      :style="{ color: 'var(--text-primary)' }"
-                    >
-                      查看图片库
-                    </span>
-                  </label>
-                  
-                  <label class="flex items-center">
-                    <input 
-                      v-model="subaccount.permissions.canUploadImages" 
-                      type="checkbox" 
-                      class="mr-2 w-4 h-4 rounded"
-                    />
-                    <span 
-                      class="text-sm"
-                      :style="{ color: 'var(--text-primary)' }"
-                    >
-                      上传图片
-                    </span>
-                  </label>
-                  
-                  <label class="flex items-center">
-                    <input 
-                      v-model="subaccount.permissions.canManageWorkflows" 
-                      type="checkbox" 
-                      class="mr-2 w-4 h-4 rounded"
-                    />
-                    <span 
-                      class="text-sm"
-                      :style="{ color: 'var(--text-primary)' }"
-                    >
-                      管理工作流
-                    </span>
-                  </label>
-                </div>
+                <p class="text-xs mt-1" :style="{ color: 'var(--text-secondary)' }">选择成员在团队中的角色</p>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- 备注 -->
-        <div 
-          class="mt-6 p-4 border rounded-lg"
-          :style="{
-            backgroundColor: 'var(--bg-tertiary)',
-            borderColor: 'var(--border-color)'
-          }"
-        >
-          <label 
-            class="block text-sm font-medium mb-2 flex items-center"
-            :style="{ color: 'var(--text-primary)' }"
-          >
-            <div class="w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: 'var(--accent-color)' }"></div>
-            备注信息
-          </label>
-          <textarea 
-            v-model="subaccount.notes"
-            rows="3" 
-            class="w-full px-3 py-2 border rounded-md text-sm resize-none transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
-            :style="{
-              backgroundColor: 'var(--bg-input)',
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-primary)',
-              '--tw-ring-color': 'var(--accent-color)'
-            }"
-            placeholder="请输入备注信息（可选）"
-          />
         </div>
       </div>
 
@@ -358,7 +135,7 @@
               background: 'linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%)'
             }"
           >
-            {{ subaccount.id ? '保存修改' : '创建账号' }}
+            确认添加
           </button>
         </div>
       </div>
@@ -375,20 +152,8 @@ const props = defineProps({
   subaccount: {
     type: Object,
     default: () => ({
-      id: null,
-      username: '',
-      email: '',
-      phone: '',
-      role: 'viewer',
-      status: 'active',
-      notes: '',
-      permissions: {
-        canViewProducts: true,
-        canEditProducts: false,
-        canViewImages: true,
-        canUploadImages: false,
-        canManageWorkflows: false
-      }
+      userId: null,
+      roleType: 30
     })
   }
 })
@@ -398,13 +163,12 @@ const emit = defineEmits(['close', 'save'])
 
 // 处理保存
 const handleSave = () => {
-  // 基本表单验证
-  if (!props.subaccount.username || !props.subaccount.email) {
-    alert('请填写用户名和邮箱')
+  // 表单验证
+  if (!props.subaccount.userId) {
+    alert('请填写用户ID')
     return
   }
-  
-  emit('save', props.subaccount)
+  emit('save', { userId: Number(props.subaccount.userId), roleType: Number(props.subaccount.roleType || 30) })
 }
 
 // ESC 键关闭

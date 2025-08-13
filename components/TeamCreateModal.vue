@@ -205,7 +205,8 @@ const emit = defineEmits(['close', 'submit'])
 const formData = reactive({
   teamName: '',
   teamDescription: '',
-  teamImgUrl: ''
+  teamImgUrl: '',
+  ownerUserId: ''
 })
 
 // 表单验证错误
@@ -222,6 +223,25 @@ const isWaitingForResponse = ref(false) // 等待父组件处理结果
 const uploadMethod = ref('upload') // 'upload' | 'url'
 const avatarUploadRef = ref(null)
 const uploadedAvatarUrl = ref('')
+
+// 初始化表单数据
+const initFormData = () => {
+  // 从 localStorage 获取 user_id
+  if (process.client) {
+    const userId = localStorage.getItem('user_id')
+    if (userId) {
+      formData.ownerUserId = userId
+      console.log('✅ 从 localStorage 获取到 user_id:', userId)
+    } else {
+      console.warn('⚠️ localStorage 中未找到 user_id')
+    }
+  }
+}
+
+// 组件挂载时初始化
+if (process.client) {
+  initFormData()
+}
 
 
 
@@ -329,7 +349,8 @@ const handleSubmit = async () => {
     console.log('提交团队数据:', {
       teamName: formData.teamName.trim(),
       teamDescription: formData.teamDescription.trim() || '',
-      teamImgUrl: finalAvatarUrl || ''
+      teamImgUrl: finalAvatarUrl || '',
+      ownerUserId: formData.ownerUserId
     })
     
     console.log('📤 发送创建团队请求给父组件...')
@@ -338,7 +359,8 @@ const handleSubmit = async () => {
     emit('submit', {
       teamName: formData.teamName.trim(),
       teamDescription: formData.teamDescription.trim() || '',
-      teamImgUrl: finalAvatarUrl || ''
+      teamImgUrl: finalAvatarUrl || '',
+      ownerUserId: formData.ownerUserId
     })
     
     // 注意：emit不会等待父组件处理完成，所以不能在这里重置表单
@@ -373,6 +395,7 @@ const resetForm = () => {
   formData.teamName = ''
   formData.teamDescription = ''
   formData.teamImgUrl = ''
+  formData.ownerUserId = ''
   errors.teamName = ''
   submitError.value = '' // 清空错误信息
   uploadedAvatarUrl.value = ''
@@ -380,6 +403,8 @@ const resetForm = () => {
   if (avatarUploadRef.value) {
     avatarUploadRef.value.clearFiles()
   }
+  // 重新初始化表单数据
+  initFormData()
 }
 
 // 监听外部错误（来自父组件）

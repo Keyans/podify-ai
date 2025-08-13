@@ -556,7 +556,7 @@
         </div>
 
         <!-- 页面内容区域 -->
-        <main class="flex-1 overflow-hidden flex flex-col">
+        <main class="flex-1 overflow-auto flex flex-col">
         <slot />
       </main>
       </div>
@@ -645,7 +645,7 @@
                 @change="switchTeam"
                 class="w-full px-4 py-3 bg-dark-input border border-dark-border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 text-dark-text appearance-none cursor-pointer transition-all"
               >
-                <option v-for="team in availableTeams" :key="team.id" :value="team.id">
+                <option v-for="team in availableTeams" :key="team.id" :value="String(team.id)">
                   {{ team.name }}
                 </option>
               </select>
@@ -1379,7 +1379,7 @@ const refreshTeamData = async () => {
 }
 
 const switchTeam = () => {
-  const selectedTeam = availableTeams.value.find(team => team.id === currentTeam.value.id)
+  const selectedTeam = availableTeams.value.find(team => String(team.id) === String(currentTeam.value.id))
   if (selectedTeam) {
     currentTeam.value = selectedTeam
     console.log('切换到团队:', selectedTeam.name)
@@ -1387,9 +1387,33 @@ const switchTeam = () => {
     // 找到对应的原始团队数据并设置为当前团队
     const storedTeams = getStoredTeamInfo()
     if (storedTeams) {
-      const originalTeam = storedTeams.find(team => team.id === selectedTeam.id)
+      const originalTeam = storedTeams.find(team => String(team.id) === String(selectedTeam.id))
       if (originalTeam) {
         setCurrentTeam(originalTeam)
+        
+        // 将当前团队信息重新存储到 localStorage
+        if (process.client) {
+          localStorage.setItem('current_team', JSON.stringify(originalTeam))
+          console.log('当前团队信息已更新到 localStorage:', originalTeam)
+          // 同步 currentTeam 卡片信息（包含成员数/版本等）
+          currentTeam.value = {
+            id: originalTeam.id,
+            name: originalTeam.teamName || originalTeam.teamDescription || selectedTeam.name,
+            teamCode: originalTeam.teamCode,
+            teamDescription: originalTeam.teamDescription,
+            ownerUsername: originalTeam.ownerUsername,
+            maxMembers: originalTeam.maxMembers || selectedTeam.maxMembers || 0,
+            currentMemberCount: originalTeam.currentMemberCount || selectedTeam.currentMemberCount || 0,
+            balance: '0.00',
+            version: '团队版'
+          }
+          // 广播团队切换事件，通知各页面刷新数据
+          try {
+            window.dispatchEvent(new CustomEvent('team-switched', { detail: originalTeam }))
+          } catch (e) {
+            console.warn('广播团队切换事件失败', e)
+          }
+        }
       }
     }
   }
@@ -1699,6 +1723,13 @@ onMounted(() => {
 
   // 页面加载时检查登录状态
   checkAuthAndRedirect()
+
+  // 监听来自基本信息页面的“打开团队切换器”事件
+  if (process.client) {
+    window.addEventListener('open-team-switcher', () => {
+      showTeamModal.value = true
+    })
+  }
 })
 
 // 组件卸载时清理事件监听器
@@ -1709,6 +1740,7 @@ onBeforeUnmount(() => {
   // 清理localStorage监听器
   if (process.client) {
     window.removeEventListener('storage', handleStorageChange)
+    window.removeEventListener('open-team-switcher', () => {})
   }
 })
 </script>

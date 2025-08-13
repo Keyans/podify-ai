@@ -11,8 +11,26 @@
         </button>
       </div>
 
-      <!-- 搜索和筛选区域 -->
+      <!-- 搜索、筛选与来源切换区域 -->
       <div class="p-4 border-b border-dark-border">
+        <div class="flex items-center justify-between mb-3">
+          <!-- 来源切换：官方白品 / 自有白品 -->
+          <div class="flex items-center space-x-2">
+            <button
+              @click="switchTab('official')"
+              :class="activeTab==='official' ? 'bg-blue-600 text-white' : 'bg-dark-input text-dark-text-secondary'"
+              class="px-3 py-1 rounded-md text-sm"
+            >官方白品</button>
+            <button
+              @click="switchTab('self')"
+              :class="activeTab==='self' ? 'bg-blue-600 text-white' : 'bg-dark-input text-dark-text-secondary'"
+              class="px-3 py-1 rounded-md text-sm"
+            >自有白品</button>
+          </div>
+
+          <!-- 可放置右侧的更多筛选下拉 -->
+        </div>
+
         <div class="flex items-center space-x-4">
           <!-- 搜索框 -->
           <div class="flex-1 relative">
@@ -149,7 +167,7 @@
 
 <script setup>
 import { ref, computed, defineProps, defineEmits, watch, onMounted } from 'vue'
-import { getProductList } from '~/apis/business/title-generation'
+import whiteApi from '~/apis/business/white'
 
 const props = defineProps({
   isOpen: {
@@ -173,22 +191,12 @@ const pagination = ref({
   pageSize: 8
 })
 
+// 当前来源
+const activeTab = ref('official') // official: 官方白品, self: 自有白品
+
 // 产品数据
-const allProducts = ref([
-  // 服装类
-  { id: '1', name: '纯棉圆领T恤', image: 'https://via.placeholder.com/200x200/333/fff?text=T恤', category: '服装', description: '舒适纯棉材质，多色可选' },
-  { id: '2', name: '商务马克杯', image: 'https://via.placeholder.com/200x200/666/fff?text=杯子', category: '家居', description: '陶瓷材质，适合办公使用' },
-  { id: '3', name: '帆布手提袋', image: 'https://via.placeholder.com/200x200/999/fff?text=包包', category: '包包', description: '环保帆布材质，大容量设计' },
-  { id: '4', name: '方形抱枕', image: 'https://via.placeholder.com/200x200/ccc/000?text=抱枕', category: '家居', description: '柔软舒适，多种图案可选' },
-  { id: '5', name: '连帽卫衣', image: 'https://via.placeholder.com/200x200/555/fff?text=卫衣', category: '服装', description: '加厚保暖，时尚百搭' },
-  { id: '6', name: '帽子', image: 'https://via.placeholder.com/200x200/777/fff?text=帽子', category: '配饰', description: '防晒遮阳，户外必备' },
-  { id: '7', name: '橙色上衣', image: 'https://via.placeholder.com/200x200/ffa500/fff?text=上衣', category: '服装', description: '亮眼橙色，青春活力' },
-  { id: '8', name: '窗帘', image: 'https://via.placeholder.com/200x200/ddd/000?text=窗帘', category: '家居', description: '遮光效果好，多种款式' },
-  { id: '9', name: '白色T恤', image: 'https://via.placeholder.com/200x200/eee/000?text=白T', category: '服装', description: '经典白色，百搭单品' },
-  { id: '10', name: '蓝色衬衫', image: 'https://via.placeholder.com/200x200/87ceeb/000?text=衬衫', category: '服装', description: '商务休闲，质感面料' },
-  { id: '11', name: '运动鞋', image: 'https://via.placeholder.com/200x200/ff6347/fff?text=鞋子', category: '配饰', description: '舒适透气，运动首选' },
-  { id: '12', name: '背包', image: 'https://via.placeholder.com/200x200/4682b4/fff?text=背包', category: '包包', description: '大容量设计，出行便携' }
-])
+const allProducts = ref([])
+const total = ref(0)
 
 // 筛选后的产品
 const filteredProducts = computed(() => {
@@ -212,9 +220,10 @@ const filteredProducts = computed(() => {
   return result
 })
 
-// 总页数
+// 总页数（使用接口返回的 total 进行计算；若没有则回退本地长度）
 const totalPages = computed(() => {
-  return Math.ceil(filteredProducts.value.length / pagination.value.pageSize)
+  const sourceTotal = total.value || filteredProducts.value.length
+  return Math.ceil(sourceTotal / pagination.value.pageSize)
 })
 
 // 分页后的产品
@@ -235,9 +244,10 @@ const handleCategoryChange = () => {
 }
 
 // 分页跳转
-const goToPage = (page) => {
+const goToPage = async (page) => {
   if (page >= 1 && page <= totalPages.value) {
     pagination.value.currentPage = page
+    await fetchList()
   }
 }
 
@@ -276,19 +286,43 @@ const resetState = () => {
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     resetState()
+    fetchList()
   }
 })
 
-// 组件挂载时加载产品数据
-onMounted(async () => {
-  // 这里可以调用真实的API获取产品数据
-  // try {
-  //   const response = await getProductList({ page: 1, limit: 100 })
-  //   if (response.success) {
-  //     allProducts.value = response.data.list || []
-  //   }
-  // } catch (error) {
-  //   console.error('获取产品列表失败:', error)
-  // }
-})
-</script> 
+// API：根据来源与分页获取数据
+const fetchList = async () => {
+  try {
+    const query = {
+      page: pagination.value.currentPage,
+      limit: pagination.value.pageSize,
+      title: searchQuery.value || '',
+      userId: activeTab.value === 'self' ? (localStorage.getItem('user_id') || '') : ''
+    }
+    const res = await whiteApi.getWhiteProductList(query)
+    const list = res?.data?.list || res?.data || []
+    total.value = res?.data?.total || list.length
+    allProducts.value = list.map((it) => ({
+      id: it.id || it.productId,
+      name: it.title || it.name,
+      image: it.coverUrl || it.imageUrl,
+      category: it.categoryName || '',
+      description: it.description || ''
+    }))
+  } catch (e) {
+    console.error('加载白品列表失败', e)
+    allProducts.value = []
+    total.value = 0
+  }
+}
+
+const switchTab = async (tab) => {
+  if (activeTab.value !== tab) {
+    activeTab.value = tab
+    pagination.value.currentPage = 1
+    await fetchList()
+  }
+}
+
+// 移除onMounted中的fetchList调用，只在弹窗打开时才加载数据
+</script>

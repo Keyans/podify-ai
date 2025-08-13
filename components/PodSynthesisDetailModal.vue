@@ -17,19 +17,19 @@
         <div class="grid grid-cols-4 gap-4 mb-6">
           <div class="bg-dark-input rounded-md p-4">
             <div class="text-sm text-gray-400 mb-1">生成SPU数</div>
-            <div class="font-medium">25,212</div>
+            <div class="font-medium">{{ taskData?.rawData?.spuNum || taskData?.spuNum || 0 }}</div>
           </div>
           <div class="bg-dark-input rounded-md p-4">
             <div class="text-sm text-gray-400 mb-1">生成SKU数</div>
-            <div class="font-medium">156</div>
+            <div class="font-medium">{{ taskData?.rawData?.skuNum || taskData?.skuNum || 0 }}</div>
           </div>
           <div class="bg-dark-input rounded-md p-4">
             <div class="text-sm text-gray-400 mb-1">成功数</div>
-            <div class="font-medium">156</div>
+            <div class="font-medium">{{ taskData?.rawData?.composerSuccessNum || taskData?.composerSuccessNum || 0 }}</div>
           </div>
           <div class="bg-dark-input rounded-md p-4">
             <div class="text-sm text-gray-400 mb-1">失败数</div>
-            <div class="font-medium">156</div>
+            <div class="font-medium">{{ taskData?.rawData?.composerFailNum || taskData?.composerFailNum || 0 }}</div>
           </div>
         </div>
         
@@ -113,30 +113,74 @@
             共 {{ totalItems }} 条记录
           </div>
           <div class="flex items-center space-x-2">
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">
+            <!-- 首页 -->
+            <button 
+              @click="goToFirstPage"
+              :disabled="pagination.currentPage === 1"
+              class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
               </svg>
             </button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">
+            <!-- 上一页 -->
+            <button 
+              @click="goToPrevPage"
+              :disabled="pagination.currentPage === 1"
+              class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border bg-green-600 text-white">2</button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">
+            <!-- 页码按钮 -->
+            <template v-for="page in visiblePages" :key="page">
+              <button 
+                v-if="page !== '...'"
+                @click="goToPage(page)"
+                :class="[
+                  'w-8 h-8 flex items-center justify-center rounded-md border border-dark-border text-sm',
+                  page === pagination.currentPage 
+                    ? 'bg-green-600 text-white' 
+                    : 'hover:bg-dark-hover text-dark-text'
+                ]"
+              >
+                {{ page }}
+              </button>
+              <span v-else class="px-2 text-gray-400">...</span>
+            </template>
+            <!-- 下一页 -->
+            <button 
+              @click="goToNextPage"
+              :disabled="pagination.currentPage >= totalPages"
+              class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">
+            <!-- 末页 -->
+            <button 
+              @click="goToLastPage"
+              :disabled="pagination.currentPage >= totalPages"
+              class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
             </button>
+            <!-- 跳转输入框 -->
             <div class="flex items-center space-x-1 ml-2">
               <span class="text-sm text-gray-400">跳转</span>
-              <input type="text" class="w-12 px-2 py-1 bg-dark-input border border-dark-border rounded-md text-center text-sm" value="2">
+              <input 
+                type="number" 
+                :value="pagination.currentPage"
+                @keyup.enter="jumpToPage"
+                @blur="jumpToPage"
+                :min="1" 
+                :max="totalPages"
+                class="w-12 px-2 py-1 bg-dark-input border border-dark-border rounded-md text-center text-sm text-dark-text"
+              >
               <span class="text-sm text-gray-400">页</span>
             </div>
           </div>
@@ -173,7 +217,7 @@
     <PodComposerSkuDetailModal
       :isOpen="showSkuModal"
       :taskId="taskData?.id || ''"
-      :spuId="selectedSpuId"
+      :composerId="selectedSpuId"
       :productInfo="selectedProductInfo"
       @close="closeSkuModal"
       @export="handleSkuExport"
@@ -182,7 +226,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineProps, defineEmits, watch, onMounted } from 'vue'
+import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed } from 'vue'
 import { getPodComposerList } from '~/apis/business/pod-composer'
 import PodComposerSkuDetailModal from './PodComposerSkuDetailModal.vue'
 
@@ -204,8 +248,56 @@ const selectAll = ref(false)
 const showProductDropdown = ref(false)
 const showMoreActions = ref(false)
 const selectedProduct = ref('全部')
-const totalItems = ref(5)
+const totalItems = ref(0)
 const loading = ref(false)
+
+// 分页状态
+const pagination = reactive({
+  currentPage: 1,
+  pageSize: 10,
+  total: 0
+})
+
+// 计算属性
+const totalPages = computed(() => {
+  return Math.ceil(pagination.total / pagination.pageSize)
+})
+
+const visiblePages = computed(() => {
+  const current = pagination.currentPage
+  const total = totalPages.value
+  const pages = []
+  
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    if (current <= 4) {
+      for (let i = 1; i <= 5; i++) {
+        pages.push(i)
+      }
+      pages.push('...')
+      pages.push(total)
+    } else if (current >= total - 3) {
+      pages.push(1)
+      pages.push('...')
+      for (let i = total - 4; i <= total; i++) {
+        pages.push(i)
+      }
+    } else {
+      pages.push(1)
+      pages.push('...')
+      for (let i = current - 1; i <= current + 1; i++) {
+        pages.push(i)
+      }
+      pages.push('...')
+      pages.push(total)
+    }
+  }
+  
+  return pages
+})
 
 // SKU详情弹窗相关状态
 const showSkuModal = ref(false)
@@ -221,7 +313,7 @@ const selectedProductInfo = ref({
 const synthesisItems = ref([
   { 
     selected: false, 
-    spuId: '1953076229559767040',
+    composerId: '1953076229559767040',
     productName: '男款短袖T恤欧版',
     productImage: 'https://via.placeholder.com/150/FFFFFF?text=T-shirt', 
     patternImage: 'https://via.placeholder.com/150/FF5733/FFFFFF?text=Pattern',
@@ -289,6 +381,50 @@ const exportDetail = () => {
   emits('download', selectedItems)
 }
 
+// 分页操作函数
+const goToFirstPage = () => {
+  if (pagination.currentPage !== 1) {
+    pagination.currentPage = 1
+    fetchComposerList()
+  }
+}
+
+const goToPrevPage = () => {
+  if (pagination.currentPage > 1) {
+    pagination.currentPage--
+    fetchComposerList()
+  }
+}
+
+const goToNextPage = () => {
+  if (pagination.currentPage < totalPages.value) {
+    pagination.currentPage++
+    fetchComposerList()
+  }
+}
+
+const goToLastPage = () => {
+  if (pagination.currentPage !== totalPages.value) {
+    pagination.currentPage = totalPages.value
+    fetchComposerList()
+  }
+}
+
+const goToPage = (page) => {
+  if (page !== '...' && page >= 1 && page <= totalPages.value && page !== pagination.currentPage) {
+    pagination.currentPage = page
+    fetchComposerList()
+  }
+}
+
+const jumpToPage = (event) => {
+  const page = parseInt(event.target.value)
+  if (page && page >= 1 && page <= totalPages.value) {
+    pagination.currentPage = page
+    fetchComposerList()
+  }
+}
+
 // 获取合成列表数据
 const fetchComposerList = async () => {
   if (!props.taskData?.id) return
@@ -297,14 +433,29 @@ const fetchComposerList = async () => {
   try {
     const params = {
       taskId: props.taskData.id,
-      page: 1,
-      limit: 100
+      page: pagination.currentPage,
+      limit: pagination.pageSize
     }
     
     const response = await getPodComposerList(params)
+    console.log('获取合成列表响应:', response)
     if (response.success && response.data) {
-      synthesisItems.value = response.data.list || []
-      totalItems.value = response.data.total || 0
+      // 处理composerList数据
+      const composerList = response.data.composerList || []
+      synthesisItems.value = composerList.map(item => ({
+        selected: false,
+        composerId: item.composerId || item.spuId,
+        productName: item.productName || '产品名称',
+        productImage: item.productImage || item.imageUrl || 'https://via.placeholder.com/150/FFFFFF?text=Product',
+        patternImage: item.patternImage || item.spuImageUrl || 'https://via.placeholder.com/150/FF5733/FFFFFF?text=Pattern',
+        resultImage: item.resultImage || item.resultsImageUrl || '',
+        sku: item.sku || item.composerId || item.spuId || '',
+        createdTime: item.createdTime || item.createTime || ''
+      }))
+      
+      // 更新分页信息
+      pagination.total = response.data.total || composerList.length
+      totalItems.value = pagination.total
     }
   } catch (error) {
     console.error('获取合成列表失败:', error)
@@ -315,7 +466,7 @@ const fetchComposerList = async () => {
 
 // 查看SKU详情
 const viewSkuDetail = (item) => {
-  selectedSpuId.value = item.spuId
+  selectedSpuId.value = item.composerId
   selectedProductInfo.value = {
     name: item.productName || '产品名称',
     sku: item.sku,
@@ -355,4 +506,4 @@ onMounted(() => {
     fetchComposerList()
   }
 })
-</script> 
+</script>

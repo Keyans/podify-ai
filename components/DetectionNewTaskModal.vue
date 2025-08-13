@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="p-5 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium text-dark-text">新建检测任务</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-300 cursor-pointer z-10 relative">
+        <button @click.stop="close" class="text-gray-400 hover:text-gray-300 cursor-pointer z-10 relative">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -49,202 +49,21 @@
           />
         </div>
 
-        <!-- 图库选择区域 -->
-        <div v-if="uploadMethod === 'gallery'" class="mb-6">
-          <!-- 图库选择弹窗 -->
-          <div v-if="showGalleryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-            <div class="bg-dark-card rounded-lg w-full max-w-4xl max-h-[80vh] overflow-hidden text-dark-text">
-              <!-- 图库弹窗标题 -->
-              <div class="p-4 border-b border-dark-border flex justify-between items-center">
-                <h4 class="font-medium text-dark-text">从图库选择</h4>
-                <button @click="closeGalleryModal" class="text-gray-400 hover:text-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- 搜索和筛选区域 -->
-              <div class="p-4 border-b border-dark-border">
-                <div class="flex items-center space-x-4">
-                  <!-- 搜索框 -->
-                  <div class="flex-1 relative">
-                    <input 
-                      v-model="gallerySearch"
-                      type="text"
-                      placeholder="搜索图片"
-                      class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text pl-10"
-                      @input="handleGallerySearch"
-                    />
-                    <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                  </div>
-
-                  <!-- 分类筛选 -->
-                  <div class="relative">
-                    <select 
-                      v-model="selectedCategory"
-                      @change="handleCategoryChange"
-                      class="px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
-                    >
-                      <option value="">选择分类</option>
-                      <option value="nature">自然风景</option>
-                      <option value="architecture">建筑</option>
-                      <option value="abstract">抽象艺术</option>
-                      <option value="technology">科技</option>
-                      <option value="business">商务</option>
-                      <option value="lifestyle">生活方式</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 图库内容区域 -->
-              <div class="p-4 overflow-y-auto" style="max-height: 400px;">
-                <div class="grid grid-cols-5 gap-4 mb-4">
-                  <div v-for="(image, index) in paginatedGalleryImages" :key="image.id" class="relative group cursor-pointer">
-                    <img 
-                      :src="image.url" 
-                      :alt="image.name"
-                      @click="toggleGalleryImage(image)"
-                      class="w-full h-24 object-cover rounded-lg border transition-all"
-                      :class="selectedGalleryImages.includes(image.id) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
-                    />
-                    <!-- 选中标记 -->
-                    <div v-if="selectedGalleryImages.includes(image.id)" class="absolute top-1 right-1">
-                      <div class="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 无数据提示 -->
-                <div v-if="filteredGalleryImages.length === 0" class="text-center py-8 text-dark-text-secondary">
-                  <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                  <p>没有找到相关图片</p>
-                </div>
-              </div>
-
-              <!-- 分页区域 -->
-              <div v-if="filteredGalleryImages.length > 0" class="p-4 border-t border-dark-border">
-                <div class="flex items-center justify-between">
-                  <div class="text-sm text-dark-text-secondary">
-                    已选择 {{ selectedGalleryImages.length }} 张图片
-                  </div>
-                  
-                  <!-- 分页控件 -->
-                  <div class="flex items-center space-x-2">
-                    <button 
-                      @click="goToGalleryPage(galleryPagination.currentPage - 1)"
-                      :disabled="galleryPagination.currentPage === 1"
-                      class="px-3 py-1 text-sm rounded border border-dark-border text-dark-text disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
-                    >
-                      <
-                    </button>
-                    
-                    <span class="text-sm text-dark-text">
-                      {{ galleryPagination.currentPage }}
-                    </span>
-                    
-                    <button 
-                      @click="goToGalleryPage(galleryPagination.currentPage + 1)"
-                      :disabled="galleryPagination.currentPage >= galleryTotalPages"
-                      class="px-3 py-1 text-sm rounded border border-dark-border text-dark-text disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
-                    >
-                      >
-                    </button>
-                    
-                    <span class="text-sm text-dark-text-secondary">
-                      ...
-                    </span>
-                    
-                    <button 
-                      @click="goToGalleryPage(galleryTotalPages)"
-                      :disabled="galleryPagination.currentPage >= galleryTotalPages"
-                      class="px-3 py-1 text-sm rounded border border-dark-border text-dark-text disabled:opacity-50 disabled:cursor-not-allowed hover:bg-dark-hover"
-                    >
-                      >
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 图库弹窗底部按钮 -->
-              <div class="p-4 border-t border-dark-border flex justify-end space-x-3">
-                <button @click="closeGalleryModal" class="px-4 py-2 border border-dark-border rounded-md text-dark-text-secondary hover:bg-dark-hover">
-                  取消
-                </button>
-                <button 
-                  @click="confirmGallerySelection"
-                  :disabled="selectedGalleryImages.length === 0"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  确定选择 ({{ selectedGalleryImages.length }}张)
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 图库选择触发按钮 -->
-          <div 
-            @click="openGalleryModal"
-            class="border-2 border-dashed border-dark-border rounded-lg p-12 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-500/5 transition-colors"
-          >
-            <svg class="w-12 h-12 mx-auto mb-4 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <div class="text-lg font-medium text-dark-text mb-2">从图库选择图片</div>
-            <div class="text-sm text-dark-text-secondary">
-              点击打开图库，选择需要检测的图片
-            </div>
-          </div>
-
-          <!-- 已选择的图库图片展示 -->
-          <div v-if="selectedGalleryImages.length > 0" class="mt-4">
-            <div class="grid grid-cols-5 gap-4 mb-4">
-              <div v-for="imageId in selectedGalleryImages" :key="imageId" class="relative group">
-                <img 
-                  :src="getGalleryImageById(imageId)?.url" 
-                  :alt="getGalleryImageById(imageId)?.name"
-                  class="w-full h-24 object-cover rounded-lg border border-blue-500"
-                />
-                <!-- 删除按钮 -->
-                <button 
-                  @click="removeGalleryImage(imageId)"
-                  class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <div class="flex items-center text-sm text-dark-text-secondary">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              已选择 {{ selectedGalleryImages.length }} 张图片
-            </div>
-          </div>
+        <!-- 图库选择区域（内嵌） -->
+        <div v-else class="mb-6">
+          <GalleryPickerModal :inline="true" :isOpen="true" :maxSelect="1000" @change="handleGalleryPicked" />
         </div>
 
         <div class="text-sm text-gray-400 flex items-center mt-4">
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          适用能仅为辅助工具，受限于技术本身与商品动态，无法 100% 精准无误，建议您自行甄别
+          适用能仅为辅助工具，受限于技术本身与商品动态，无法 100% 精准无误，建议您自行甄别。一次最多支持 1000 张，已选择 {{ uploadMethod==='upload' ? selectedFilesCount : selectedGalleryImages.length }} 张。
         </div>
       </div>
       
       <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="close" class="px-4 py-2 border border-dark-border rounded-md text-dark-text-secondary hover:bg-dark-hover">取消</button>
+        <button @click.stop="close" class="px-4 py-2 border border-dark-border rounded-md text-dark-text-secondary hover:bg-dark-hover">取消</button>
         <button 
           @click="submit" 
           :disabled="submitting || !canSubmit"
@@ -261,6 +80,7 @@
 <script setup>
 import { ref, reactive, defineProps, defineEmits, watch, computed, onMounted, onBeforeUnmount } from 'vue'
 import TencentCosUpload from '~/components/TencentCosUpload.vue'
+import GalleryPickerModal from './GalleryPickerModal.vue'
 import { createDetectionTask } from '~/apis/business/detection'
 
 const props = defineProps({
@@ -401,9 +221,11 @@ const closeGalleryModal = () => {
   showGalleryModal.value = false
 }
 
-// 确认图库选择
-const confirmGallerySelection = () => {
-  closeGalleryModal()
+// 统一图库回填
+const handleGalleryPicked = (list) => {
+  // 直接记录选择的图片，用于后续提交
+  selectedGalleryImages.value = list.map(item => item.imageUrl)
+  showGalleryModal.value = false
 }
 
 // 处理图库搜索
@@ -509,16 +331,15 @@ const submit = async () => {
     }
     
     // 2. 获取图库选择的图片信息
-    const libraryImageList = allGalleryImages.value
-      .filter(img => selectedGalleryImages.value.includes(img.id))
-      .map(img => ({
-        imageName: img.name,
-        imageUrl: img.url,
-        fileSize: 0, // 图库图片可能没有文件大小信息
-        width: 0,    // 图库图片可能没有尺寸信息
-        height: 0,
-        format: 'JPG' // 默认格式
-      }))
+    // 将 GalleryPickerModal 选择的 URL 列表映射为 imageList
+    const libraryImageList = selectedGalleryImages.value.map(url => ({
+      imageName: url.split('/').pop() || 'gallery-image.jpg',
+      imageUrl: url,
+      fileSize: 0,
+      width: 0,
+      height: 0,
+      format: 'JPG'
+    }))
     
     // 3. 合并所有图片信息
     const allImageList = uploadMethod.value === 'upload' ? cosImageList : libraryImageList
@@ -606,4 +427,4 @@ watch(() => props.isOpen, (newVal) => {
     resetForm()
   }
 })
-</script> 
+</script>

@@ -8,13 +8,14 @@ const authApiPaths = {
   register: '/api/v1/users/multi-platform/register',
   sendSmsCode: '/api/v1/sms/send-code',
   sendEmailCode: '/api/v1/email/send-code', // 添加邮箱验证码接口
-  info: '/user/info'
+  info: '/user/info',
+  myTeam: '/api/v1/teams/my'
 }
 
 // 构建完整路径的辅助方法
 const getPath = (path: keyof typeof authApiPaths) => {
   // 登录、注册、短信、邮箱接口使用tenant服务前缀
-  if (path === 'login' || path === 'loginBySms' || path === 'register' || path === 'sendSmsCode' || path === 'sendEmailCode') {
+  if (path === 'login' || path === 'loginBySms' || path === 'register' || path === 'sendSmsCode' || path === 'sendEmailCode' || path === 'myTeam') {
     return buildApiPath(authApiPaths[path], ServicePrefix.TENANT)
   }
   // 其他接口使用默认cuzcuz-ai前缀
@@ -254,7 +255,7 @@ const getUserInfo = async () => {
 // 获取我的团队信息
 const getMyTeam = async () => {
   try {
-    const data: TeamResponse = await post(getPath('myTeam'), {}, {
+    const data: TeamResponse = await get(getPath('myTeam'), {}, {
       headers: getAuthHeaders()
     })
     
@@ -281,6 +282,7 @@ interface CreateTeamRequest {
   teamName: string
   teamDescription: string
   teamImgUrl: string
+  ownerUserId: string
 }
 
 // 创建新团队
@@ -437,4 +439,4 @@ export default {
   setAuthHeaders,
   sendSmsCode,
   sendEmailCode
-} 
+}

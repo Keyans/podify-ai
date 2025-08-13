@@ -275,8 +275,8 @@ const handleRegister = async () => {
     console.log('注册响应:', response)
     
     // 检查注册是否成功并且返回了accessToken
-    if (response && response.success && response.data && response.data.accessToken) {
-      const userData = response.data
+    if (response && response.accessToken) {
+      const userData = response
       
       console.log('注册成功，保存登录状态并跳转到dashboard')
       

@@ -235,7 +235,7 @@ import TaskTable from '~/components/TaskTable.vue'
 import PodSynthesisNewTaskModal from '~/components/PodSynthesisNewTaskModal.vue'
 import PodSynthesisDetailModal from '~/components/PodSynthesisDetailModal.vue'
 import TaskStatus from '~/components/TaskStatus.vue'
-import { getPodComposerStats, getPodComposerTaskList, getPodComposerTaskDetail, getPodComposerList } from '~/apis/business/pod-composer'
+import { getPodComposerStats, getPodComposerTaskList, getPodComposerTaskDetail } from '~/apis/business/pod-composer'
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -249,39 +249,34 @@ const showDetailModal = ref(false)
 const currentTaskData = ref(null)
 
 // 统计数据
-const statsData = ref({
-  totalCount: 0,
-  successRate: 0,
-  inProgressCount: 0,
-  todayCount: 0
-})
+const statsData = ref({})
 
-// 计算属性：统计卡片数据
+// 计算统计卡片数据
 const stats = computed(() => [
   {
     label: '总合成',
-    value: statsData.value.totalCount?.toString() || '156',
+    value: statsData.value.count?.toString() || '156',
     iconPath: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
     iconBg: 'bg-blue-100',
     iconColor: 'text-blue-600'
   },
   {
     label: '成功率',
-    value: `${statsData.value.successRate || 98}%`,
+    value: `${Math.round((statsData.value.successRate || 0) * 100)}%`,
     iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
     iconBg: 'bg-green-100',
     iconColor: 'text-green-600'
   },
   {
     label: '进行中',
-    value: statsData.value.inProgressCount?.toString() || '45,678',
+    value: statsData.value.inProgressCount?.toString() || '0',
     iconPath: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
     iconBg: 'bg-yellow-100',
     iconColor: 'text-yellow-600'
   },
   {
     label: '今日合成',
-    value: statsData.value.todayCount?.toString() || '344',
+    value: statsData.value.todayCount?.toString() || '0',
     iconPath: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
     iconBg: 'bg-purple-100',
     iconColor: 'text-purple-600'
@@ -340,22 +335,22 @@ const fetchTaskList = async () => {
     
     if (response.success) {
       // 处理返回的数据结构
-      const taskList = response.data?.records || response.data?.list || []
+      const taskList = response.data?.composerList || response.data?.records || response.data?.list || []
       
       // 将API数据转换为组件期望的格式
       const formattedTaskList = taskList.map(item => ({
-        id: item.taskId || item.id,
-        taskId: item.taskId || item.id,
-        taskName: item.taskName || item.name,
-        name: item.taskName || item.name,
-        status: item.status,
-        creator: item.creator || item.userId,
+        id: item.composerId || item.taskId || item.id,
+        taskId: item.composerId || item.taskId || item.id,
+        taskName: item.titleList?.[0] || item.taskName || item.name,
+        name: item.titleList?.[0] || item.taskName || item.name,
+        status: item.composerStatus !== undefined ? item.composerStatus : item.status,
+        creator: item.createBy || item.creator || item.userId,
         createTime: item.createTime || item.createdAt,
         createdAt: item.createTime || item.createdAt,
-        whiteCount: item.whiteCount || 21,
-        designCount: item.designCount || 21,
-        spuCount: item.spuCount || 67,
-        skuCount: item.skuCount || 1293,
+        whiteCount: item.imageNum || item.whiteCount || 0,
+        designCount: item.imageNum || item.designCount || 0,
+        spuCount: item.spuNum || item.spuCount || 0,
+        skuCount: item.skuNum || item.skuCount || 0,
         // 保留原始数据
         rawData: item
       }))
@@ -405,45 +400,9 @@ const formatTime = (time) => {
 const showTaskDetail = async (task) => {
   currentTaskData.value = task
   showDetailModal.value = true
-  
-  // 获取任务详情数据
-  const taskId = task.taskId || task.id
-  if (taskId) {
-    await fetchTaskDetail(taskId)
-  }
 }
 
-// 获取任务详情 - 调用合成列表接口
-const fetchTaskDetail = async (taskId) => {
-  try {
-    const params = {
-      taskId,
-      page: 1,
-      limit: 100
-    }
-    
-    console.log('获取POD合成详情列表，参数:', params)
-    const response = await getPodComposerList(params)
-    console.log('POD合成详情列表响应:', response)
-    
-    if (response.success) {
-      // 处理详情数据并更新到currentTaskData
-      const detailList = response.data?.list || []
-      currentTaskData.value = {
-        ...currentTaskData.value,
-        detailList: detailList,
-        detailPagination: {
-          page: parseInt(response.data?.current || 1),
-          limit: parseInt(response.data?.size || 100),
-          total: parseInt(response.data?.total || detailList.length),
-          pages: parseInt(response.data?.pages || 1)
-        }
-      }
-    }
-  } catch (error) {
-    console.error('获取POD合成详情列表失败:', error)
-  }
-}
+
 
 // 处理任务提交
 const handleTaskSubmit = async (formData) => {

@@ -5,6 +5,8 @@ import auth from '~/apis/auth'
 import collector from '~/apis/business/collector'
 import product from '~/apis/business/product'
 import user from '~/apis/business/user'
+import team from '~/apis/business/team'
+import white from '~/apis/business/white'
 
 export default defineNuxtPlugin((nuxtApp) => {
   // 初始化认证状态
@@ -18,7 +20,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       auth,
       collector,
       product,
-      user
+      user,
+      team,
+      white
     }
   }
 }) 

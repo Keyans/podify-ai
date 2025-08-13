@@ -949,44 +949,10 @@ const handleSubmit = async () => {
     try {
       const { $auth } = useNuxtApp()
       const registerResult = await $auth.register(registerData)
-      
+      console.log("🚀 ~ handleSubmit ~ registerResult:", registerResult)
       // 修复：检查success字段和data.accessToken
-      if (registerResult && registerResult.success && registerResult.data && registerResult.data.accessToken) {
-        const userData = registerResult.data
-        
-        // 保存登录状态到localStorage (兼容现有逻辑)
-        localStorage.setItem('isLoggedIn', 'true')
-        
-        // 保存认证相关信息（用于API调用）- 修复token键名不一致问题
-        localStorage.setItem('auth_token', userData.accessToken) // 修复：使用auth_token而不是access_token
-        localStorage.setItem('access_token', userData.accessToken) // 保留兼容性
-        localStorage.setItem('user_id', userData.userId)
-        localStorage.setItem('tenant_id', userData.tenantId)
-        
-        // 保存完整用户信息
-        localStorage.setItem('userInfo', JSON.stringify({
-          email: userData.email || userData.username, // 处理email/username字段差异
-          name: userData.nickname || '用户',
-          avatar: userData.avatar || '',
-          userId: userData.userId,
-          tenantId: userData.tenantId,
-          tenantCode: userData.tenantCode,
-          tenantName: userData.tenantName,
-          permissions: userData.permissions || []
-        }))
-
+      if (registerResult && registerResult.data) {
         showToast('注册成功，欢迎使用CUZCUZAI！', 'success')
-        
-        // 延迟跳转，确保认证状态已保存
-        setTimeout(async () => {
-          try {
-            await navigateTo('/dashboard')
-          } catch (error) {
-            console.error('跳转失败:', error)
-            // 强制刷新到dashboard页面
-            window.location.href = '/dashboard'
-          }
-        }, 500)
       } else {
         showToast('注册失败，请检查信息', 'error')
       }
