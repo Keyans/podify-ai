@@ -50,7 +50,7 @@
       @subTableChange="handleSubTableChange"          
       @update:subSelectedRowKeys="subSelectedRowKeys = $event"
     /> 
-    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" />
+    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess" />
   </div>    
 </template>
 <script setup lang="ts">
@@ -65,6 +65,7 @@ import PageImage from '~/components/common/pageImage.vue'
 // 导入 Composable
 import { useCollectorList } from '~/composables/business/application/cropping/useCroppingList'
 import { useCollectorDetailModal } from '~/composables/business/application/cropping/useCroppingDetailModal'
+
 
 const addOpen = ref<boolean>(false)
 const imageTitle = ref<string>('新建截图')
@@ -117,6 +118,12 @@ const handleDetail = async (record: any) => {
 
 const handleMore = (record: any) => {
   console.log(record)
+}
+
+// 处理任务创建成功事件
+const handleTaskSuccess = () => {
+  getCount() // 重新获取统计数据
+  fetchMainTableData() // 重新获取主表格数据
 }
 
 // 页面加载时执行

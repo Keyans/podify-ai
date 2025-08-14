@@ -8,35 +8,18 @@
         cancel-text="取消" 
         >
         <UploadImageFolder
+            ref="uploadImageFolderRef"
             prefer="files"          
             accept="image/*"
             :multiple="true"
             :images-only="true"
-            @files-change="handleFiles"
         />
-        <!-- <a-upload-dragger 
-            class="w-full"
-            name="file" 
-            v-model:fileList="fileList"
-            :show-upload-list="false"
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-            :multiple="true" 
-            accept="image/*"
-            @change="handleChange"
-            @drop="handleDrop"
-        >
-        <p class="ant-upload-text" v-if="fileList.length > 0">已选择{{ fileList.length }}张图片</p>
-            <p class="ant-upload-drag-icon mt-4">
-                <a-button class="mr-5">上传图片</a-button>
-                <a-button @click.stop="handleLibrary">图库选取</a-button>
-            </p>
-            <p class="ant-upload-hint">将文件/文件夹拖放到此处，不超过1000张</p>
-        </a-upload-dragger> -->
     </a-modal>
 </template>
 <script lang="ts" setup>
 import { computed, defineProps, defineEmits } from 'vue';
 import UploadImageFolder from './uploadImageFolder.vue';
+import { createCropperTask } from '~/apis/business/cropper'
 
 const props = defineProps({
     open: { // 将属性名从 'visible' 改为 'open'，以匹配 Ant Design Vue 的 a-modal
@@ -50,16 +33,9 @@ const props = defineProps({
 })
 
 
-const handleFiles = async (files:any) => {
-    console.log(files,88888)
-  // 示例：上传到后端
-  // const fd = new FormData();
-  // files.forEach(f => fd.append('files', f, f.webkitRelativePath || f.name));
-  // await fetch('/api/upload', { method: 'POST', body: fd });
-};
+const emit = defineEmits(['update:open', 'close','success']) // 发射 'update:open' 事件用于 v-model
 
-const emit = defineEmits(['update:open', 'close']) // 发射 'update:open' 事件用于 v-model
-
+const uploadImageFolderRef = ref<any>(null)
 
 // 使用计算属性实现双向绑定
 const internalVisible = computed({
@@ -70,16 +46,25 @@ const internalVisible = computed({
 });
 
 
-const handleOk = () => {
+const handleOk = async() => {
   // 如果点击 OK 应该关闭模态框，更新 internalVisible
-  internalVisible.value = false;
-  // 如果 'close' 是一个单独的动作，可以保留
-  emit('close');
+    internalVisible.value = false;
+    const files = uploadImageFolderRef.value.getFiles()
+    const type = files.some((item: any) => item.format)
+    const taskParams = {
+        uploadType: type ? 1 : 2,
+        imageList: files
+    }
+    try{
+        const res = await createCropperTask(taskParams)  
+        if(res.code === 200){
+            uploadImageFolderRef.value.clearFiles()
+            emit('close');
+            emit('success'); // 通知父组件刷新数据
+        }  
+    }catch(error){
+        console.log(error)
+    }
+    // 如果 'close' 是一个单独的动作，可以保留
 };
-
-
-
 </script>
-<style>
-
-</style>

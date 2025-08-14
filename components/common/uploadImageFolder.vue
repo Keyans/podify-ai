@@ -1,15 +1,16 @@
 <template>
-    <a-upload-dragger
-      ref="uploadRef"
-      :before-upload="() => false"
-      :show-upload-list="false"
-      multiple
-      :accept="accept"
-      :open-file-dialog-on-click="false"  
-      @click.prevent.stop="onClick"
-      @drop.prevent="handleDrop"
-      @dragover.prevent
-    >
+    <div>
+        <a-upload-dragger
+        ref="uploadRef"
+        :before-upload="() => false"
+        :show-upload-list="false"
+        multiple
+        :accept="accept"
+        :open-file-dialog-on-click="false"  
+        @click.prevent.stop="onClick"
+        @drop.prevent="handleDrop"
+        @dragover.prevent
+        >
         <p class="ant-upload-text flex items-center justify-center" v-if="totalCount > 0 && !isUploading">
             已选择<span class="text-red-500">{{ totalCount }}张</span>图片
             <CloseOutlined class="ml-2" @click.stop="closeFolder"/>
@@ -38,12 +39,15 @@
       webkitdirectory
       style="display:none"
     />
+    <GalleryModal v-model:open="addOpen" @close="addOpen = false" @confirmSelection="handleGallerySelection" /> 
+    </div>
   </template>
   
   <script setup>
 import { ref, computed } from 'vue';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import tencentCOS from '~/utils/tencentCOS'
+import GalleryModal from './galleryModal.vue'
 
 const props = defineProps({
   prefer: { type: String, default: 'files' },
@@ -65,14 +69,64 @@ const isUploading = ref(false)
 
 const filesList = ref([]); // 所有已选文件
 const totalCount = computed(() => filesList.value.length);
-
+const addOpen = ref(false)
 
 const closeFolder = () => {
   filesList.value = [];
 }
 
-const handleLibrary = ()=>{
+const handleLibrary = async()=>{
+    addOpen.value = true;
+}
 
+// 处理图库选择确认事件
+const handleGallerySelection = (selectedImages) => {
+  
+  if (!selectedImages || selectedImages.length === 0) {
+    return;
+  }
+  
+  // 创建唯一标识函数，用于避免重复
+  const getImageKey = (img) => {
+    // 如果有 url，使用 url 作为唯一标识
+    if (img.url) {
+      return img.url;
+    }
+    // 如果有 fileName 和 size，组合作为标识
+    if (img.fileName && img.size) {
+      return `${img.fileName}-${img.size}`;
+    }
+    // 如果有 name 和 size，组合作为标识
+    if (img.name && img.size) {
+      return `${img.name}-${img.size}`;
+    }
+    // 其他情况使用 JSON 字符串
+    return JSON.stringify(img);
+  };
+  
+  // 获取现有图片的唯一标识集合
+  const existingKeys = new Set(filesList.value.map(getImageKey));
+  
+  // 过滤出不重复的图片
+  const uniqueImages = selectedImages.filter(img => {
+    const key = getImageKey(img);
+    return !existingKeys.has(key);
+  });
+  
+  if (uniqueImages.length > 0) {
+    // 将新选择的图片添加到文件列表中
+    filesList.value.push(...uniqueImages);
+    
+    // 触发文件变化事件
+    emit('files-change', filesList.value);
+    
+    console.log(`成功添加 ${uniqueImages.length} 张图片，总计 ${filesList.value.length} 张`);
+  } else {
+    console.log('所选图片已存在，未添加新图片');
+  }
+  
+  // 关闭图库模态框
+  addOpen.value = false;
 }
 
 const isImage = (file) =>
@@ -95,11 +149,13 @@ const uploadFileToCos = (file) => {
       uploadStatusMap.set(file, 1) // 100%
       updateTotalProgress()
       resolve({
-        url: result.url,
-        size: result.size,
-        fileName: result.fileName,
+        imageUrl: result.url,
+        fileSize: result.size,
+        imageName: result.fileName,
         height: result.height,
-        width: result.width
+        width: result.width,
+        format: result.type.split('/')[1],
+        uploadType:1
       })
     }).catch(err => {
       uploadStatusMap.set(file, 0) // 失败记 0 或移除
@@ -127,7 +183,6 @@ const addFiles = (newFiles) => {
   const existKeys = new Set(filesList.value.map(f => mapKey(f)))
   const unique = newFiles.filter(f => !existKeys.has(mapKey(f)))
   if (!unique.length) return
-
   // 新的一批
   batchFiles = unique
   isUploading.value = true  // 🚀 开始上传
@@ -163,17 +218,6 @@ const pickWithInput = (inputEl) =>
     };
     inputEl.addEventListener('change', onChange, { once: true });
     inputEl.click();
-
-    const onFocusBack = () => {
-      setTimeout(() => {
-        if (inputEl && !inputEl.value) {
-          inputEl.removeEventListener('change', onChange);
-          resolve([]);
-        }
-        window.removeEventListener('focus', onFocusBack);
-      }, 0);
-    };
-    window.addEventListener('focus', onFocusBack, { once: true });
   });
 
 const pickWithDirectoryPicker = async () => {
