@@ -1,9 +1,9 @@
 import { ref, h } from 'vue';
 import { useTableData } from '~/composables/useTableData';
 import StatusTag from '~/components/common/statusTag.vue';
-import { getCropperStats, getCropperTaskList } from '~/apis/business/cropper'
+import { getFissionStats, getFissionTaskList } from '~/apis/business/fission'
 
-export function useCollectorList() {
+export function useList() {
   const tableLoading = ref(false); // 主表格的 loading 状态
 
   const initialPageSearchParams = {
@@ -16,21 +16,21 @@ export function useCollectorList() {
   };
 
   const statsData = ref([
-    { title: '总裁图', value: 0 },
+    { title: '总裂变数', value: 0 },
     { title: '成功率', value: '0%' },
     { title: '进行中', value: '0' },
-    { title: '今日截图', value: 0 }
+    { title: '今日裂变', value: 0 }
   ]);
 
   const tableColumns = [
-    { title: '截图ID', dataIndex: 'cropperId' },
+    { title: '裂变ID', dataIndex: 'fissionId' },
     {
-      title: '截图数量',
-      dataIndex: 'cropperNum',
-      key: 'cropperNum',
+      title: '裂变数量',
+      dataIndex: 'fissionNum',
+      key: 'fissionNum',
       customRender: ({ record }: { record: any }) => {
-        const targetCount = record.cropperNum || 0;
-        const successCount = record.cropperSuccessNum || 0;
+        const targetCount = record.fissionNum || 0;
+        const successCount = record.fissionSuccessNum || 0;
         return h('div', {}, [
           h('div', {}, `目标 : ${targetCount}`),
           h('div', { style: { color: 'green' } }, `成功 : ${successCount}`)
@@ -38,9 +38,9 @@ export function useCollectorList() {
       }
     },
     {
-      title: '截图状态',
-      dataIndex: 'cropperStatus',
-      key: 'cropperStatus',
+      title: '裂变状态',
+      dataIndex: 'fissionStatus',
+      key: 'fissionStatus',
       customRender: ({ text }: { text: any }) => {
         return h(StatusTag, { value: text, type: 'status' });
       }
@@ -52,12 +52,12 @@ export function useCollectorList() {
 
   const searchFields = [
     { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
-    { key: 'taskId', component: 'a-input', props: { placeholder: '截图ID', allowClear: true } },
+    { key: 'taskId', component: 'a-input', props: { placeholder: '裂变ID', allowClear: true } },
     {
       key: 'status',
       component: 'a-select',
       props: {
-        placeholder: '截图状态',
+        placeholder: '裂变状态',
         allowClear: true,
         options: [
           { label: '待执行', value: 0 },
@@ -80,7 +80,7 @@ export function useCollectorList() {
   ];
 
   const getCount = async () => {
-    const res = await getCropperStats();
+    const res = await getFissionStats();
     if (res.code === 200) {
       statsData.value[0].value = res.data.count;
       statsData.value[1].value = `${(res.data.successRate * 100).toFixed(2)}%`;
@@ -92,9 +92,9 @@ export function useCollectorList() {
   const getTaskListForTable = async (params: Record<string, any>) => {
     tableLoading.value = true;
     try {
-      const res = await getCropperTaskList(params);
+      const res = await getFissionTaskList(params);
       if (res.code === 200) {
-        return { list: res.data.cropperTaskList, total: res.data.total };
+        return { list: res.data.fissionList, total: res.data.total };
       } else {
         console.error("获取列表失败:", res.message);
         return { list: [], total: 0 };

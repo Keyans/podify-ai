@@ -1,10 +1,8 @@
 import { ref, h, type Ref } from 'vue';
 import { useModalTable } from '~/composables/useModalTable'; // 确保路径正确
-import { getTaskDetail } from '~/apis/business/collector';
+import { getFissionTaskDetail } from '~/apis/business/fission';
 import StatusTag from '~/components/common/statusTag.vue';
 import CommonImage from '~/components/common/commonImage.vue';
-import { Tooltip } from 'ant-design-vue';
-import { getStatusText } from '~/utils/statusUtils';
 
 // 定义返回接口
 export interface UseCollectorDetailModalReturn {
@@ -12,7 +10,6 @@ export interface UseCollectorDetailModalReturn {
   subStatsData: Ref<{ title: string; value: string | number }[]>;
   subTableColumns: any[];
   subSearchFields: any[];
-
   subTableData: Ref<any[]>;
   subTableLoading: Ref<boolean>; // 使用 modalLoading 命名
   subTablePagination: Ref<{ page: number; limit: number; total: number }>;
@@ -28,43 +25,49 @@ export interface UseCollectorDetailModalReturn {
   modalOpen: Ref<boolean>; // 🚀 暴露 modalOpen 供 dashboard.vue 中的 v-model:open 绑定
 }
 
-export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再接收 tableModalRef
-  const subTitle = ref('采集详情');
+export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再接收 tableModalRef
+  const subTitle = ref('裂变详情');
   const currentCollectorId = ref<string | number | null>(null);
 
   const subStatsData = ref([
-    { title: '采集类型', value: '' },
-    { title: '采集平台', value: '' },
-    { title: '目标数', value: 0 },
-    { title: '成功数', value: 0 }
+    { title: '总数量', value: 0 },
+    { title: '成功数', value: 0 },
+    { title: '失败数', value: 0 }
   ]);
 
   const subTableColumns = [
-    { title: '详情ID', dataIndex: 'id' },
+    { title: '详情ID', dataIndex: 'fissionId' },
     {
-      title: '主图',
-      dataIndex: 'image',
-      key: 'image',
+      title: '原图',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
       customRender: ({ text }: { text: any }) => {
-        return h(CommonImage, { src: text, alt: '采集主图' });
+        return h(CommonImage, { src: text, alt: '原图' });
       }
     },
+
     {
-      title: '标题',
-      dataIndex: 'title',
-      width: 200,
-      customRender: ({ text }: { text: string }) => {
-        const maxLength = 20;
-        const isEllipsis = text && text.length > maxLength;
-        const displayedText = isEllipsis ? text.slice(0, maxLength) + '...' : text;
+      title: '裂变图',
+      dataIndex: 'resultsImageUrl',
+      key: 'resultsImageUrl',
+      customRender: ({ text }: { text: string[] }) => { // 明确 text 是字符串数组
+        if (!text || text.length === 0) {
+          return h('span', '无图片'); // 如果没有图片，显示“无图片”
+        }
+        // 使用 map 遍历数组，为每个 URL 创建一个 CommonImage 组件
         return h(
-          Tooltip,
-          { title: isEllipsis ? text : '', placement: 'topLeft' },
-          h('div', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, displayedText)
+          'div',
+          { style: { display: 'flex', flexWrap: 'wrap', gap: '8px' } }, // 可以添加样式来控制图片布局
+          text.map((url: string, index: number) => {
+            return h(CommonImage, {
+              src: url,
+              alt: `裂变图-${index + 1}`, // 为每张图片提供独特的 alt 文本
+              key: url // 或者使用 index 作为 key，如果 URL 不唯一
+            });
+          })
         );
-      },
+      }
     },
-    { title: '价格', dataIndex: 'price' },
     {
       title: '状态',
       dataIndex: 'status',
@@ -75,30 +78,43 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
     },
     {
       title: '操作',
-      dataIndex: 'url',
-      key: 'url',
-      customRender: ({ text }: { text: string }) => {
-        if (!text || typeof text !== 'string' || text.trim() === '') {
-          return null;
-        }
-        return h('a', { href: text, target: '_blank', rel: 'noopener noreferrer' }, '访问链接');
+      customRender: ({ text, record }: { text: string , record: any}) => {
+        const imageUrl = record.resultsImageUrl | record.imageUrl; // 假设图片URL在 record.imageUrl 字段中
+        const imageName = record.mattingId ? `${record.mattingId}_image.png` : 'image.png'; // 假设根据订单ID生成文件名
+        return h('a', { href: imageUrl, download: imageName }, '下载图片');
       }
     }
   ];
 
   const initialSubDetailSearchParams = {
-    subSearchId: '',
+    status: '',
   };
 
   const subSearchFields = ref([
-    { key: 'subSearchId', component: 'a-input', props: { placeholder: '请输入标题搜素' } },
+    {
+      key: 'status',
+      component: 'a-select',
+      props: {
+        placeholder: '完成状态',
+        allowClear: true,
+        options: [
+          { label: '全部', value: '' },
+          { label: '待执行', value: 0 },
+          { label: '进行中', value: 1 },
+          { label: '已完成', value: 2 },
+          { label: '部分失败', value: 3 },
+          { label: '失败', value: 4 }
+        ],
+        style: { width: '100px' } 
+      }
+    },
   ]);
 
   const getSubListForTable = async (params: Record<string, any>) => {
     try {
-      const res = await getTaskDetail(params);
+      const res = await getFissionTaskDetail(params);
       if (res.code === 200) {
-        return { list: res.data.list, total: res.data.total };
+        return { list: res.data.fissionList, total: res.data.total };
       } else {
         console.error("获取子任务列表失败:", res.message);
         return { list: [], total: 0 };
@@ -146,14 +162,13 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
   });
 
   const openCollectorDetailModal = async (record: any) => {
-    currentCollectorId.value = record.collectorId;
+    currentCollectorId.value = record.fissionId;
 
-    subTitle.value = `采集详情: 任务ID | ${record.collectorId}`;
+    subTitle.value = `裂变详情: 任务ID | ${record.fissionId}`;
     subStatsData.value = [
-      { title: '采集类型', value: getStatusText(record.collectorType, 'type').text },
-      { title: '采集平台', value: getStatusText(record.collectorPlatform, 'platform').text },
-      { title: '目标数', value: record.collectorNum },
-      { title: '成功数', value: record.collectorSuccessNum }
+      { title: '总数量', value: record.fissionNum },
+      { title: '成功数', value: record.fissionSuccessNum },
+      { title: '失败数', value: record.fissionFailNum }
     ];
 
     fetchSubTableData(); // 🚀 调用 openModalAndFetch 来打开模态框并触发数据加载
@@ -173,7 +188,6 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
     handleSubReset,
     handleSubTableChange,
     onSubSelectChange,
-
     openCollectorDetailModal,
     modalOpen, // 🚀 暴露 modalOpen
   };

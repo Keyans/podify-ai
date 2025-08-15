@@ -1,9 +1,9 @@
-import { ref, h, reactive } from 'vue';
+import { ref, h } from 'vue';
 import { useTableData } from '~/composables/useTableData';
-import { getCollectorStats, getTaskList } from '~/apis/business/collector';
 import StatusTag from '~/components/common/statusTag.vue';
+import { getDetectionStats, getDetectionTaskList } from '~/apis/business/detection'
 
-export function useCollectorList() {
+export function useList() {
   const tableLoading = ref(false); // 主表格的 loading 状态
 
   const initialPageSearchParams = {
@@ -16,37 +16,22 @@ export function useCollectorList() {
   };
 
   const statsData = ref([
-    { title: '总采集', value: 0 },
-    { title: '成功率', value: '0%' },
-    { title: '进行中', value: '0' },
-    { title: '今日采集', value: 0 }
+    { title: '总风险数', value: 0 },
+    { title: '高风险数', value: 0 },
+    { title: '中风险数', value:0 },
+    { title: '低风险数', value: 0 },
+    { title: '无风险数', value: 0 }
   ]);
 
   const tableColumns = [
-    { title: '采集ID', dataIndex: 'collectorId' },
+    { title: '检测ID', dataIndex: 'taskNo' },
     {
-      title: '采集类型',
-      dataIndex: 'collectorType',
-      key: 'collectorType',
-      customRender: ({ text }: { text: any }) => {
-        return h(StatusTag, { value: text, type: 'type' });
-      }
-    },
-    {
-      title: '采集平台',
-      dataIndex: 'collectorPlatform',
-      key: 'collectorPlatform',
-      customRender: ({ text }: { text: any }) => {
-        return h(StatusTag, { value: text, type: 'platform' });
-      }
-    },
-    {
-      title: '采集数量',
-      dataIndex: 'collectorNum',
-      key: 'collectorNum',
+      title: '检测数量',
+      dataIndex: 'targetCount',
+      key: 'targetCount',
       customRender: ({ record }: { record: any }) => {
-        const targetCount = record.collectorNum || 0;
-        const successCount = record.collectorSuccessNum || 0;
+        const targetCount = record.targetCount || 0;
+        const successCount = record.completedCount || 0;
         return h('div', {}, [
           h('div', {}, `目标 : ${targetCount}`),
           h('div', { style: { color: 'green' } }, `成功 : ${successCount}`)
@@ -54,40 +39,43 @@ export function useCollectorList() {
       }
     },
     {
-      title: '采集状态',
-      dataIndex: 'collectorStatus',
-      key: 'collectorStatus',
+      title: '风险风布',
+      dataIndex: 'highRiskCount',
+      key: 'highRiskCount',
+      customRender: ({ record }: { record: any }) => {
+        const highRiskCount = record.highRiskCount || 0;
+        const mediumRiskCount = record.mediumRiskCount || 0;
+        const lowRiskCount = record.lowRiskCount || 0;
+        return h('div', {}, [
+          h('div', {}, `高风险 : ${highRiskCount}`),
+          h('div', {}, `中风险 : ${mediumRiskCount}`),
+          h('div', {}, `低风险 : ${lowRiskCount}`),
+        ]);
+      }
+    },
+    {
+      title: '检测状态',
+      dataIndex: 'status',
+      key: 'status',
       customRender: ({ text }: { text: any }) => {
         return h(StatusTag, { value: text, type: 'status' });
       }
     },
-    { title: '创建人', dataIndex: 'createBy' },
+    { title: '创建人', dataIndex: 'operator' },
     { title: '创建时间', dataIndex: 'createTime' },
     { title: '操作', key: 'action' }
   ];
 
   const searchFields = [
-    { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
-    { key: 'taskId', component: 'a-input', props: { placeholder: '采集ID', allowClear: true } },
-    {
-      key: 'collectorPlatform',
-      component: 'a-select',
-      props: {
-        placeholder: '采集平台',
-        allowClear: true,
-        options: [
-          { label: 'TEMU', value: 1 },
-          { label: '亚马逊', value: 2 },
-          { label: 'Shein', value: 3 }
-        ]
-      }
-    },
+    { key: 'operator', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
+    { key: 'taskNo', component: 'a-input', props: { placeholder: '检测ID', allowClear: true } },
     {
       key: 'status',
       component: 'a-select',
       props: {
-        placeholder: '采集状态',
+        placeholder: '检测状态',
         allowClear: true,
+        style: { width: '150px' }, 
         options: [
           { label: '待执行', value: 0 },
           { label: '进行中', value: 1 },
@@ -109,21 +97,22 @@ export function useCollectorList() {
   ];
 
   const getCount = async () => {
-    const res = await getCollectorStats();
+    const res = await getDetectionStats();
     if (res.code === 200) {
-      statsData.value[0].value = res.data.count;
-      statsData.value[1].value = `${(res.data.successRate * 100).toFixed(2)}%`;
-      statsData.value[2].value = res.data.inProgressCount;
-      statsData.value[3].value = res.data.todayCount;
+      statsData.value[0].value = res.data.totalCount;
+      statsData.value[1].value = res.data.highRiskCount;
+      statsData.value[2].value = res.data.mediumRiskCount;
+      statsData.value[3].value = res.data.lowRiskCount;
+      statsData.value[4].value = res.data.noRiskCount;
     }
   };
 
   const getTaskListForTable = async (params: Record<string, any>) => {
     tableLoading.value = true;
     try {
-      const res = await getTaskList(params);
+      const res = await getDetectionTaskList(params);
       if (res.code === 200) {
-        return { list: res.data.collectorList, total: res.data.total };
+        return { list: res.data.records, total: res.data.total };
       } else {
         console.error("获取列表失败:", res.message);
         return { list: [], total: 0 };

@@ -65,8 +65,8 @@ import PageTableOption from '~/components/common/pageTableOption.vue'
 import PageTableModal from '~/components/common/pageTableModal.vue'
 
 // 导入 Composable
-import { useCollectorList } from '~/composables/business/application/collect/useCollectorList'
-import { useCollectorDetailModal } from '~/composables/business/application/collect/useCollectorDetailModal'
+import { useList } from '~/composables/business/application/collect/useList'
+import { useDetailModal } from '~/composables/business/application/collect/useDetailModal'
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -88,7 +88,7 @@ const {
   onSearch,
   onReset,
   fetchData: fetchMainTableData 
-} = useCollectorList()
+} = useList()
 
 // 详情模态框逻辑
 // 🚀 移除 tableModalRef 的声明和使用，useCollectorDetailModal 不再需要它
@@ -107,8 +107,8 @@ const {
   handleSubTableChange,
   onSubSelectChange,
   openCollectorDetailModal,
-  modalOpen, // 🚀 从 useCollectorDetailModal 中解构出 modalOpen
-} = useCollectorDetailModal() // 🚀 useCollectorDetailModal 不再接收参数
+  modalOpen, // 🚀 从 useDetailModal 中解构出 modalOpen
+} = useDetailModal() // 🚀 useDetailModal 不再接收参数
 
 // 点击查看详情的事件处理
 const handleDetail = async (record: any) => {

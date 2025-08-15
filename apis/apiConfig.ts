@@ -22,19 +22,19 @@ export const environments: Record<string, EnvironmentConfig> = {
   development: {
     apiBaseUrl: '', // 开发环境使用代理
     apiHeaders: {
-      'x-client-type': 'cuzcuz-ai-web'
+      'x-client-type': 'AI_C_WEB'
     }
   },
   test: {
     apiBaseUrl: '', // 测试环境使用代理
     apiHeaders: {
-      'x-client-type': 'cuzcuz-ai-web'
+      'x-client-type': 'AI_C_WEB'
     }
   },
   production: {
     apiBaseUrl: '', // 生产环境使用代理
     apiHeaders: {
-      'x-client-type': 'cuzcuz-ai-web'
+      'x-client-type': 'AI_C_WEB'
     }
   }
 }

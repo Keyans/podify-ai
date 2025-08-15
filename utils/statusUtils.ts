@@ -19,11 +19,16 @@ const statusMaps = {
         2: { text: '店铺', color: 'cyan' },
         3: { text: '搜索', color: 'purple' },
         4: { text: '其他', color: 'geekblue' },
+    },
+    'riskLevel': {
+        0: { text: '无风险', color: 'green' },
+        1: { text: '低风险', color: 'cyan' },
+        2: { text: '中风险', color: 'orange' },
+        3: { text: '高风险', color: 'red' },
     }
 } as {
     [key: string]: Record<number, { text: string; color: string }>;
 };
-
 // 使用 export 导出这个函数
 export const getStatusText = (status: string | number, type: string) => {
     const map = statusMaps[type];

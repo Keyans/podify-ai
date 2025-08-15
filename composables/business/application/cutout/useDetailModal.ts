@@ -1,9 +1,8 @@
 import { ref, h, type Ref } from 'vue';
 import { useModalTable } from '~/composables/useModalTable'; // 确保路径正确
-import { getCropperTaskDetail } from '~/apis/business/cropper';
+import { getMattingTaskDetail } from '~/apis/business/matting';
 import StatusTag from '~/components/common/statusTag.vue';
 import CommonImage from '~/components/common/commonImage.vue';
-import { getStatusText } from '~/utils/statusUtils';
 
 // 定义返回接口
 export interface UseCollectorDetailModalReturn {
@@ -11,7 +10,6 @@ export interface UseCollectorDetailModalReturn {
   subStatsData: Ref<{ title: string; value: string | number }[]>;
   subTableColumns: any[];
   subSearchFields: any[];
-
   subTableData: Ref<any[]>;
   subTableLoading: Ref<boolean>; // 使用 modalLoading 命名
   subTablePagination: Ref<{ page: number; limit: number; total: number }>;
@@ -27,8 +25,8 @@ export interface UseCollectorDetailModalReturn {
   modalOpen: Ref<boolean>; // 🚀 暴露 modalOpen 供 dashboard.vue 中的 v-model:open 绑定
 }
 
-export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再接收 tableModalRef
-  const subTitle = ref('截图详情');
+export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再接收 tableModalRef
+  const subTitle = ref('抠图详情');
   const currentCollectorId = ref<string | number | null>(null);
 
   const subStatsData = ref([
@@ -38,7 +36,7 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
   ]);
 
   const subTableColumns = [
-    { title: '详情ID', dataIndex: 'cropperId' },
+    { title: '详情ID', dataIndex: 'mattingId' },
     {
       title: '原图',
       dataIndex: 'imageUrl',
@@ -48,7 +46,7 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
       }
     },
     {
-      title: '裁切图',
+      title: '抠图',
       dataIndex: 'resultsImageUrl',
       key: 'resultsImageUrl',
       customRender: ({ text }: { text: any }) => {
@@ -67,7 +65,7 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
       title: '操作',
       customRender: ({ text, record }: { text: string , record: any}) => {
         const imageUrl = record.resultsImageUrl | record.imageUrl; // 假设图片URL在 record.imageUrl 字段中
-        const imageName = record.cropperId ? `${record.cropperId}_image.png` : 'image.png'; // 假设根据订单ID生成文件名
+        const imageName = record.mattingId ? `${record.mattingId}_image.png` : 'image.png'; // 假设根据订单ID生成文件名
         return h('a', { href: imageUrl, download: imageName }, '下载图片');
       }
     }
@@ -99,9 +97,9 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
 
   const getSubListForTable = async (params: Record<string, any>) => {
     try {
-      const res = await getCropperTaskDetail(params);
+      const res = await getMattingTaskDetail(params);
       if (res.code === 200) {
-        return { list: res.data.cropperList, total: res.data.total };
+        return { list: res.data.mattingList, total: res.data.total };
       } else {
         console.error("获取子任务列表失败:", res.message);
         return { list: [], total: 0 };
@@ -149,13 +147,13 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
   });
 
   const openCollectorDetailModal = async (record: any) => {
-    currentCollectorId.value = record.cropperId;
+    currentCollectorId.value = record.mattingId;
 
-    subTitle.value = `采集详情: 任务ID | ${record.cropperId}`;
+    subTitle.value = `抠图详情: 任务ID | ${record.mattingId}`;
     subStatsData.value = [
-      { title: '目标数', value: record.cropperNum },
-      { title: '成功数', value: record.cropperSuccessNum },
-      { title: '失败数', value: record.cropperFailNum }
+      { title: '目标数', value: record.mattingNum },
+      { title: '成功数', value: record.mattingSuccessNum },
+      { title: '失败数', value: record.mattingFailNum }
     ];
 
     fetchSubTableData(); // 🚀 调用 openModalAndFetch 来打开模态框并触发数据加载
@@ -175,7 +173,6 @@ export function useCollectorDetailModal(): UseCollectorDetailModalReturn { // �
     handleSubReset,
     handleSubTableChange,
     onSubSelectChange,
-
     openCollectorDetailModal,
     modalOpen, // 🚀 暴露 modalOpen
   };

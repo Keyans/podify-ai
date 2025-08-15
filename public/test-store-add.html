@@ -165,7 +165,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Client-Type': 'cuzcuz-ai-web'
+                        'X-Client-Type': 'AI_C_WEB'
                     },
                     body: JSON.stringify({
                         account: 'qq@qq.com',
@@ -218,8 +218,8 @@
                         'Authorization': localStorage.getItem('access_token') || '',
                         'X-Tenant-Id': localStorage.getItem('tenant_id') || '',
                         'X-Auth-User-Id': localStorage.getItem('user_id') || '',
-                        'X-Auth-Platform-Type': 'web',
-                        'X-Client-Type': 'pod-admin',
+                        'X-Auth-Platform-Type': 'AI_PROJECT',
+                        'X-Client-Type': 'AI_C_WEB',
                         'Content-Type': 'application/json'
                     }
                 });
@@ -280,8 +280,8 @@
                         'Authorization': localStorage.getItem('access_token') || '',
                         'X-Tenant-Id': localStorage.getItem('tenant_id') || '',
                         'X-Auth-User-Id': localStorage.getItem('user_id') || '',
-                        'X-Auth-Platform-Type': 'web',
-                        'X-Client-Type': 'pod-admin',
+                        'X-Auth-Platform-Type': 'AI_PROJECT',
+                        'X-Client-Type': 'AI_C_WEB',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({

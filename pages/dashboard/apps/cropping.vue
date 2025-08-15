@@ -21,7 +21,7 @@
       <PageTable
         :columns="tableColumns"
         :data-source="tableData"
-        row-key="collectorId"
+        row-key="croppingId"
         :loading="tableLoading"
         :pagination="{ total: Number(pagination.total), pageSize: Number(pagination.limit), current: Number(pagination.page) }"
         :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
@@ -50,7 +50,7 @@
       @subTableChange="handleSubTableChange"          
       @update:subSelectedRowKeys="subSelectedRowKeys = $event"
     /> 
-    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess" />
+    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess" :useMethod="createCropperTask"/>
   </div>    
 </template>
 <script setup lang="ts">
@@ -61,14 +61,16 @@ import PageTable from '~/components/common/pageTable.vue'
 import PageTableOption from '~/components/common/pageTableOption.vue'
 import PageTableModal from '~/components/common/pageTableModal.vue'
 import PageImage from '~/components/common/pageImage.vue'
+import { createCropperTask } from '~/apis/business/cropper'
 
 // 导入 Composable
-import { useCollectorList } from '~/composables/business/application/cropping/useCroppingList'
-import { useCollectorDetailModal } from '~/composables/business/application/cropping/useCroppingDetailModal'
+import { useList } from '~/composables/business/application/cropping/useList'
+import { useDetailModal } from '~/composables/business/application/cropping/useDetailModal'
 
 
 const addOpen = ref<boolean>(false)
 const imageTitle = ref<string>('新建截图')
+
 // 使用 dashboard 布局
 definePageMeta({
   layout: 'dashboard'
@@ -89,7 +91,7 @@ const {
   onSearch,
   onReset,
   fetchData: fetchMainTableData 
-} = useCollectorList()
+} = useList()
 
 // 详情模态框逻辑
 // 🚀 移除 tableModalRef 的声明和使用，useCollectorDetailModal 不再需要它
@@ -108,8 +110,8 @@ const {
   handleSubTableChange,
   onSubSelectChange,
   openCollectorDetailModal,
-  modalOpen, // 🚀 从 useCollectorDetailModal 中解构出 modalOpen
-} = useCollectorDetailModal() // 🚀 useCollectorDetailModal 不再接收参数
+  modalOpen, // 🚀 从 useDetailModal 中解构出 modalOpen
+} = useDetailModal() // 🚀 useDetailModal 不再接收参数
 
 // 点击查看详情的事件处理
 const handleDetail = async (record: any) => {

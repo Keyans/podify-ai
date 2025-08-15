@@ -1,629 +1,135 @@
 <template>
-  <div class="flex flex-col h-full bg-dark-bg overflow-hidden">
-    <!-- 统计卡片 -->
-    <div class="flex-shrink-0 p-4 border-b border-dark-border">
-      <div class="grid grid-cols-4 gap-4">
-        <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-dark-text-secondary">{{ stat.label }}</p>
-              <p class="text-2xl font-bold text-dark-text mt-1">{{ stat.value }}</p>
-            </div>
-            <div class="w-12 h-12 rounded-lg flex items-center justify-center" :class="stat.iconBg">
-              <svg class="w-6 h-6" :class="stat.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="stat.iconPath"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 任务表格区域 - 精确自适应高度 -->
-    <div class="flex-1 min-h-0 p-4">
-      <TaskTable
-        :data="tableData"
-        :loading="loading"
-        :currentApp="'detection'"
-        idLabel="检测"
-        typeLabel="检测"
-        quantityLabel="检测"
-        statusLabel="任务"
-        newButtonText="新建检测"
-        :showType="false"
-        @view="showTaskDetail"
-        @newTask="showCreateModal = true"
-        @page-change="handlePageChange"
-        @filter-change="handleFilterChange"
+  <div>
+    <a-card class="ml-10 mr-10 mt-4">
+      <PageTitle :totalList="statsData" />
+    </a-card>
+    <a-card class="ml-10 mr-10 mt-4">
+      <PageSearch
+        v-model="searchParams"
+        :fields="searchFields"
+        @search="onSearch"
+        @reset="onReset"
       >
-        <!-- 自定义搜索栏设计 -->
-        <template #custom-filters>
-          <div class="p-4 rounded-lg border border-dark-border bg-dark-card">
-            <!-- 左右布局：左侧操作按钮，右侧搜索条件 -->
-            <div class="flex items-center justify-between">
-              <!-- 左侧：新建按钮 -->
-              <div class="flex space-x-3">
-                <button 
-                  @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm create-button"
-                  :style="{
-                    backgroundColor: 'var(--accent-color)'
-                  }"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                  <span>新建检测</span>
-                </button>
-            </div>
-
-              <!-- 右侧：搜索过滤区域 -->
-            <div class="flex items-center space-x-4">
-              <!-- 任务ID搜索 -->
-              <div class="relative">
-                <input 
-                  type="text" 
-                  v-model="filters.taskId" 
-                  placeholder="搜索任务ID"
-                  class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                >
-                <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-
-              <!-- 检测状态筛选 -->
-              <div class="relative">
-                <select 
-                  v-model="filters.status" 
-                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                >
-                  <option value="">全部状态</option>
-                  <option value="0">待执行</option>
-                  <option value="1">进行中</option>
-                  <option value="2">已完成</option>
-                  <option value="3">部分失败</option>
-                  <option value="4">失败</option>
-                </select>
-                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-
-              <!-- 风险等级筛选 -->
-              <div class="relative">
-                <select 
-                  v-model="filters.riskLevel"
-                  class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                >
-                  <option value="">全部风险</option>
-                  <option value="high">高风险</option>
-                  <option value="medium">中风险</option>
-                  <option value="low">低风险</option>
-                  <option value="safe">安全</option>
-                </select>
-                <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-
-              <!-- 开始日期 -->
-              <div class="relative">
-                <input 
-                  type="date" 
-                  v-model="filters.startDate" 
-                  placeholder="开始日期"
-                  class="px-4 py-2 rounded-lg border text-sm min-w-40"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                >
-              </div>
-
-              <!-- 结束日期 -->
-              <div class="relative">
-                <input 
-                  type="date" 
-                  v-model="filters.endDate" 
-                  placeholder="结束日期"
-                  class="px-4 py-2 rounded-lg border text-sm min-w-40"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                >
-              </div>
-
-              <!-- 搜索按钮 -->
-              <button 
-                @click="handleSearch"
-                class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg text-sm search-button"
-                :style="{
-                  backgroundColor: 'var(--accent-color)'
-                }"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <span>搜索</span>
-              </button>
-
-              <!-- 重置按钮 -->
-              <button 
-                @click="resetFilters"
-                class="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
-                :style="{
-                  backgroundColor: 'var(--bg-tertiary)',
-                  color: 'var(--text-secondary)',
-                  borderColor: 'var(--border-color)'
-                }"
-              >
-                重置
-              </button>
-              </div>
-        </div>
-      </div>
-    </template>
-      </TaskTable>
-    </div>
-  </div>
-
-  <!-- 新建侵权检测任务弹窗 -->
-  <DetectionNewTaskModal 
-    :isOpen="showCreateModal" 
-    @close="() => { console.log('父组件: 收到close事件'); showCreateModal = false; console.log('父组件: showCreateModal设为false'); }"
-    @submit="handleTaskSubmit"
-  />
-
-  <!-- 侵权检测任务详情弹窗 -->
-  <DetectionDetailModal
-    :isOpen="showDetailModal"
-    :taskData="currentTaskData"
-    :taskInfo="currentTaskInfo"
-    @close="showDetailModal = false"
-    @download="handleDownloadImages"
-    @page-change="handleDetailPageChange"
-  />
+        <template #prefix>
+          <div class="flex items-center space-x-4">
+            <a-button @click="addOpen = true">新建检测</a-button>
+          </div>
+        </template>
+      </PageSearch>
+    </a-card>
+    <a-card class="ml-10 mr-10 mt-4">
+      <PageTable
+        :columns="tableColumns"
+        :data-source="tableData"
+        row-key="taskNo"
+        :loading="tableLoading"
+        :pagination="{ total: Number(pagination.total), pageSize: Number(pagination.limit), current: Number(pagination.page) }"
+        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
+        @change="handleTableChange"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'action'">
+            <PageTableOption :record="record" @detail="handleDetail" @more="handleMore"></PageTableOption>
+          </template>
+        </template>
+      </PageTable>
+    </a-card>
+    <PageTableModal 
+      v-model:open="modalOpen" :subTitle="subTitle"
+      :subStatsData="subStatsData" 
+      :subTableColumns="subTableColumns"
+      :subTableData="subTableData"
+      :subTableLoading="subTableLoading" 
+      v-model:subSearchParams="subDetailSearchParams"  
+      :subSearchFields="subSearchFields"        
+      @subSearch="handleSubSearch"                    
+      @subReset="handleSubReset"                      
+      :subTablePagination="subTablePagination"        
+      :subSelectedRowKeys="subSelectedRowKeys"        
+      :subTableRowSelection="true"                    
+      @subTableChange="handleSubTableChange"          
+      @update:subSelectedRowKeys="subSelectedRowKeys = $event"
+    /> 
+    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess" :useMethod="createDetectionTask"/>
+  </div>    
 </template>
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import PageTitle from '~/components/common/pageTitle.vue'
+import PageSearch from '~/components/common/pageSearch.vue'
+import PageTable from '~/components/common/pageTable.vue'
+import PageTableOption from '~/components/common/pageTableOption.vue'
+import PageTableModal from '~/components/common/pageTableModal.vue'
+import PageImage from '~/components/common/pageImage.vue'
+import { createDetectionTask } from '~/apis/business/detection'
 
-<script setup>
-import { ref, onMounted, computed } from 'vue'
-import TaskTable from '~/components/TaskTable.vue'
-import DetectionNewTaskModal from '~/components/DetectionNewTaskModal.vue'
-import DetectionDetailModal from '~/components/DetectionDetailModal.vue'
-import { getDetectionStats, getDetectionTaskList, getDetectionTaskDetail, getDetectionTaskInfo } from '~/apis/business/detection'
+// 导入 Composable
+import { useList } from '~/composables/business/application/detection/useList'
+import { useDetailModal } from '~/composables/business/application/detection/useDetailModal'
+
+
+const addOpen = ref<boolean>(false)
+const imageTitle = ref<string>('新建检测')
 
 // 使用 dashboard 布局
 definePageMeta({
   layout: 'dashboard'
 })
 
-// 控制新建检测弹窗显示
-const showCreateModal = ref(false)
+// 主表格逻辑
+const {
+  statsData,
+  getCount,
+  tableColumns,
+  searchFields,
+  pagination,
+  tableData,
+  tableLoading,
+  selectedRowKeys,
+  onSelectChange,
+  searchParams,
+  onSearch,
+  onReset,
+  fetchData: fetchMainTableData 
+} = useList()
 
-// 控制详情弹窗显示
-const showDetailModal = ref(false)
-const currentTaskData = ref({})
-const taskDetailData = ref([])
-const detailLoading = ref(false)
+// 详情模态框逻辑
+const {
+  subTitle,
+  subStatsData,
+  subTableColumns,
+  subSearchFields,
+  subTableData,
+  subTableLoading,
+  subTablePagination,
+  subSelectedRowKeys,
+  subDetailSearchParams, 
+  handleSubSearch,
+  handleSubReset,
+  handleSubTableChange,
+  onSubSelectChange,
+  openCollectorDetailModal,
+  modalOpen, // 🚀 从 useDetailModal 中解构出 modalOpen
+} = useDetailModal() // 🚀 useDetailModal 不再接收参数
 
-// 页面加载状态
-const loading = ref(false)
-
-// 统计数据
-const statsData = ref({
-  count: '0',
-  successCount: '0',
-  failedCount: '0',
-  successRate: 0,
-  inProgressCount: '0',
-  todayCount: '0'
-})
-
-// 计算属性：统计卡片数据
-const stats = computed(() => [
-  {
-    label: '总检测数',
-    value: statsData.value.count,
-    iconPath: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600'
-  },
-  {
-    label: '成功率',
-    value: `${statsData.value.successRate}%`,
-    iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600'
-  },
-  {
-    label: '进行中',
-    value: statsData.value.inProgressCount,
-    iconPath: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-    iconBg: 'bg-yellow-100',
-    iconColor: 'text-yellow-600'
-  },
-  {
-    label: '今日检测',
-    value: statsData.value.todayCount,
-    iconPath: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600'
-  }
-])
-
-// 表格数据
-const tableData = ref([])
-
-// 分页参数
-const pageParams = ref({
-  page: 1,
-  limit: 10
-})
-
-// 分页状态
-const pagination = ref({
-  total: 0,
-  current: 1,
-  size: 10,
-  pages: 1
-})
-
-// 筛选参数
-const filterParams = ref({
-  taskId: '',
-  status: '',
-  startTime: '',
-  endTime: '',
-  userId: ''
-})
-
-// 表单筛选器状态
-const filters = ref({
-  taskId: '',
-  status: '',
-  riskLevel: '',
-  startDate: '',
-  endDate: ''
-})
-
-// 当前任务信息（用于详情弹窗）
-const currentTaskInfo = ref(null)
-
-// 获取统计数据
-const fetchStats = async () => {
-  try {
-    const response = await getDetectionStats()
-    if (response.success) {
-      // 根据新的API返回结构映射统计数据
-      const data = response.data
-      statsData.value = {
-        count: data.count || '0',
-        successCount: data.successCount || '0', 
-        failedCount: data.failedCount || '0',
-        successRate: data.successRate || 0,
-        inProgressCount: data.inProgressCount || '0',
-        todayCount: data.todayCount || '0'
-      }
-    }
-  } catch (error) {
-    console.error('获取侵权检测统计数据失败:', error)
-  }
+// 点击查看详情的事件处理
+const handleDetail = async (record: any) => {
+  await openCollectorDetailModal(record)
 }
 
-// 获取任务列表
-const fetchTaskList = async () => {
-  try {
-    loading.value = true
-    const params = {
-      ...pageParams.value,
-      ...filterParams.value
-    }
-    const response = await getDetectionTaskList(params)
-    if (response.success) {
-      // 根据API返回结构映射数据字段到表格需要的格式
-      const rawList = response.data?.records || []
-      tableData.value = rawList.map(item => ({
-        id: item.id,
-        检测ID: item.taskNo || item.id,
-        目标: item.targetCount || '0',
-        成功: item.completedCount || '0',
-        失败: '0', // 根据接口返回暂时设为0
-        status: item.status, // 保留原始数字状态值
-        创建人: item.operator || 'system',
-        创建时间: item.createTime,
-        // 保留原始数据以备后用，确保包含taskId字段
-        _raw: {
-          ...item,
-          taskId: item.taskId || item.id // 确保有taskId字段
-        }
-      }))
-      
-      // 更新分页信息
-      if (response.data) {
-        pagination.value = {
-          total: parseInt(response.data.total || 0),
-          current: response.data.pageNum || 1,
-          size: response.data.pageSize || 10,
-          pages: response.data.pages || 1
-        }
-      }
-    }
-  } catch (error) {
-    console.error('获取侵权检测任务列表失败:', error)
-  } finally {
-    loading.value = false
-  }
+const handleMore = (record: any) => {
+  console.log(record)
 }
 
-// 状态文本转换
-const getStatusText = (status) => {
-  const statusMap = {
-    0: '待执行',
-    1: '进行中',
-    2: '已完成',
-    3: '部分失败',
-    4: '失败'
-  }
-  return statusMap[status] || '未知'
+// 处理任务创建成功事件
+const handleTaskSuccess = () => {
+  getCount() // 重新获取统计数据
+  fetchMainTableData() // 重新获取主表格数据
 }
 
-// 查看任务详情
-const showTaskDetail = async (item) => {
-  // 设置当前任务数据，包含详情数据结构
-  currentTaskData.value = {
-    ...item,
-    detailList: [], // 初始化为空数组
-    detailPagination: {
-      page: 1,
-      limit: 10,
-      total: 0
-    },
-    taskInfo: null // 任务统计信息
-  }
-  
-  showDetailModal.value = true
-  
-  // 获取详情数据，优先使用原始数据中的taskId，然后使用id
-  const taskId = item._raw?.taskId || item._raw?.id || item.id || item.检测ID
-  console.log('点击查看详情，item数据:', item)
-  console.log('使用的taskId:', taskId)
-  if (taskId) {
-    // 并行获取任务详情列表和任务统计信息
-    await Promise.all([
-      fetchTaskDetail(taskId),
-      fetchTaskInfo(taskId)
-    ])
-  }
-}
-
-// 获取任务详情
-const fetchTaskDetail = async (taskId) => {
-  try {
-    detailLoading.value = true
-    const params = {
-      taskId,  // 使用 taskId 作为路径参数
-      page: currentTaskData.value.detailPagination?.page || 1,
-      limit: currentTaskData.value.detailPagination?.limit || 10
-    }
-    console.log('获取侵权检测任务详情，参数:', params)
-    const response = await getDetectionTaskDetail(params)
-    console.log('侵权检测任务详情响应:', response)
-    
-    if (response.success) {
-      // 根据API返回结构处理详情数据（data直接是数组）
-      const detailList = Array.isArray(response.data) ? response.data : (response.data?.data || response.data?.list || [])
-      
-      console.log('处理后的详情数据:', detailList)
-      console.log('详情数据长度:', detailList.length)
-      
-      // 更新当前任务数据中的详情信息
-      currentTaskData.value = {
-        ...currentTaskData.value,
-        detailList: detailList,
-        detailPagination: {
-          page: params.page,
-          limit: params.limit,
-          total: response.data?.total || detailList.length
-        }
-      }
-      
-      // 同时更新taskDetailData以保持兼容性
-      taskDetailData.value = detailList
-    }
-  } catch (error) {
-    console.error('获取侵权检测任务详情失败:', error)
-  } finally {
-    detailLoading.value = false
-  }
-}
-
-// 获取任务统计信息
-const fetchTaskInfo = async (taskId) => {
-  try {
-    console.log('获取侵权检测任务信息，taskId:', taskId)
-    const response = await getDetectionTaskInfo(taskId)
-    console.log('侵权检测任务信息响应:', response)
-    
-    if (response.success) {
-      // 更新当前任务数据中的统计信息
-      currentTaskData.value = {
-        ...currentTaskData.value,
-        taskInfo: response.data
-  }
-}
-  } catch (error) {
-    console.error('获取侵权检测任务信息失败:', error)
-}
-}
-
-// 处理详情页面变化
-const handleDetailPageChange = async (pagination) => {
-  console.log('侵权检测详情页面变化:', pagination)
-  
-  // 更新当前任务数据的分页信息
-  currentTaskData.value.detailPagination = {
-    ...currentTaskData.value.detailPagination,
-    ...pagination
-  }
-  
-  // 重新获取详情数据
-  const taskId = currentTaskData.value.id || currentTaskData.value.检测ID || currentTaskData.value._raw?.taskId || currentTaskData.value._raw?.id
-  if (taskId) {
-    await fetchTaskDetail(taskId)
-  }
-}
-
-// 事件处理函数
-// 手动搜索
-const handleSearch = () => {
-  console.log('执行搜索，当前筛选条件:', filters.value)
-  // 将filters映射到filterParams
-  filterParams.value = {
-    taskId: filters.value.taskId || '',
-    status: filters.value.status || '',
-    startTime: filters.value.startDate || '',
-    endTime: filters.value.endDate || '',
-    userId: ''
-  }
-  pageParams.value.page = 1 // 重置到第一页
-  fetchTaskList()
-}
-
-const handleFilterChange = (newFilters) => {
-  console.log('筛选条件变化:', newFilters)
-  // 如果传入了新的筛选条件，更新filters
-  if (newFilters) {
-    filters.value = { ...filters.value, ...newFilters }
-  }
-  
-  // 将filters映射到filterParams
-  filterParams.value = {
-    taskId: filters.value.taskId || '',
-    status: filters.value.status || '',
-    startTime: filters.value.startDate || '',
-    endTime: filters.value.endDate || '',
-    userId: ''
-  }
-  
-  pageParams.value.page = 1 // 重置到第一页
-  fetchTaskList()
-}
-
-const handlePageChange = (page) => {
-  console.log('分页变化:', page)
-  pageParams.value.page = page
-  fetchTaskList()
-}
-
-// 处理新建侵权检测任务提交
-const handleTaskSubmit = async (formData) => {
-  console.log('新建侵权检测任务:', formData)
-  
-  try {
-    // 关闭弹窗
-  showCreateModal.value = false
-    
-    // 无论任务创建成功还是失败，都要刷新数据
-    await Promise.all([
-      fetchStats(),
-      fetchTaskList()
-    ])
-    
-    // 检查任务创建结果并显示相应提示
-    if (formData.success && formData.taskResponse) {
-      console.log('侵权检测任务创建成功，响应数据:', formData.taskResponse)
-      console.log('侵权检测任务创建成功，数据已刷新')
-      
-    } else {
-      console.error('侵权检测任务创建失败:', formData.error || '未知错误')
-    }
-    
-  } catch (error) {
-    console.error('处理侵权检测任务提交失败:', error)
-    // 即使出错也要关闭弹窗
-    showCreateModal.value = false
-  }
-}
-
-// 处理结果下载
-const handleDownloadResults = (results) => {
-  console.log('下载侵权检测结果:', results)
-  // 实际应用中应该调用下载API
-}
-
-// 处理图片下载（详情弹窗中使用）
-const handleDownloadImages = (images) => {
-  console.log('下载侵权检测图片:', images)
-  // 实际应用中应该调用下载API
-}
-
-// 重置筛选条件
-const resetFilters = () => {
-  filters.value = {
-    taskId: '',
-    status: '',
-    riskLevel: '',
-    startDate: '',
-    endDate: ''
-  }
-  handleFilterChange()
-}
-
-// 页面初始化
-// 使用页面刷新组合式函数
-const refreshPageData = () => {
-  Promise.all([
-    fetchStats(),
-    fetchTaskList()
-  ]).catch(error => {
-    console.error('强制刷新数据加载失败:', error)
-  })
-}
-
-usePageRefresh(refreshPageData, '/dashboard/apps/detection')
-
+// 页面加载时执行
 onMounted(() => {
-  // 立即显示页面，后台异步获取数据（不等待完成）
-  Promise.all([
-    fetchStats(),
-    fetchTaskList()
-  ]).catch(error => {
-    console.error('数据加载失败:', error)
-  })
+  getCount() // 获取统计数据
+  fetchMainTableData() // 获取主表格数据
 })
 </script>
-
-<style scoped>
-.search-button:hover {
-  filter: brightness(0.9);
-  transition: all 0.2s ease;
-}
-
-.create-button:hover {
-  filter: brightness(0.9);
-  transition: all 0.2s ease;
-}
-</style>
-
-<style scoped>
-/* 自定义样式 */
-</style>
