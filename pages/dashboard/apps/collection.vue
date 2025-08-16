@@ -85,6 +85,7 @@ const {
   selectedRowKeys,
   onSelectChange,
   searchParams,
+  handleTableChange,
   onSearch,
   onReset,
   fetchData: fetchMainTableData 

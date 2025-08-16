@@ -64,7 +64,7 @@ export const getPodComposerTaskList = async (params?: PodComposerTaskListParams)
 
 // 获取POD合成任务详情列表
 export const getPodComposerTaskDetail = async (params: PodComposerTaskDetailParams): Promise<ApiResponse<any>> => {
-  const url = buildApiPath('/pod/composer/getTaskDetail')
+  const url = buildApiPath('/pod/composer/getList')
   return get(url, params)
 }
 

@@ -36,37 +36,37 @@ export interface ProductInfo {
 
 // 创建标题生成任务参数
 export interface CreateTitleTaskParams {
-  prompt: string               // 生成规律设置（用户输入的要求）
-  products: ProductInfo[]      // 选择的商品列表
+  generatorRule: string               // 生成规律设置（用户输入的要求）
+  podProductIdList: string[]      // 选择的商品列表
 }
 
 // 获取标题生成统计数据
-export const getTitleGenerationStats = async (): Promise<ApiResponse<TitleGenerationStatsData>> => {
-  const url = buildApiPath('/title/generation/total')
+export const getTitleGeneratorStats = async (): Promise<ApiResponse<TitleGenerationStatsData>> => {
+  const url = buildApiPath('/title/generator/total')
   return get(url)
 }
 
 // 获取标题生成任务列表
-export const getTitleGenerationTaskList = async (params: TaskListParams): Promise<ApiResponse<any>> => {
-  const url = buildApiPath('/title/generation/getTaskList')
+export const getTitleGeneratorTaskList = async (params: TaskListParams): Promise<ApiResponse<any>> => {
+  const url = buildApiPath('/title/generator/getTaskList')
   return get(url, params)
 }
 
 // 获取标题生成任务详情
-export const getTitleGenerationTaskDetail = async (params: { taskId: string; page?: number; limit?: number }): Promise<ApiResponse<any>> => {
-  const url = buildApiPath('/title/generation/getList')
+export const getTitleGeneratorTaskDetail = async (params: { taskId: string; page?: number; limit?: number }): Promise<ApiResponse<any>> => {
+  const url = buildApiPath('/title/generator/getList')
   return get(url, params)
 }
 
 // 获取标题生成任务信息
-export const getTitleGenerationTaskInfo = async (taskId: string): Promise<ApiResponse<any>> => {
-  const url = buildApiPath(`/title/generation/getTask/${taskId}`)
+export const getTitleGeneratorTaskInfo = async (taskId: string): Promise<ApiResponse<any>> => {
+  const url = buildApiPath(`/title/generator/getTask/${taskId}`)
   return get(url)
 }
 
 // 创建标题生成任务
-export const createTitleGenerationTask = async (params: CreateTitleTaskParams): Promise<ApiResponse<any>> => {
-  const url = buildApiPath('/title/generation/addTask')
+export const createTitleGeneratorTask = async (params: CreateTitleTaskParams): Promise<ApiResponse<any>> => {
+  const url = buildApiPath('/title/generator/addTask')
   return post(url, params)
 }
 
@@ -77,10 +77,10 @@ export const getProductList = async (params: { page?: number; limit?: number; se
 }
 
 export default {
-  getTitleGenerationStats,
-  getTitleGenerationTaskList,
-  getTitleGenerationTaskDetail,
-  getTitleGenerationTaskInfo,
-  createTitleGenerationTask,
+  getTitleGeneratorStats,
+  getTitleGeneratorTaskList,
+  getTitleGeneratorTaskDetail,
+  getTitleGeneratorTaskInfo,
+  createTitleGeneratorTask,
   getProductList
 } 

@@ -1,7 +1,7 @@
-import { ref, h, reactive } from 'vue';
+import { ref, h } from 'vue';
 import { useTableData } from '~/composables/useTableData';
-import { getCollectorStats, getTaskList } from '~/apis/business/collector';
 import StatusTag from '~/components/common/statusTag.vue';
+import { getTitleGeneratorStats, getTitleGeneratorTaskList } from '~/apis/business/title-generation'
 
 export function useList() {
   const tableLoading = ref(false); // 主表格的 loading 状态
@@ -9,44 +9,27 @@ export function useList() {
   const initialPageSearchParams = {
     userId: '',
     taskId: '',
-    collectorPlatform: '',
-    collectorStatus: '',
+    status: '',
     startTime: '',
     endTime: '',
   };
 
   const statsData = ref([
-    { title: '总采集', value: 0 },
+    { title: '总生成', value: 0 },
     { title: '成功率', value: '0%' },
     { title: '进行中', value: '0' },
-    { title: '今日采集', value: 0 }
+    { title: '今日生成', value: 0 }
   ]);
 
   const tableColumns = [
-    { title: '采集ID', dataIndex: 'collectorId' },
+    { title: '生成ID', dataIndex: 'titleId' },
     {
-      title: '采集类型',
-      dataIndex: 'collectorType',
-      key: 'collectorType',
-      customRender: ({ text }: { text: any }) => {
-        return h(StatusTag, { value: text, type: 'type' });
-      }
-    },
-    {
-      title: '采集平台',
-      dataIndex: 'collectorPlatform',
-      key: 'collectorPlatform',
-      customRender: ({ text }: { text: any }) => {
-        return h(StatusTag, { value: text, type: 'platform' });
-      }
-    },
-    {
-      title: '采集数量',
-      dataIndex: 'collectorNum',
-      key: 'collectorNum',
+      title: '生成数量',
+      dataIndex: 'titleNum',
+      key: 'titleNum',
       customRender: ({ record }: { record: any }) => {
-        const targetCount = record.collectorNum || 0;
-        const successCount = record.collectorSuccessNum || 0;
+        const targetCount = record.titleNum || 0;
+        const successCount = record.titleSuccessNum || 0;
         return h('div', {}, [
           h('div', {}, `目标 : ${targetCount}`),
           h('div', { style: { color: 'green' } }, `成功 : ${successCount}`)
@@ -54,9 +37,9 @@ export function useList() {
       }
     },
     {
-      title: '采集状态',
-      dataIndex: 'collectorStatus',
-      key: 'collectorStatus',
+      title: '生成状态',
+      dataIndex: 'titleStatus',
+      key: 'titleStatus',
       customRender: ({ text }: { text: any }) => {
         return h(StatusTag, { value: text, type: 'status' });
       }
@@ -68,25 +51,12 @@ export function useList() {
 
   const searchFields = [
     { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
-    { key: 'taskId', component: 'a-input', props: { placeholder: '采集ID', allowClear: true } },
-    {
-      key: 'collectorPlatform',
-      component: 'a-select',
-      props: {
-        placeholder: '采集平台',
-        allowClear: true,
-        options: [
-          { label: 'TEMU', value: 1 },
-          { label: '亚马逊', value: 2 },
-          { label: 'Shein', value: 3 }
-        ]
-      }
-    },
+    { key: 'taskId', component: 'a-input', props: { placeholder: '截图ID', allowClear: true } },
     {
       key: 'status',
       component: 'a-select',
       props: {
-        placeholder: '采集状态',
+        placeholder: '截图状态',
         allowClear: true,
         options: [
           { label: '待执行', value: 0 },
@@ -109,7 +79,7 @@ export function useList() {
   ];
 
   const getCount = async () => {
-    const res = await getCollectorStats();
+    const res = await getTitleGeneratorStats();
     if (res.code === 200) {
       statsData.value[0].value = res.data.count;
       statsData.value[1].value = `${(res.data.successRate * 100).toFixed(2)}%`;
@@ -121,9 +91,9 @@ export function useList() {
   const getTaskListForTable = async (params: Record<string, any>) => {
     tableLoading.value = true;
     try {
-      const res = await getTaskList(params);
+      const res = await getTitleGeneratorTaskList(params);
       if (res.code === 200) {
-        return { list: res.data.collectorList, total: res.data.total };
+        return { list: res.data.titleList, total: res.data.total };
       } else {
         console.error("获取列表失败:", res.message);
         return { list: [], total: 0 };

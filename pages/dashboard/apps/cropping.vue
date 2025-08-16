@@ -90,6 +90,7 @@ const {
   searchParams,
   onSearch,
   onReset,
+  handleTableChange,
   fetchData: fetchMainTableData 
 } = useList()
 

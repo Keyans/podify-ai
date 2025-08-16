@@ -24,6 +24,7 @@
             </PageTable>
         </a-card>
     </a-modal>
+    <skuModal ref="detailModalRef"></skuModal>
 </template>
 
 <script setup lang="ts">

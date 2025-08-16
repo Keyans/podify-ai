@@ -1,107 +1,125 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 z-60 flex items-center justify-center">
-    <div class="bg-dark-card rounded-lg w-full max-w-5xl max-h-[80vh] overflow-hidden text-dark-text">
-      <!-- Header -->
-      <div class="p-4 border-b border-dark-border flex justify-between items-center">
-        <h4 class="font-medium text-dark-text">选择产品</h4>
-        <button @click="close" class="text-gray-400 hover:text-gray-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+  <a-modal
+    v-model:open="modalOpen"
+    title="选择产品"
+    width="1200px"
+    :footer="null"
+    centered
+    :mask-closable="false"
+    class="product-selector-modal"
+    @cancel="close"
+  >
+    <div class="text-dark-text">
 
-      <!-- 搜索、筛选与来源切换区域 -->
+      <!-- 搜索、筛选区域 -->
       <div class="p-4 border-b border-dark-border">
-        <div class="flex items-center justify-between mb-3">
-          <!-- 来源切换：官方白品 / 自有白品 -->
-          <div class="flex items-center space-x-2">
-            <button
-              @click="switchTab('official')"
-              :class="activeTab==='official' ? 'bg-blue-600 text-white' : 'bg-dark-input text-dark-text-secondary'"
-              class="px-3 py-1 rounded-md text-sm"
-            >官方白品</button>
-            <button
-              @click="switchTab('self')"
-              :class="activeTab==='self' ? 'bg-blue-600 text-white' : 'bg-dark-input text-dark-text-secondary'"
-              class="px-3 py-1 rounded-md text-sm"
-            >自有白品</button>
-          </div>
-
-          <!-- 可放置右侧的更多筛选下拉 -->
-        </div>
-
-        <div class="flex items-center space-x-4">
-          <!-- 搜索框 -->
-          <div class="flex-1 relative">
-            <input 
-              v-model="searchQuery"
-              type="text"
-              placeholder="搜索产品"
-              class="w-full px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text pl-10"
-              @input="handleSearch"
-            />
-            <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </div>
-
-          <!-- 分类筛选 -->
-          <div class="relative">
-            <select 
-              v-model="selectedCategory"
-              @change="handleCategoryChange"
-              class="px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
-            >
-              <option value="">选择分类</option>
-              <option value="clothing">服装</option>
-              <option value="bags">包包</option>
-              <option value="accessories">配饰</option>
-              <option value="home">家居</option>
-              <option value="electronics">电子产品</option>
-            </select>
-          </div>
-        </div>
+        <pageSearch 
+          v-model="searchFormData"
+          :fields="searchFields"
+          @search="handleSearch"
+          @reset="handleReset"
+        />
       </div>
 
-      <!-- 产品列表区域 -->
-      <div class="p-4 overflow-y-auto" style="max-height: 400px;">
-        <div class="grid grid-cols-4 gap-4 mb-4">
-          <div v-for="product in paginatedProducts" :key="product.id" class="relative group cursor-pointer">
-            <div 
-              @click="toggleProduct(product)"
-              class="border rounded-lg overflow-hidden transition-all"
-              :class="selectedProductIds.includes(product.id) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
+      <!-- 选项卡和产品列表区域 -->
+      <div class="overflow-y-auto" style="max-height: 400px;">
+        <a-tabs v-model:activeKey="activeTab" @change="switchTab" class="px-4">
+          <a-tab-pane key="official" tab="官方白品">
+            <a-list
+              :data-source="paginatedProducts"
+              :grid="{ gutter: 16, column: 4 }"
+              class="product-list"
             >
-              <img 
-                :src="product.image" 
-                :alt="product.name"
-                class="w-full h-32 object-cover"
-              />
-              <div class="p-3">
-                <div class="font-medium text-sm text-dark-text truncate">{{ product.name }}</div>
-                <div class="text-xs text-dark-text-secondary">{{ product.category }}</div>
-              </div>
-            </div>
-            
-            <!-- 选中标记 -->
-            <div v-if="selectedProductIds.includes(product.id)" class="absolute top-2 right-2">
-              <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 无数据提示 -->
-        <div v-if="filteredProducts.length === 0" class="text-center py-8 text-dark-text-secondary">
-          <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-          </svg>
-          <p>没有找到相关产品</p>
-        </div>
+              <template #renderItem="{ item: product }">
+                <a-list-item>
+                  <div 
+                    @click="toggleProduct(product)"
+                    class="relative group cursor-pointer border rounded-lg overflow-hidden transition-all"
+                    :class="selectedProductIds.includes(product.id) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
+                  >
+                    <a-image 
+                      :src="product.image" 
+                      :alt="product.name"
+                      class="w-full h-32 object-cover"
+                      :preview="false"
+                    />
+                    <div class="p-3">
+                      <div class="font-medium text-sm text-dark-text truncate">{{ product.name }}</div>
+                      <div class="text-xs text-dark-text-secondary">{{ product.category }}</div>
+                    </div>
+                    
+                    <!-- 选中标记 -->
+                    <div v-if="selectedProductIds.includes(product.id)" class="absolute top-2 right-2">
+                      <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </a-list-item>
+              </template>
+              
+              <!-- 无数据提示 -->
+              <template #empty>
+                <div class="text-center py-8 text-dark-text-secondary">
+                  <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                  <p>没有找到相关产品</p>
+                </div>
+              </template>
+            </a-list>
+          </a-tab-pane>
+          
+          <a-tab-pane key="self" tab="自有白品">
+            <a-list
+              :data-source="paginatedProducts"
+              :grid="{ gutter: 16, column: 4 }"
+              class="product-list"
+            >
+              <template #renderItem="{ item: product }">
+                <a-list-item>
+                  <div 
+                    @click="toggleProduct(product)"
+                    class="relative group cursor-pointer border rounded-lg overflow-hidden transition-all"
+                    :class="selectedProductIds.includes(product.id) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
+                  >
+                    <a-image 
+                      :src="product.image" 
+                      :alt="product.name"
+                      class="w-full h-32 object-cover"
+                      :preview="false"
+                    />
+                    <div class="p-3">
+                      <div class="font-medium text-sm text-dark-text truncate">{{ product.name }}</div>
+                      <div class="text-xs text-dark-text-secondary">{{ product.category }}</div>
+                    </div>
+                    
+                    <!-- 选中标记 -->
+                    <div v-if="selectedProductIds.includes(product.id)" class="absolute top-2 right-2">
+                      <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </a-list-item>
+              </template>
+              
+              <!-- 无数据提示 -->
+              <template #empty>
+                <div class="text-center py-8 text-dark-text-secondary">
+                  <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                  <p>没有找到相关产品</p>
+                </div>
+              </template>
+            </a-list>
+          </a-tab-pane>
+        </a-tabs>
       </div>
 
       <!-- 分页区域 -->
@@ -162,25 +180,66 @@
         </button>
       </div>
     </div>
-  </div>
+  </a-modal>
 </template>
 
 <script setup>
 import { ref, computed, defineProps, defineEmits, watch, onMounted } from 'vue'
 import whiteApi from '~/apis/business/white'
+import pageSearch from '~/components/common/pageSearch.vue'
 
 const props = defineProps({
-  isOpen: {
+  open: {
     type: Boolean,
     default: false
+  },
+  initialSelectedProducts: {
+    type: Array,
+    default: () => []
   }
 })
 
-const emits = defineEmits(['close', 'confirm'])
+const emits = defineEmits(['update:open', 'confirm'])
 
-// 搜索和筛选状态
-const searchQuery = ref('')
-const selectedCategory = ref('')
+// 处理 a-modal 的双向绑定
+const modalOpen = computed({
+  get: () => props.open,
+  set: (value) => emits('update:open', value)
+})
+
+// 搜索表单数据
+const searchFormData = ref({
+  searchQuery: '',
+  selectedCategory: ''
+})
+
+// 搜索字段配置
+const searchFields = ref([
+  {
+    key: 'searchQuery',
+    label: '产品名称',
+    component: 'a-input',
+    props: {
+      placeholder: '请输入产品名称'
+    }
+  },
+  {
+    key: 'selectedCategory',
+    label: '产品分类',
+    component: 'a-select',
+    props: {
+      placeholder: '请选择分类',
+      options: [
+        { value: '', label: '全部分类' },
+        { value: 'clothing', label: '服装' },
+        { value: 'bags', label: '包包' },
+        { value: 'accessories', label: '配饰' },
+        { value: 'home', label: '家居' },
+        { value: 'electronics', label: '电子产品' }
+      ]
+    }
+  }
+])
 
 // 选中的产品ID列表
 const selectedProductIds = ref([])
@@ -203,13 +262,13 @@ const filteredProducts = computed(() => {
   let result = [...allProducts.value]
   
   // 按分类筛选
-  if (selectedCategory.value) {
-    result = result.filter(product => product.category === selectedCategory.value)
+  if (searchFormData.value.selectedCategory) {
+    result = result.filter(product => product.category === searchFormData.value.selectedCategory)
   }
   
   // 按搜索关键词筛选
-  if (searchQuery.value.trim()) {
-    const searchLower = searchQuery.value.toLowerCase()
+  if (searchFormData.value.searchQuery && searchFormData.value.searchQuery.trim()) {
+    const searchLower = searchFormData.value.searchQuery.toLowerCase()
     result = result.filter(product => 
       product.name.toLowerCase().includes(searchLower) ||
       product.category.toLowerCase().includes(searchLower) ||
@@ -234,13 +293,20 @@ const paginatedProducts = computed(() => {
 })
 
 // 处理搜索
-const handleSearch = () => {
+const handleSearch = (formData) => {
+  searchFormData.value = { ...formData }
   pagination.value.currentPage = 1
+  fetchList()
 }
 
-// 处理分类变化
-const handleCategoryChange = () => {
+// 处理重置
+const handleReset = () => {
+  searchFormData.value = {
+    searchQuery: '',
+    selectedCategory: ''
+  }
   pagination.value.currentPage = 1
+  fetchList()
 }
 
 // 分页跳转
@@ -271,21 +337,27 @@ const confirmSelection = () => {
 
 // 关闭弹窗
 const close = () => {
-  emits('close')
+  emits('update:open', false)
 }
 
 // 重置状态
 const resetState = () => {
-  searchQuery.value = ''
-  selectedCategory.value = ''
+  searchFormData.value = {
+    searchQuery: '',
+    selectedCategory: ''
+  }
   selectedProductIds.value = []
   pagination.value.currentPage = 1
 }
 
 // 监听弹窗状态变化
-watch(() => props.isOpen, (newVal) => {
+watch(() => props.open, (newVal) => {
   if (newVal) {
     resetState()
+    // 处理初始选中的产品
+    if (props.initialSelectedProducts && props.initialSelectedProducts.length > 0) {
+      selectedProductIds.value = props.initialSelectedProducts.map(product => product.id)
+    }
     fetchList()
   }
 })
@@ -296,11 +368,11 @@ const fetchList = async () => {
     const query = {
       page: pagination.value.currentPage,
       limit: pagination.value.pageSize,
-      title: searchQuery.value || '',
+      title: searchFormData.value.searchQuery || '',
       userId: activeTab.value === 'self' ? (localStorage.getItem('user_id') || '') : ''
     }
     const res = await whiteApi.getWhiteProductList(query)
-    const list = res?.data?.list || res?.data || []
+    const list = res?.data?.whiteProductList || res?.data || []
     total.value = res?.data?.total || list.length
     allProducts.value = list.map((it) => ({
       id: it.id || it.productId,
@@ -317,11 +389,9 @@ const fetchList = async () => {
 }
 
 const switchTab = async (tab) => {
-  if (activeTab.value !== tab) {
-    activeTab.value = tab
-    pagination.value.currentPage = 1
-    await fetchList()
-  }
+  activeTab.value = tab
+  pagination.value.currentPage = 1
+  await fetchList()
 }
 
 // 移除onMounted中的fetchList调用，只在弹窗打开时才加载数据

@@ -1,6 +1,6 @@
 import { ref, h, type Ref } from 'vue';
 import { useModalTable } from '~/composables/useModalTable'; // 确保路径正确
-import { getTaskDetail } from '~/apis/business/collector';
+import { getTextToImageTaskDetail } from '~/apis/business/text-to-image';
 import StatusTag from '~/components/common/statusTag.vue';
 import CommonImage from '~/components/common/commonImage.vue';
 import { Tooltip } from 'ant-design-vue';
@@ -33,38 +33,43 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
   const currentCollectorId = ref<string | number | null>(null);
 
   const subStatsData = ref([
-    { title: '采集类型', value: '' },
-    { title: '采集平台', value: '' },
-    { title: '目标数', value: 0 },
-    { title: '成功数', value: 0 }
+    { title: '生图数', value: 0 },
+    { title: '成功数', value: 0 },
+    { title: '失败数', value: 0 }
   ]);
 
   const subTableColumns = [
-    { title: '详情ID', dataIndex: 'id' },
+    { title: '详情ID', dataIndex: 'creatorId' },
     {
-      title: '主图',
-      dataIndex: 'image',
-      key: 'image',
+      title: '参考图',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
       customRender: ({ text }: { text: any }) => {
-        return h(CommonImage, { src: text, alt: '采集主图' });
+        return h(CommonImage, { src: text, alt: '参考图' });
       }
     },
     {
-      title: '标题',
-      dataIndex: 'title',
-      width: 200,
-      customRender: ({ text }: { text: string }) => {
-        const maxLength = 20;
-        const isEllipsis = text && text.length > maxLength;
-        const displayedText = isEllipsis ? text.slice(0, maxLength) + '...' : text;
+      title: '结果图',
+      dataIndex: 'resultsImageUrl',
+      key: 'resultsImageUrl',
+      customRender: ({ text }: { text: string[] }) => { // 明确 text 是字符串数组
+        if (!text || text.length === 0) {
+          return h('span', '无图片'); // 如果没有图片，显示“无图片”
+        }
+        // 使用 map 遍历数组，为每个 URL 创建一个 CommonImage 组件
         return h(
-          Tooltip,
-          { title: isEllipsis ? text : '', placement: 'topLeft' },
-          h('div', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, displayedText)
+          'div',
+          { style: { display: 'flex', flexWrap: 'wrap', gap: '8px' } }, // 可以添加样式来控制图片布局
+          text.map((url: string, index: number) => {
+            return h(CommonImage, {
+              src: url,
+              alt: `结果图-${index + 1}`, // 为每张图片提供独特的 alt 文本
+              key: url // 或者使用 index 作为 key，如果 URL 不唯一
+            });
+          })
         );
-      },
+      }
     },
-    { title: '价格', dataIndex: 'price' },
     {
       title: '状态',
       dataIndex: 'status',
@@ -75,13 +80,25 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     },
     {
       title: '操作',
-      dataIndex: 'url',
-      key: 'url',
-      customRender: ({ text }: { text: string }) => {
-        if (!text || typeof text !== 'string' || text.trim() === '') {
-          return null;
+      dataIndex: 'resultsImageUrl',
+      key: 'resultsImageUrl',
+      customRender: ({ text }: { text: string | string[] }) => {
+        if (!text || (typeof text === 'string' && text.trim() === '')) {
+          return null; // Handles null, undefined, or empty string
         }
-        return h('a', { href: text, target: '_blank', rel: 'noopener noreferrer' }, '访问链接');
+      
+        const urls = Array.isArray(text) ? text : [text]; // Ensure urls is always an array
+      
+        if (urls.length === 0) {
+          return '暂无图片'; // No URLs to display
+        }
+      
+        return urls.map((url, index) => {
+          if (typeof url !== 'string' || url.trim() === '') {
+            return null; // Skip invalid URLs within the array
+          }
+          return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', key: url + index }, '访问链接 '); // Added a space for separation
+        });
       }
     }
   ];
@@ -91,14 +108,14 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
   };
 
   const subSearchFields = ref([
-    { key: 'subSearchId', component: 'a-input', props: { placeholder: '请输入标题搜素' } },
+    { key: 'subSearchId', component: 'a-input', props: { placeholder: '请输入' } },
   ]);
 
   const getSubListForTable = async (params: Record<string, any>) => {
     try {
-      const res = await getTaskDetail(params);
+      const res = await getTextToImageTaskDetail(params);
       if (res.code === 200) {
-        return { list: res.data.list, total: res.data.total };
+        return { list: res.data.creatorList, total: res.data.total };
       } else {
         console.error("获取子任务列表失败:", res.message);
         return { list: [], total: 0 };
@@ -146,14 +163,13 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
   });
 
   const openCollectorDetailModal = async (record: any) => {
-    currentCollectorId.value = record.collectorId;
+    currentCollectorId.value = record.creatorId;
 
-    subTitle.value = `采集详情: 任务ID | ${record.collectorId}`;
+    subTitle.value = `生图详情: 任务ID | ${record.creatorId}`;
     subStatsData.value = [
-      { title: '采集类型', value: getStatusText(record.collectorType, 'type').text },
-      { title: '采集平台', value: getStatusText(record.collectorPlatform, 'platform').text },
-      { title: '目标数', value: record.collectorNum },
-      { title: '成功数', value: record.collectorSuccessNum }
+      { title: '生图数', value: record.creatorNum },
+      { title: '成功数', value: record.creatorSuccessNum },
+      { title: '失败数', value: record.creatorFailNum }
     ];
 
     fetchSubTableData(); // 🚀 调用 openModalAndFetch 来打开模态框并触发数据加载
@@ -173,7 +189,6 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     handleSubReset,
     handleSubTableChange,
     onSubSelectChange,
-
     openCollectorDetailModal,
     modalOpen, // 🚀 暴露 modalOpen
   };

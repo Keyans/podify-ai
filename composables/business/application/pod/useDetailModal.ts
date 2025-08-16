@@ -1,8 +1,9 @@
 import { ref, h, type Ref } from 'vue';
 import { useModalTable } from '~/composables/useModalTable'; // 确保路径正确
-import { getFissionTaskDetail } from '~/apis/business/fission';
+import { getPodComposerTaskDetail } from '~/apis/business/pod-composer'
 import StatusTag from '~/components/common/statusTag.vue';
 import CommonImage from '~/components/common/commonImage.vue';
+
 
 // 定义返回接口
 export interface UseCollectorDetailModalReturn {
@@ -26,45 +27,39 @@ export interface UseCollectorDetailModalReturn {
 }
 
 export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再接收 tableModalRef
-  const subTitle = ref('裂变详情');
+  const subTitle = ref('采集详情');
   const currentCollectorId = ref<string | number | null>(null);
 
   const subStatsData = ref([
-    { title: '总数量', value: 0 },
+    { title: '生图数', value: 0 },
     { title: '成功数', value: 0 },
     { title: '失败数', value: 0 }
   ]);
 
   const subTableColumns = [
-    { title: '详情ID', dataIndex: 'fissionId' },
+    { title: '详情ID', dataIndex: 'composerId' },
     {
-      title: '原图',
-      dataIndex: 'imageUrl',
-      key: 'imageUrl',
+      title: '产品',
+      dataIndex: 'spuImageUrl',
+      key: 'spuImageUrl',
       customRender: ({ text }: { text: any }) => {
-        return h(CommonImage, { src: text, alt: '原图' });
+        return h(CommonImage, { src: text, alt: '产品' });
       }
     },
     {
-      title: '裂变图',
+      title: '图案',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      customRender: ({ text }: { text: any }) => {
+        return h(CommonImage, { src: text, alt: '图案' });
+      }
+    },
+    {
+      title: '结果图',
       dataIndex: 'resultsImageUrl',
       key: 'resultsImageUrl',
-      customRender: ({ text }: { text: string[] }) => { // 明确 text 是字符串数组
-        if (!text || text.length === 0) {
-          return h('span', '无图片'); // 如果没有图片，显示“无图片”
-        }
-        // 使用 map 遍历数组，为每个 URL 创建一个 CommonImage 组件
-        return h(
-          'div',
-          { style: { display: 'flex', flexWrap: 'wrap', gap: '8px' } }, // 可以添加样式来控制图片布局
-          text.map((url: string, index: number) => {
-            return h(CommonImage, {
-              src: url,
-              alt: `裂变图-${index + 1}`, // 为每张图片提供独特的 alt 文本
-              key: url // 或者使用 index 作为 key，如果 URL 不唯一
-            });
-          })
-        );
+      customRender: ({ text }: { text: any }) => {
+        return h(CommonImage, { src: text, alt: '结果' });
       }
     },
     {
@@ -75,45 +70,38 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
         return h(StatusTag, { value: text, type: 'status' });
       }
     },
+    { title: '生成时间', dataIndex: 'createTime' },
     {
       title: '操作',
-      customRender: ({ text, record }: { text: string , record: any}) => {
-        const imageUrl = record.resultsImageUrl | record.imageUrl; // 假设图片URL在 record.imageUrl 字段中
-        const imageName = record.mattingId ? `${record.mattingId}_image.png` : 'image.png'; // 假设根据订单ID生成文件名
-        return h('a', { href: imageUrl, download: imageName }, '下载图片');
+      dataIndex: 'resultsImageUrl',
+      key: 'resultsImageUrl',
+      customRender: ({ text,record }: { text: string,record:any }) => {
+        return h('div', { style:{ color:'#1890ff',cursor:'pointer' },onClick:()=>{
+          openDetailModal(record)
+        } }, '查看详情');
       }
     }
   ];
 
   const initialSubDetailSearchParams = {
-    status: '',
+    subSearchId: '',
   };
 
   const subSearchFields = ref([
-    {
-      key: 'status',
-      component: 'a-select',
-      props: {
-        placeholder: '完成状态',
-        allowClear: true,
-        options: [
-          { label: '全部', value: '' },
-          { label: '待执行', value: 0 },
-          { label: '进行中', value: 1 },
-          { label: '已完成', value: 2 },
-          { label: '部分失败', value: 3 },
-          { label: '失败', value: 4 }
-        ],
-        style: { width: '100px' } 
-      }
-    },
+    { key: 'subSearchId', component: 'a-input', props: { placeholder: '请输入' } },
   ]);
+
+  // 修复：声明 detailModalRef
+
+  const openDetailModal = async (record: any) => {
+      console.log(record,9999999)
+  };
 
   const getSubListForTable = async (params: Record<string, any>) => {
     try {
-      const res = await getFissionTaskDetail(params);
+      const res = await getPodComposerTaskDetail(params);
       if (res.code === 200) {
-        return { list: res.data.fissionList, total: res.data.total };
+        return { list: res.data.composerList, total: res.data.total };
       } else {
         console.error("获取子任务列表失败:", res.message);
         return { list: [], total: 0 };
@@ -161,12 +149,14 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
   });
 
   const openCollectorDetailModal = async (record: any) => {
-    currentCollectorId.value = record.fissionId;
-    subTitle.value = `裂变详情: 任务ID | ${record.fissionId}`;
+    currentCollectorId.value = record.composerId;
+
+    subTitle.value = `生图详情: 任务ID | ${record.composerId}`;
     subStatsData.value = [
-      { title: '总数量', value: record.fissionNum },
-      { title: '成功数', value: record.fissionSuccessNum },
-      { title: '失败数', value: record.fissionFailNum }
+      { title: 'SPU数', value: record.spuNum },
+      { title: 'SKU数', value: record.skuNum },
+      { title: '成功数', value: record.composerSuccessNum },
+      { title: '失败数', value: record.composerFailNum }
     ];
 
     fetchSubTableData(); // 🚀 调用 openModalAndFetch 来打开模态框并触发数据加载
@@ -187,6 +177,7 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     handleSubTableChange,
     onSubSelectChange,
     openCollectorDetailModal,
+    openDetailModal,
     modalOpen, // 🚀 暴露 modalOpen
   };
 }

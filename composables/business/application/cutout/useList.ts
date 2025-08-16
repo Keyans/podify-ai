@@ -52,12 +52,12 @@ export function useList() {
 
   const searchFields = [
     { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
-    { key: 'taskId', component: 'a-input', props: { placeholder: '截图ID', allowClear: true } },
+    { key: 'taskId', component: 'a-input', props: { placeholder: '扣图ID', allowClear: true } },
     {
       key: 'status',
       component: 'a-select',
       props: {
-        placeholder: '截图状态',
+        placeholder: '扣图状态',
         allowClear: true,
         options: [
           { label: '待执行', value: 0 },
@@ -152,6 +152,7 @@ export function useList() {
     tableLoading, // 暴露 loading 状态
     selectedRowKeys,
     onSelectChange,
+    handleTableChange,
     searchParams, // 暴露给 dashboard.vue 使用 v-model
     onSearch,
     onReset,

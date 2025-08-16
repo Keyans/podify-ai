@@ -87,6 +87,7 @@ const {
   tableLoading,
   selectedRowKeys,
   onSelectChange,
+  handleTableChange,
   searchParams,
   onSearch,
   onReset,

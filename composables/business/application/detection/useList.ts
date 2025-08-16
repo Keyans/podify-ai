@@ -170,6 +170,7 @@ export function useList() {
     tableLoading, // 暴露 loading 状态
     selectedRowKeys,
     onSelectChange,
+    handleTableChange,
     searchParams, // 暴露给 dashboard.vue 使用 v-model
     onSearch,
     onReset,

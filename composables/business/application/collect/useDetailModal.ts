@@ -81,7 +81,7 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
         if (!text || typeof text !== 'string' || text.trim() === '') {
           return null;
         }
-        return h('a', { href: text, target: '_blank', rel: 'noopener noreferrer' }, '访问链接');
+        return h('a', { href: text,style:{color:'#1890ff',cursor:'pointer'}, target: '_blank', rel: 'noopener noreferrer' }, '访问链接');
       }
     }
   ];
@@ -98,7 +98,7 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     try {
       const res = await getTaskDetail(params);
       if (res.code === 200) {
-        return { list: res.data.list, total: res.data.total };
+        return { list: res.data.productList, total: res.data.total };
       } else {
         console.error("获取子任务列表失败:", res.message);
         return { list: [], total: 0 };
@@ -173,7 +173,6 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     handleSubReset,
     handleSubTableChange,
     onSubSelectChange,
-
     openCollectorDetailModal,
     modalOpen, // 🚀 暴露 modalOpen
   };

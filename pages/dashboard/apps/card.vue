@@ -12,7 +12,7 @@
       >
         <template #prefix>
           <div class="flex items-center space-x-4">
-            <a-button @click="addOpen = true">新建生图</a-button>
+            <a-button @click="addOpen = true">新建合成</a-button>
           </div>
         </template>
       </PageSearch>
@@ -50,7 +50,12 @@
       @subTableChange="handleSubTableChange"          
       @update:subSelectedRowKeys="subSelectedRowKeys = $event"
     /> 
-    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess" :useMethod="createCropperTask"/>
+  <!-- 新建合成任务弹窗 -->
+  <PodSynthesisNewTaskModal 
+    :isOpen="addOpen" 
+    @close="addOpen = false"
+    @submit="handleTaskSubmit"
+  />
   </div>    
 </template>
 <script setup lang="ts">
@@ -60,21 +65,35 @@ import PageSearch from '~/components/common/pageSearch.vue'
 import PageTable from '~/components/common/pageTable.vue'
 import PageTableOption from '~/components/common/pageTableOption.vue'
 import PageTableModal from '~/components/common/pageTableModal.vue'
-import PageImage from '~/components/common/pageImage.vue'
-import { createCropperTask } from '~/apis/business/cropper'
+import PodSynthesisNewTaskModal from '~/components/PodSynthesisNewTaskModal.vue'
 
 // 导入 Composable
-import { useList } from '~/composables/business/application/textimage/useList'
-import { useDetailModal } from '~/composables/business/application/textimage/useDetailModal'
+import { useList } from '~/composables/business/application/pod/useList'
+import { useDetailModal } from '~/composables/business/application/pod/useDetailModal'
 
 
 const addOpen = ref<boolean>(false)
-const imageTitle = ref<string>('新建生图')
 
 // 使用 dashboard 布局
 definePageMeta({
   layout: 'dashboard'
 })
+
+
+// 处理新建文生图任务提交
+const handleTaskSubmit = async (formData: { taskResponse: any }) => {
+  
+  try {
+    // 现在只有成功时才会收到事件，所以直接处理成功逻辑    
+    // 关闭弹窗
+    addOpen.value = false  
+    // 刷新数据
+    handleTaskSuccess()       
+  } catch (error) {
+    // 处理异常时关闭弹窗
+    addOpen.value = false
+  }
+}
 
 // 主表格逻辑
 const {
@@ -87,6 +106,7 @@ const {
   tableLoading,
   selectedRowKeys,
   onSelectChange,
+  handleTableChange,
   searchParams,
   onSearch,
   onReset,
