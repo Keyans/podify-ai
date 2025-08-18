@@ -56,6 +56,18 @@
     @close="addOpen = false"
     @submit="handleTaskSubmit"
   />
+  
+  <!-- SKU 详情模态框 -->
+  <SkuDetailModal
+    v-model:open="skuDetailModalOpen"
+    :sku-info="skuDetailInfo"
+    :table-columns="skuDetailTableColumns"
+    :table-data="skuDetailTableData"
+    :loading="skuDetailTableLoading"
+    :pagination="skuDetailTablePagination"
+    row-key="id"
+    @table-change="handleSkuDetailTableChange"
+  />
   </div>    
 </template>
 <script setup lang="ts">
@@ -66,6 +78,7 @@ import PageTable from '~/components/common/pageTable.vue'
 import PageTableOption from '~/components/common/pageTableOption.vue'
 import PageTableModal from '~/components/common/pageTableModal.vue'
 import PodSynthesisNewTaskModal from '~/components/PodSynthesisNewTaskModal.vue'
+import SkuDetailModal from '~/components/common/skuDetailModal.vue'
 
 // 导入 Composable
 import { useList } from '~/composables/business/application/pod/useList'
@@ -131,6 +144,15 @@ const {
   onSubSelectChange,
   openCollectorDetailModal,
   modalOpen, // 🚀 从 useDetailModal 中解构出 modalOpen
+  
+  // SKU 详情模态框相关
+  skuDetailModalOpen,
+  skuDetailInfo,
+  skuDetailTableColumns,
+  skuDetailTableData,
+  skuDetailTableLoading,
+  skuDetailTablePagination,
+  handleSkuDetailTableChange
 } = useDetailModal() // 🚀 useDetailModal 不再接收参数
 
 // 点击查看详情的事件处理

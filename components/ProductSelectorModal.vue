@@ -35,21 +35,22 @@
                   <div 
                     @click="toggleProduct(product)"
                     class="relative group cursor-pointer border rounded-lg overflow-hidden transition-all"
-                    :class="selectedProductIds.includes(product.id) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
+                    :class="selectedProductIds.includes(product.whiteProductId) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
                   >
-                    <a-image 
-                      :src="product.image" 
-                      :alt="product.name"
-                      class="w-full h-32 object-cover"
+                    <commonImage
+                      :src="product.imageUrl" 
+                      :alt="product.title"
+                      width="100%"
+                      height="100%"
                       :preview="false"
                     />
                     <div class="p-3">
-                      <div class="font-medium text-sm text-dark-text truncate">{{ product.name }}</div>
-                      <div class="text-xs text-dark-text-secondary">{{ product.category }}</div>
+                      <div class="font-medium text-sm text-dark-text truncate">{{ product.title }}</div>
+                      <div class="text-xs text-dark-text-secondary">{{ product.price }}</div>
                     </div>
                     
                     <!-- 选中标记 -->
-                    <div v-if="selectedProductIds.includes(product.id)" class="absolute top-2 right-2">
+                    <div v-if="selectedProductIds.includes(product.whiteProductId)" class="absolute top-2 right-2">
                       <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -83,21 +84,22 @@
                   <div 
                     @click="toggleProduct(product)"
                     class="relative group cursor-pointer border rounded-lg overflow-hidden transition-all"
-                    :class="selectedProductIds.includes(product.id) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
+                    :class="selectedProductIds.includes(product.whiteProductId) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
                   >
-                    <a-image 
-                      :src="product.image" 
-                      :alt="product.name"
-                      class="w-full h-32 object-cover"
+                    <commonImage
+                      :src="product.imageUrl" 
+                      :alt="product.title"
+                      width="100%"
+                      height="100%"
                       :preview="false"
                     />
                     <div class="p-3">
-                      <div class="font-medium text-sm text-dark-text truncate">{{ product.name }}</div>
-                      <div class="text-xs text-dark-text-secondary">{{ product.category }}</div>
+                      <div class="font-medium text-sm text-dark-text truncate">{{ product.title }}</div>
+                      <div class="text-xs text-dark-text-secondary">{{ product.price }}</div>
                     </div>
                     
                     <!-- 选中标记 -->
-                    <div v-if="selectedProductIds.includes(product.id)" class="absolute top-2 right-2">
+                    <div v-if="selectedProductIds.includes(product.whiteProductId)" class="absolute top-2 right-2">
                       <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -185,8 +187,9 @@
 
 <script setup>
 import { ref, computed, defineProps, defineEmits, watch, onMounted } from 'vue'
-import whiteApi from '~/apis/business/white'
+import { getWhiteProductList,getOfficialCategoryAll,getProductList } from '~/apis/business/white'
 import pageSearch from '~/components/common/pageSearch.vue'
+import commonImage from '~/components/common/commonImage.vue'
 
 const props = defineProps({
   open: {
@@ -199,6 +202,14 @@ const props = defineProps({
   }
 })
 
+onMounted(() => {
+  getOfficialCategoryList()
+})
+
+const getOfficialCategoryList= async()=>{
+  const res = await getOfficialCategoryAll({})
+  searchFields.value[1].props.options = res.data.categoryList
+}
 const emits = defineEmits(['update:open', 'confirm'])
 
 // 处理 a-modal 的双向绑定
@@ -209,14 +220,14 @@ const modalOpen = computed({
 
 // 搜索表单数据
 const searchFormData = ref({
-  searchQuery: '',
-  selectedCategory: ''
+  title: '',
+  categoryId: ''
 })
 
 // 搜索字段配置
 const searchFields = ref([
   {
-    key: 'searchQuery',
+    key: 'title',
     label: '产品名称',
     component: 'a-input',
     props: {
@@ -224,19 +235,14 @@ const searchFields = ref([
     }
   },
   {
-    key: 'selectedCategory',
+    key: 'categoryId',
     label: '产品分类',
-    component: 'a-select',
+    component: 'a-cascader',
     props: {
       placeholder: '请选择分类',
-      options: [
-        { value: '', label: '全部分类' },
-        { value: 'clothing', label: '服装' },
-        { value: 'bags', label: '包包' },
-        { value: 'accessories', label: '配饰' },
-        { value: 'home', label: '家居' },
-        { value: 'electronics', label: '电子产品' }
-      ]
+      options: [],
+      fieldNames: { label: 'categoryName', value: 'categoryId', children: 'categoryList' },
+      style:{ width: '150px' }
     }
   }
 ])
@@ -319,20 +325,21 @@ const goToPage = async (page) => {
 
 // 切换产品选择
 const toggleProduct = (product) => {
-  const index = selectedProductIds.value.indexOf(product.id)
+  const index = selectedProductIds.value.indexOf(product.whiteProductId)
   if (index > -1) {
     selectedProductIds.value.splice(index, 1)
   } else {
-    selectedProductIds.value.push(product.id)
+    selectedProductIds.value.push(product.whiteProductId)
   }
 }
 
 // 确认选择
 const confirmSelection = () => {
   const selectedProducts = allProducts.value.filter(product => 
-    selectedProductIds.value.includes(product.id)
+    selectedProductIds.value.includes(product.whiteProductId)
   )
   emits('confirm', selectedProducts)
+  emits('update:open', false)
 }
 
 // 关闭弹窗
@@ -356,7 +363,7 @@ watch(() => props.open, (newVal) => {
     resetState()
     // 处理初始选中的产品
     if (props.initialSelectedProducts && props.initialSelectedProducts.length > 0) {
-      selectedProductIds.value = props.initialSelectedProducts.map(product => product.id)
+      selectedProductIds.value = props.initialSelectedProducts.map(product => product.whiteProductId)
     }
     fetchList()
   }
@@ -364,29 +371,26 @@ watch(() => props.open, (newVal) => {
 
 // API：根据来源与分页获取数据
 const fetchList = async () => {
+  const func = activeTab.value === 'official' ? getWhiteProductList : getProductList
   try {
     const query = {
       page: pagination.value.currentPage,
       limit: pagination.value.pageSize,
-      title: searchFormData.value.searchQuery || '',
-      userId: activeTab.value === 'self' ? (localStorage.getItem('user_id') || '') : ''
+      title: searchFormData.value.title || '',
+      categoryId: searchFormData.value.categoryId?.at(-1) || '',
     }
-    const res = await whiteApi.getWhiteProductList(query)
+    const res = await func(query)
     const list = res?.data?.whiteProductList || res?.data || []
     total.value = res?.data?.total || list.length
-    allProducts.value = list.map((it) => ({
-      id: it.id || it.productId,
-      name: it.title || it.name,
-      image: it.coverUrl || it.imageUrl,
-      category: it.categoryName || '',
-      description: it.description || ''
-    }))
+    allProducts.value = list
   } catch (e) {
     console.error('加载白品列表失败', e)
     allProducts.value = []
     total.value = 0
   }
 }
+
+
 
 const switchTab = async (tab) => {
   activeTab.value = tab

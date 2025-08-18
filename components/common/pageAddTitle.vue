@@ -52,7 +52,7 @@
                       <img :src="product.imageUrl" :alt="product.title" class="product-image" />
                       <div class="product-info">
                         <div class="product-name">{{ product.title }}</div>
-                        <div class="product-category">{{ product.categoryName }}</div>
+                        <div class="product-category">{{ product.price }}</div>
                       </div>
                       <a-button type="text" @click="removeProduct(product.whiteProductId)" class="remove-btn">
                         <CloseOutlined />
@@ -190,7 +190,6 @@ const handleOk = async () => {
     // 触发成功事件
     emit('success')
   } catch (error) {
-    console.error('创建任务失败:', error)
     message.error('创建任务失败，请重试')
   } finally {
     loading.value = false

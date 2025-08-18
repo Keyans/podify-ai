@@ -1,6 +1,6 @@
 import { ref, h, type Ref } from 'vue';
 import { useModalTable } from '~/composables/useModalTable'; // 确保路径正确
-import { getPodComposerTaskDetail } from '~/apis/business/pod-composer'
+import { getPodComposerTaskDetail, getPodComposerSkuList } from '~/apis/business/pod-composer'
 import StatusTag from '~/components/common/statusTag.vue';
 import CommonImage from '~/components/common/commonImage.vue';
 
@@ -24,6 +24,16 @@ export interface UseCollectorDetailModalReturn {
 
   openCollectorDetailModal: (record: any) => Promise<void>;
   modalOpen: Ref<boolean>; // 🚀 暴露 modalOpen 供 dashboard.vue 中的 v-model:open 绑定
+  
+  // SKU 详情模态框相关
+  skuDetailModalOpen: Ref<boolean>;
+  skuDetailInfo: Ref<any>;
+  skuDetailTableColumns: any[];
+  skuDetailTableData: Ref<any[]>;
+  skuDetailTableLoading: Ref<boolean>;
+  skuDetailTablePagination: Ref<any>;
+  openDetailModal: (record: any) => Promise<void>;
+  handleSkuDetailTableChange: (pagination: any, filters?: any, sorter?: any) => void;
 }
 
 export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再接收 tableModalRef
@@ -93,8 +103,142 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
 
   // 修复：声明 detailModalRef
 
+  // SKU 详情模态框状态管理
+  const skuDetailModalOpen = ref(false);
+  const skuDetailInfo = ref<any>({});
+  const skuDetailTableData = ref<any[]>([]);
+  const skuDetailTableLoading = ref(false);
+  const skuDetailTablePagination = ref({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number) => `共 ${total} 条记录`
+  });
+
+  // SKU 详情表格列定义
+  const skuDetailTableColumns = [
+    {
+      title: '序号',
+      dataIndex: 'index',
+      key: 'index',
+      width: 80,
+      customRender: ({ index }: { index: number }) => index + 1
+    },
+    {
+      title: 'SKU',
+      dataIndex: 'skuId',
+      key: 'skuId',
+      width: 150,
+      customRender: ({ record }: { record: any }) => {
+        const targetCount = record.skuTitle || '';
+        const successCount = record.skuId || 0;
+        return h('div', {}, [
+          h('div', { style: { display: 'flex', alignItems: 'center' } }, [ // 使用 flex 布局让它们在同一行
+            h('div', {}, `${targetCount}`), // targetCount 的文本
+            h(CommonImage, { src: record.skuImageUrl, alt: '主图', width: 60, height: 60, style: { marginLeft: '8px' } }) // 图片，可以加点左边距
+          ]),  
+          h('div', {}, `SKU : ${successCount}`)
+        ]);
+      }
+    },
+    {
+      title: '主图',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      width: 100,
+      customRender: ({ text }: { text: any }) => {
+        return h(CommonImage, { src: text, alt: '主图', width: 60, height: 60 });
+      }
+    },
+    {
+      title: '结果图',
+      dataIndex: 'resultsImageUrl',
+      key: 'resultsImageUrl',
+      width: 100,
+      customRender: ({ text }: { text: any }) => {
+        return h(CommonImage, { src: text, alt: '结果图', width: 60, height: 60 });
+      }
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 100,
+      customRender: ({ text }: { text: any }) => {
+        return h(StatusTag, { value: text, type: 'status' });
+      }
+    },
+    {
+      title: '生成时间',
+      dataIndex: 'createTime',
+      key: 'createTime',
+      width: 180
+    }
+  ];
+
+  // 处理 SKU 详情表格变化
+  const handleSkuDetailTableChange = (pagination: any, filters?: any, sorter?: any) => {
+    skuDetailTablePagination.value = {
+      ...skuDetailTablePagination.value,
+      current: pagination.current,
+      pageSize: pagination.pageSize
+    };
+    // 这里可以添加重新获取数据的逻辑
+    loadSkuDetailData();
+  };
+
+  // 加载 SKU 详情数据
+  const loadSkuDetailData = async () => {
+    if (!skuDetailInfo.value.composerId || !skuDetailInfo.value.taskId) return;
+    
+    skuDetailTableLoading.value = true;
+    try {
+      // 调用 pod/composer/getSkuList 接口
+      const params = {
+        taskId: skuDetailInfo.value.taskId,
+        composerId: skuDetailInfo.value.composerId,
+        page: skuDetailTablePagination.value.current,
+        limit: skuDetailTablePagination.value.pageSize
+      };
+      
+      const response = await getPodComposerSkuList(params);
+      
+      if (response.code === 200 && response.data) {
+        const skuList = response.data.composerList || response.data.list || [];
+        skuDetailTableData.value = skuList;
+        skuDetailTablePagination.value.total = response.data.total || skuList.length;
+      } else {
+        console.error('获取 SKU 详情数据失败:', response.message);
+        skuDetailTableData.value = [];
+        skuDetailTablePagination.value.total = 0;
+      }
+    } catch (error) {
+      console.error('加载 SKU 详情数据失败:', error);
+      skuDetailTableData.value = [];
+      skuDetailTablePagination.value.total = 0;
+    } finally {
+      skuDetailTableLoading.value = false;
+    }
+  };
+
+  // 打开 SKU 详情模态框
   const openDetailModal = async (record: any) => {
-      console.log(record,9999999)
+    console.log('打开 SKU 详情模态框:', record);
+    
+    // 设置 SKU 详情信息
+    skuDetailInfo.value = {
+      ...record,
+      taskId: currentCollectorId.value, // 添加 taskId 参数
+      title: `男款短袖T恤欧版 - ${record.composerId}`
+    };
+    
+    // 打开模态框
+    skuDetailModalOpen.value = true;
+    
+    // 加载 SKU 详情数据
+    await loadSkuDetailData();
   };
 
   const getSubListForTable = async (params: Record<string, any>) => {
@@ -177,7 +321,16 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     handleSubTableChange,
     onSubSelectChange,
     openCollectorDetailModal,
-    openDetailModal,
     modalOpen, // 🚀 暴露 modalOpen
+    
+    // SKU 详情模态框相关
+    skuDetailModalOpen,
+    skuDetailInfo,
+    skuDetailTableColumns,
+    skuDetailTableData,
+    skuDetailTableLoading,
+    skuDetailTablePagination,
+    openDetailModal,
+    handleSkuDetailTableChange
   };
 }
