@@ -2,6 +2,7 @@
     <div class="common-table">
       <a-spin :spinning="loading">
         <a-table
+          row-class-name="bg-dark-card border-dark-border text-dark-text-secondary"
           ref="tableRef"
           :columns="processedColumns"
           :data-source="dataSource"
@@ -92,14 +93,36 @@
   // 行选择状态
   const selectedRowKeys = ref<(string | number)[]>([])
   
+
   // 处理后的列配置
-  const processedColumns = computed(() => {
-    return props.columns.map(column => {
-      // 可以在这里添加列的统一处理逻辑
-      return column
-    })
-  })
-  
+ const processedColumns = computed(() => {
+  return props.columns.map(column => {
+    // 在这里添加列的统一处理逻辑
+    const processedColumn = { ...column };
+    
+    // 如果列本身已经有 customHeaderCell，保留并扩展它
+    const existingCustomHeaderCell = column.customHeaderCell;
+    
+    processedColumn.customHeaderCell = (col) => {
+      // 获取原有的 customHeaderCell 配置（如果有的话）
+      const existingConfig = typeof existingCustomHeaderCell === 'function' 
+        ? existingCustomHeaderCell(col) 
+        : {};
+      // 返回合并后的配置
+      return {
+        ...existingConfig,
+        style: {
+          ...(existingConfig.style || {}),
+          // 关键样式使用内联方式确保优先级
+          backgroundColor: 'var(--bg-primary)',
+          borderColor: 'var(--bg-primary)',
+          color: 'var(--text-primary)'
+        },
+      };
+    };
+    return processedColumn;
+  });
+});
   // 合并分页配置
   const mergedPagination = computed(() => {
     if (props.pagination === false) return false
@@ -180,4 +203,15 @@
     margin-top: 16px;
     margin-bottom: 0;
   }
-  </style>
+ /* 深色主题表格hover样式 */
+::deep(.ant-table-row:hover .ant-table-cell) {
+  background-color: var(--bg-primary); /* Example background color */
+}
+
+/* Or, more specifically targeting the hover class if needed for complex scenarios */
+::deep(.ant-table-row-hover .ant-table-cell) {
+  /* This class is applied to the row itself, not directly to the cell,
+     but it can be used in conjunction with the cell selector */
+  background-color: var(--bg-primary); /* Another example */
+}
+</style>

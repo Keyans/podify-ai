@@ -104,6 +104,19 @@ html {
   animation: gradientFlow 6s ease infinite;
 }
 
+
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: var(--bg-primary);
+}
+
+.ant-table-wrapper .ant-table-tbody >tr >td.ant-table-cell-row-hover {
+  background-color: var(--bg-primary);
+}
+
+.ant-table-selection-column{
+  background-color: var(--bg-primary) !important;
+}
+
 /* 科技感光效动画 */
 @keyframes techGlow {
   0%, 100% {

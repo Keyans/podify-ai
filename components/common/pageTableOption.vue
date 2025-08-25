@@ -1,6 +1,6 @@
 <template>
     <div class="flex items-center">
-        <a-button @click="handleDetail(record)">查看详情</a-button>
+        <a-button type="link" @click="handleDetail(record)">查看详情</a-button>
         <button 
             @click="handleMore(record)"
             class="inline-flex items-center text-sm relative ml-2 cursor-pointer"

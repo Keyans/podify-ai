@@ -7,7 +7,7 @@ const envConfig = getEnvironmentConfig(process.env.NUXT_ENV)
 
 function proxy() {
   //let targetTest = "https://cuz-ai.riin.com"; //测试环境
-  let devTarget = "http://192.168.1.151:30884"; //dev 环境
+  let devTarget = "http://192.168.1.151:30882"; //dev 环境
   //let devTarget = "http://10.120.22.134:8080"; //hzh本地
   return {
     "/pod": {
