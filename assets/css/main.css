@@ -2,6 +2,282 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 导入暗色主题选中状态修复 */
+@import './theme-selected-fix.css';
+
+/* ===== 选中状态文字可见性修复 ===== */
+
+/* 全局选中状态修复 - 确保在所有主题下文字都可见 */
+.selected-state,
+.active-state,
+[class*="bg-blue-"][class*="text-"],
+[class*="bg-cyan-"][class*="text-"] {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* 特别针对你提到的问题：确保选中状态下的文字可见 */
+.bg-blue-600,
+.bg-cyan-400,
+.bg-blue-500,
+.bg-cyan-500 {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+}
+
+/* 修复所有可能的选中状态组合 */
+.bg-blue-600.text-white,
+.bg-blue-600.text-dark-bg,
+.bg-cyan-400.text-white,
+.bg-cyan-400.text-dark-bg {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+}
+
+/* 确保悬停状态也有良好的对比度 */
+.bg-blue-600:hover,
+.bg-cyan-400:hover {
+  background-color: var(--accent-hover) !important;
+  color: white !important;
+}
+
+/* 解决半透明背景的文字可见性问题 */
+.bg-cyan-400\/10 {
+  background-color: rgba(var(--accent-color-rgb, 34, 211, 238), 0.15) !important;
+}
+
+.bg-blue-600\/10 {
+  background-color: rgba(var(--accent-color-rgb, 34, 211, 238), 0.15) !important;
+}
+
+/* 文字颜色的统一修复 */
+.text-cyan-400,
+.text-blue-600,
+.text-blue-500 {
+  color: var(--accent-color) !important;
+}
+
+/* 针对具体的选中状态按钮修复 */
+button[class*="bg-blue-"],
+button[class*="bg-cyan-"] {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* 输入框选中状态修复 */
+input:checked,
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* 确保在 Tailwind 类之后应用 */
+.text-blue-600,
+.text-cyan-400 {
+  color: var(--accent-color) !important;
+}
+
+/* ===== 特别针对 Ant Design Vue Select 下拉选项的修复 ===== */
+
+/* 修复你提到的特定问题：白色背景改为主题背景 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 通用的 Ant Design Vue Select 下拉选项修复 */
+.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 确保下拉菜单背景正确 */
+.ant-select-dropdown {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* 下拉选项默认样式 */
+.ant-select-dropdown .ant-select-item {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+/* 下拉选项悬停样式 */
+.ant-select-dropdown .ant-select-item:hover:not(.ant-select-item-option-disabled) {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 下拉选项激活样式 */
+.ant-select-dropdown .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== Ant Design Vue Cascader 级联选择器修复 ===== */
+
+/* Cascader 下拉面板背景 */
+.ant-cascader-dropdown {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Cascader 菜单背景 */
+.ant-cascader-menu {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Cascader 菜单项默认样式 */
+.ant-cascader-menu-item {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+/* Cascader 菜单项悬停状态 */
+.ant-cascader-menu-item:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Cascader 菜单项选中状态 - 解决你提到的白色背景问题 */
+.ant-cascader-menu-item-active {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+.ant-cascader-menu-item-selected {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* Cascader 特定 CSS 类名修复 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-cascader-dropdown .ant-cascader-menu-item-active {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+:where(.css-dev-only-do-not-override-1onovbn).ant-cascader-dropdown .ant-cascader-menu-item-selected {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* Cascader 展开图标样式 */
+.ant-cascader-menu-item-expand-icon {
+  color: var(--text-secondary) !important;
+}
+
+.ant-cascader-menu-item-active .ant-cascader-menu-item-expand-icon {
+  color: var(--accent-color) !important;
+}
+
+/* 使用 ::deep() 选择器确保样式穿透 */
+::deep(.ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled)) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+::deep(.ant-select-dropdown .ant-select-item:hover:not(.ant-select-item-option-disabled)) {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Cascader ::deep() 修复 */
+::deep(.ant-cascader-dropdown .ant-cascader-menu-item-active) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+::deep(.ant-cascader-dropdown .ant-cascader-menu-item-selected) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+::deep(.ant-cascader-dropdown .ant-cascader-menu-item:hover) {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+::deep(.ant-cascader-dropdown) {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+::deep(.ant-cascader-menu) {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+::deep(.ant-cascader-menu-item) {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+/* 额外的 Cascader 样式修复 - 确保所有状态都被正确覆盖 */
+.ant-cascader-dropdown .ant-cascader-menu-item-active:not(.ant-cascader-menu-item-disabled) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+.ant-cascader-dropdown .ant-cascader-menu-item-selected:not(.ant-cascader-menu-item-disabled) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 针对可能的嵌套样式结构 */
+[data-theme="dark"] .ant-cascader-dropdown .ant-cascader-menu-item-active {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[data-theme="dark"] .ant-cascader-dropdown .ant-cascader-menu-item-selected {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 使用属性选择器确保覆盖所有可能的样式 */
+*[class*="ant-cascader-menu-item-active"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+*[class*="ant-cascader-menu-item-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+::deep(.ant-cascader-dropdown .ant-cascader-menu-item:hover) {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 高优先级修复 - 确保覆盖所有可能的样式 */
+.ant-select-dropdown .ant-select-item-option[aria-selected="true"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+.ant-cascader-dropdown .ant-cascader-menu-item[aria-selected="true"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 全局属性选择器修复 */
+[class*="ant-cascader-dropdown"] [class*="ant-cascader-menu-item-active"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[class*="ant-cascader-dropdown"] [class*="ant-cascader-menu-item-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
 /* 科技感主题 - 与蓝色logo统一 */
 :root {
   /* 主要背景色 */
@@ -81,6 +357,42 @@ body {
   color: var(--text-primary);
 }
 
+/* 全局强制样式修复 - 确保 Ant Design Vue 组件正确显示 */
+* {
+  /* 修复所有可能的 Ant Design Vue 下拉选项选中状态 */
+}
+
+[class*="ant-select-dropdown"] [class*="ant-select-item-option-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[class*="css-dev-only-do-not-override"] [class*="ant-select-item-option-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* Cascader 级联选择器全局强制修复 */
+[class*="ant-cascader-dropdown"] [class*="ant-cascader-menu-item-active"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[class*="ant-cascader-dropdown"] [class*="ant-cascader-menu-item-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[class*="css-dev-only-do-not-override"] [class*="ant-cascader-menu-item-active"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[class*="css-dev-only-do-not-override"] [class*="ant-cascader-menu-item-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
 /* 平滑滚动 */
 html {
   scroll-behavior: smooth;
@@ -104,18 +416,21 @@ html {
   animation: gradientFlow 6s ease infinite;
 }
 
+/* ==================================
+   Ant Design Vue 主题相关样式
+   注意：大部分样式现在通过 ThemeProvider 和 ConfigProvider 处理
+   这里只保留一些特殊的自定义样式覆盖
+   ================================== */
 
-.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td {
-  background-color: var(--bg-primary);
-}
+/* 表格行悬停效果 - 特殊需求，保留覆盖 */
 
-.ant-table-wrapper .ant-table-tbody >tr >td.ant-table-cell-row-hover {
-  background-color: var(--bg-primary);
-}
-
-.ant-table-selection-column{
-  background-color: var(--bg-primary) !important;
-}
+/* 注意：以下样式现在主要通过 ThemeProvider 的 token 系统处理：
+   - colorPrimary (主色)
+   - colorBgContainer (背景色)
+   - colorText (文字色)
+   - colorBorder (边框色)
+   - borderRadius (圆角)
+   如需覆盖，建议优先在 ThemeProvider 中配置 */
 
 /* 科技感光效动画 */
 @keyframes techGlow {

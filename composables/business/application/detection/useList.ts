@@ -67,7 +67,7 @@ export function useList() {
   ];
 
   const searchFields = [
-    { key: 'operator', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
+    { key: 'operator', component: 'a-input', props: { placeholder: '创建人ID', allowClear: true } },
     { key: 'taskNo', component: 'a-input', props: { placeholder: '检测ID', allowClear: true } },
     {
       key: 'status',

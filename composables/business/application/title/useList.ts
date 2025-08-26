@@ -9,7 +9,7 @@ export function useList() {
   const initialPageSearchParams = {
     userId: '',
     taskId: '',
-    status: '',
+    status: null,
     startTime: '',
     endTime: '',
   };
@@ -50,13 +50,13 @@ export function useList() {
   ];
 
   const searchFields = [
-    { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
-    { key: 'taskId', component: 'a-input', props: { placeholder: '截图ID', allowClear: true } },
+    { key: 'userId', component: 'a-input', props: { placeholder: '创建人ID', allowClear: true } },
+    { key: 'taskId', component: 'a-input', props: { placeholder: '生成ID', allowClear: true } },
     {
       key: 'status',
       component: 'a-select',
       props: {
-        placeholder: '截图状态',
+        placeholder: '生成状态',
         allowClear: true,
         options: [
           { label: '待执行', value: 0 },

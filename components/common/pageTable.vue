@@ -203,15 +203,4 @@
     margin-top: 16px;
     margin-bottom: 0;
   }
- /* 深色主题表格hover样式 */
-::deep(.ant-table-row:hover .ant-table-cell) {
-  background-color: var(--bg-primary); /* Example background color */
-}
-
-/* Or, more specifically targeting the hover class if needed for complex scenarios */
-::deep(.ant-table-row-hover .ant-table-cell) {
-  /* This class is applied to the row itself, not directly to the cell,
-     but it can be used in conjunction with the cell selector */
-  background-color: var(--bg-primary); /* Another example */
-}
 </style>

@@ -51,7 +51,7 @@ export function useList() {
   ];
 
   const searchFields = [
-    { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
+    { key: 'userId', component: 'a-input', props: { placeholder: '创建人ID', allowClear: true } },
     { key: 'taskId', component: 'a-input', props: { placeholder: '生图ID', allowClear: true } },
     {
       key: 'status',

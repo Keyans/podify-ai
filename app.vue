@@ -1,11 +1,13 @@
 <template>
   <div class="app">
-    <NuxtLayout>
-    <NuxtPage />
-    </NuxtLayout>
-    
-    <!-- 全局图片查看器 -->
-    <ImageViewer />
+    <ThemeProvider>
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+      
+      <!-- 全局图片查看器 -->
+      <ImageViewer />
+    </ThemeProvider>
   </div>
 </template>
 

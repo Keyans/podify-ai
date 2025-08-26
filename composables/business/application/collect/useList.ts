@@ -9,7 +9,7 @@ export function useList() {
   const initialPageSearchParams = {
     userId: '',
     taskId: '',
-    collectorPlatform: '',
+    collectorPlatform: null,
     collectorStatus: '',
     startTime: '',
     endTime: '',
@@ -67,7 +67,7 @@ export function useList() {
   ];
 
   const searchFields = [
-    { key: 'userId', component: 'a-input', props: { placeholder: '创建人Id', allowClear: true } },
+    { key: 'userId', component: 'a-input', props: { placeholder: '创建人ID', allowClear: true } },
     { key: 'taskId', component: 'a-input', props: { placeholder: '采集ID', allowClear: true } },
     {
       key: 'collectorPlatform',
@@ -79,7 +79,7 @@ export function useList() {
           { label: 'TEMU', value: 1 },
           { label: '亚马逊', value: 2 },
           { label: 'Shein', value: 3 }
-        ]
+        ],
       }
     },
     {

@@ -33,12 +33,9 @@
               <div class="product-area" :class="{ 'has-products': selectedProducts.length > 0 }">
                 <div v-if="selectedProducts.length === 0" class="empty-state">
                   <div class="select-btn-wrapper">
-                    <a-button type="primary" @click="handleSelectProducts" class="select-product-btn">
+                    <a-button  @click="handleSelectProducts" class="select-product-btn">
                       选择商品
                     </a-button>
-                    <div class="progress-wrapper">
-                      <a-progress :percent="0" :show-info="false" stroke-color="#ff6b35" />
-                    </div>
                   </div>
                   <p class="select-tip">点击选择商品</p>
                 </div>
@@ -52,7 +49,7 @@
                       <img :src="product.imageUrl" :alt="product.title" class="product-image" />
                       <div class="product-info">
                         <div class="product-name">{{ product.title }}</div>
-                        <div class="product-category">{{ product.price }}</div>
+                        <div class="product-category">{{ product.categoryName }}</div>
                       </div>
                       <a-button type="text" @click="removeProduct(product.whiteProductId)" class="remove-btn">
                         <CloseOutlined />
@@ -68,7 +65,7 @@
       <template #footer>
         <div class="modal-footer">
           <a-button @click="handleCancel">取消</a-button>
-          <a-button type="primary" @click="handleOk" :loading="loading">
+          <a-button @click="handleOk" :loading="loading">
             提交任务
           </a-button>
         </div>
@@ -222,22 +219,30 @@ const handleCancel = () => {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  color: #262626;
+  color: var(--text-primary);
 }
 
 .preset-btn {
   padding: 0;
-  color: #ff6b35;
+  color: var(--accent-color);
   font-size: 14px;
 }
 
 .preset-btn:hover {
-  color: #ff8c69;
+  color: var(--accent-hover);
 }
 
 .rule-textarea {
   margin-bottom: 8px;
   border-radius: 6px;
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.rule-textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2);
 }
 
 .tip-text {
@@ -252,21 +257,21 @@ const handleCancel = () => {
 
 .product-area {
   min-height: 200px;
-  border: 2px dashed #d9d9d9;
+  border: 2px dashed var(--border-color);
   border-radius: 6px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #fafafa;
+  background-color: var(--bg-tertiary);
   transition: all 0.3s ease;
 }
 
 .product-area.has-products {
-  background-color: #fff;
+  background-color: var(--bg-secondary);
   border-style: solid;
-  border-color: #d9d9d9;
+  border-color: var(--border-color);
   align-items: stretch;
   justify-content: flex-start;
   padding: 16px;
@@ -286,6 +291,15 @@ const handleCancel = () => {
   height: 40px;
   padding: 0 24px;
   border-radius: 6px;
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+}
+
+.select-product-btn:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
 }
 
 .progress-wrapper {
@@ -293,9 +307,14 @@ const handleCancel = () => {
   margin: 0 auto;
 }
 
+/* 进度条样式修复 */
+.progress-wrapper :deep(.ant-progress-bg) {
+  background-color: var(--accent-color) !important;
+}
+
 .select-tip {
   margin: 0;
-  color: #8c8c8c;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -309,7 +328,12 @@ const handleCancel = () => {
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.products-header a-button {
+  color: var(--accent-color);
 }
 
 .products-list {
@@ -322,9 +346,9 @@ const handleCancel = () => {
   display: flex;
   align-items: center;
   padding: 12px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  background-color: #fafafa;
+  background-color: var(--bg-tertiary);
 }
 
 .product-image {
@@ -341,25 +365,25 @@ const handleCancel = () => {
 
 .product-name {
   font-size: 14px;
-  color: #262626;
+  color: var(--text-primary);
   margin-bottom: 4px;
   font-weight: 500;
 }
 
 .product-category {
   font-size: 12px;
-  color: #8c8c8c;
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
 .remove-btn {
-  color: #8c8c8c;
+  color: var(--text-secondary);
   padding: 4px;
 }
 
 .remove-btn:hover {
   color: #ff4d4f;
-  background-color: #fff2f0;
+  background-color: rgba(255, 77, 79, 0.1);
 }
 
 .modal-footer {
@@ -367,7 +391,7 @@ const handleCancel = () => {
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 0 0;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-color);
 }
 
 .modal-footer .ant-btn {
@@ -376,14 +400,105 @@ const handleCancel = () => {
   border-radius: 6px;
 }
 
+/* 取消按钮样式 */
+.modal-footer .ant-btn:not(.ant-btn-primary) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.modal-footer .ant-btn:not(.ant-btn-primary):hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+/* 主要按钮样式 */
 .modal-footer .ant-btn-primary {
-  background-color: #ff6b35;
-  border-color: #ff6b35;
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
 }
 
 .modal-footer .ant-btn-primary:hover {
-  background-color: #ff8c69;
-  border-color: #ff8c69;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: white;
+}
+
+.modal-footer .ant-btn-primary:disabled {
+  background-color: var(--text-tertiary);
+  border-color: var(--text-tertiary);
+  color: var(--text-secondary);
+}
+
+/* 弹窗暗色主题适配 */
+:deep(.ant-modal-content) {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+:deep(.ant-modal-header) {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+:deep(.ant-modal-title) {
+  color: var(--text-primary);
+}
+
+:deep(.ant-modal-body) {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+:deep(.ant-modal-footer) {
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* 输入框暗色主题适配 */
+:deep(.ant-input) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+:deep(.ant-input:focus) {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2);
+}
+
+:deep(.ant-input::placeholder) {
+  color: var(--text-tertiary);
+}
+
+/* 按钮链接样式修复 */
+:deep(.ant-btn-link) {
+  color: var(--accent-color);
+}
+
+:deep(.ant-btn-link:hover) {
+  color: var(--accent-hover);
+}
+
+/* 图标颜色修复 */
+:deep(.anticon) {
+  color: inherit;
+}
+
+/* 进度条样式修复 */
+:deep(.ant-progress-outer) {
+  background-color: var(--bg-primary);
+}
+
+:deep(.ant-progress-inner) {
+  background-color: var(--bg-primary);
+}
+
+/* Typography 文字颜色修复 */
+:deep(.ant-typography) {
+  color: var(--text-secondary);
 }
 </style>
 

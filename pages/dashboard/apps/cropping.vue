@@ -1,9 +1,9 @@
 <template>
   <div>
-    <a-card class="ml-10 mr-10 mt-4 border-dark-border bg-dark-bg">
+    <a-card class="ml-10 mr-10 mt-4">
       <PageTitle :totalList="statsData" />
     </a-card>
-    <a-card class="ml-10 mr-10 mt-4 border-dark-border bg-dark-bg">
+    <a-card class="ml-10 mr-10 mt-4">
       <PageSearch
         v-model="searchParams"
         :fields="searchFields"
@@ -17,7 +17,7 @@
         </template>
       </PageSearch>
     </a-card>
-    <a-card class="ml-10 mr-10 mt-4 border-dark-border bg-dark-bg">
+    <a-card class="ml-10 mr-10 mt-4">
       <PageTable
         :columns="tableColumns"
         :data-source="tableData"
