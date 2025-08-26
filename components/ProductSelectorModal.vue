@@ -22,10 +22,8 @@
       </div>
 
       <!-- 选项卡和产品列表区域 -->
-      <div class="overflow-y-auto" style="max-height: 400px;">
-        <a-tabs v-model:activeKey="activeTab" @change="switchTab" class="px-4">
-          <a-tab-pane key="official" tab="官方白品">
-            <a-list
+      <div class="overflow-y-auto py-10" style="max-height: 400px;">
+              <a-list
               :data-source="paginatedProducts"
               :grid="{ gutter: 16, column: 4 }"
               class="product-list"
@@ -35,22 +33,23 @@
                   <div 
                     @click="toggleProduct(product)"
                     class="relative group cursor-pointer border rounded-lg overflow-hidden transition-all"
-                    :class="selectedProductIds.includes(product.whiteProductId) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
+                    :class="selectedProductIds.includes(product.podProductId) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
                   >
                     <commonImage
                       :src="product.imageUrl" 
                       :alt="product.title"
-                      width="100%"
-                      height="100%"
+                      width="224px"
+                      height="224px"
                       :preview="false"
                     />
                     <div class="p-3">
                       <div class="font-medium text-sm text-dark-text truncate">{{ product.title }}</div>
-                      <div class="text-xs text-dark-text-secondary">{{ product.price }}</div>
+                      <div class="text-xs text-dark-text-secondary">价格：{{ product.price }}</div>
+                      <div class="text-xs text-dark-text-secondary">工艺：{{ product.craftsmanshipList.join(',') }}</div>
                     </div>
                     
                     <!-- 选中标记 -->
-                    <div v-if="selectedProductIds.includes(product.whiteProductId)" class="absolute top-2 right-2">
+                    <div v-if="selectedProductIds.includes(product.podProductId)" class="absolute top-2 right-2">
                       <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -71,57 +70,7 @@
                 </div>
               </template>
             </a-list>
-          </a-tab-pane>
-          
-          <a-tab-pane key="self" tab="自有白品">
-            <a-list
-              :data-source="paginatedProducts"
-              :grid="{ gutter: 16, column: 4 }"
-              class="product-list"
-            >
-              <template #renderItem="{ item: product }">
-                <a-list-item>
-                  <div 
-                    @click="toggleProduct(product)"
-                    class="relative group cursor-pointer border rounded-lg overflow-hidden transition-all"
-                    :class="selectedProductIds.includes(product.whiteProductId) ? 'border-blue-500 ring-2 ring-blue-500' : 'border-dark-border hover:border-blue-400'"
-                  >
-                    <commonImage
-                      :src="product.imageUrl" 
-                      :alt="product.title"
-                      width="100%"
-                      height="100%"
-                      :preview="false"
-                    />
-                    <div class="p-3">
-                      <div class="font-medium text-sm text-dark-text truncate">{{ product.title }}</div>
-                      <div class="text-xs text-dark-text-secondary">{{ product.price }}</div>
-                    </div>
-                    
-                    <!-- 选中标记 -->
-                    <div v-if="selectedProductIds.includes(product.whiteProductId)" class="absolute top-2 right-2">
-                      <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </a-list-item>
-              </template>
-              
-              <!-- 无数据提示 -->
-              <template #empty>
-                <div class="text-center py-8 text-dark-text-secondary">
-                  <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                  </svg>
-                  <p>没有找到相关产品</p>
-                </div>
-              </template>
-            </a-list>
-          </a-tab-pane>
-        </a-tabs>
+
       </div>
 
       <!-- 分页区域 -->
@@ -186,8 +135,9 @@
 </template>
 
 <script setup>
-import { ref, computed, defineProps, defineEmits, watch, onMounted } from 'vue'
-import { getWhiteProductList,getOfficialCategoryAll,getProductList } from '~/apis/business/white'
+import { ref, computed, defineProps, defineEmits, watch,onMounted } from 'vue'
+import { getPodProductList } from '~/apis/business/pod-product'
+
 import pageSearch from '~/components/common/pageSearch.vue'
 import commonImage from '~/components/common/commonImage.vue'
 
@@ -202,14 +152,6 @@ const props = defineProps({
   }
 })
 
-onMounted(() => {
-  getOfficialCategoryList()
-})
-
-const getOfficialCategoryList= async()=>{
-  const res = await getOfficialCategoryAll({})
-  searchFields.value[1].props.options = res.data.categoryList
-}
 const emits = defineEmits(['update:open', 'confirm'])
 
 // 处理 a-modal 的双向绑定
@@ -234,17 +176,6 @@ const searchFields = ref([
       placeholder: '请输入产品名称'
     }
   },
-  {
-    key: 'categoryId',
-    label: '产品分类',
-    component: 'a-cascader',
-    props: {
-      placeholder: '请选择分类',
-      options: [],
-      fieldNames: { label: 'categoryName', value: 'categoryId', children: 'categoryList' },
-      style:{ width: '150px' }
-    }
-  }
 ])
 
 // 选中的产品ID列表
@@ -256,12 +187,14 @@ const pagination = ref({
   pageSize: 8
 })
 
-// 当前来源
-const activeTab = ref('official') // official: 官方白品, self: 自有白品
-
 // 产品数据
 const allProducts = ref([])
 const total = ref(0)
+
+
+onMounted(()=>{
+  fetchList()
+})
 
 // 筛选后的产品
 const filteredProducts = computed(() => {
@@ -325,18 +258,18 @@ const goToPage = async (page) => {
 
 // 切换产品选择
 const toggleProduct = (product) => {
-  const index = selectedProductIds.value.indexOf(product.whiteProductId)
+  const index = selectedProductIds.value.indexOf(product.podProductId)
   if (index > -1) {
     selectedProductIds.value.splice(index, 1)
   } else {
-    selectedProductIds.value.push(product.whiteProductId)
+    selectedProductIds.value.push(product.podProductId)
   }
 }
 
 // 确认选择
 const confirmSelection = () => {
   const selectedProducts = allProducts.value.filter(product => 
-    selectedProductIds.value.includes(product.whiteProductId)
+    selectedProductIds.value.includes(product.podProductId)
   )
   emits('confirm', selectedProducts)
   emits('update:open', false)
@@ -363,7 +296,7 @@ watch(() => props.open, (newVal) => {
     resetState()
     // 处理初始选中的产品
     if (props.initialSelectedProducts && props.initialSelectedProducts.length > 0) {
-      selectedProductIds.value = props.initialSelectedProducts.map(product => product.whiteProductId)
+      selectedProductIds.value = props.initialSelectedProducts.map(product => product.podProductId)
     }
     fetchList()
   }
@@ -371,7 +304,6 @@ watch(() => props.open, (newVal) => {
 
 // API：根据来源与分页获取数据
 const fetchList = async () => {
-  const func = activeTab.value === 'official' ? getWhiteProductList : getProductList
   try {
     const query = {
       page: pagination.value.currentPage,
@@ -379,8 +311,8 @@ const fetchList = async () => {
       title: searchFormData.value.title || '',
       categoryId: searchFormData.value.categoryId?.at(-1) || '',
     }
-    const res = await func(query)
-    const list = res?.data?.whiteProductList || res?.data || []
+    const res = await getPodProductList(query)
+    const list = res?.data?.productList || res?.data || []
     total.value = res?.data?.total || list.length
     allProducts.value = list
   } catch (e) {
@@ -390,13 +322,4 @@ const fetchList = async () => {
   }
 }
 
-
-
-const switchTab = async (tab) => {
-  activeTab.value = tab
-  pagination.value.currentPage = 1
-  await fetchList()
-}
-
-// 移除onMounted中的fetchList调用，只在弹窗打开时才加载数据
 </script>

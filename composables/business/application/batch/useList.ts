@@ -9,7 +9,7 @@ export function useList() {
   const initialPageSearchParams = {
     userId: '',
     taskId: '',
-    status: '',
+    status: null,
     startTime: '',
     endTime: '',
   };

@@ -45,13 +45,14 @@
                     <a-button type="link" @click="handleSelectProducts">重新选择</a-button>
                   </div>
                   <div class="products-list">
-                    <div v-for="product in selectedProducts" :key="product.whiteProductId" class="product-item">
+                    <div v-for="product in selectedProducts" :key="product.podProductId" class="product-item">
                       <img :src="product.imageUrl" :alt="product.title" class="product-image" />
                       <div class="product-info">
                         <div class="product-name">{{ product.title }}</div>
-                        <div class="product-category">{{ product.categoryName }}</div>
+                        <div class="product-category">价格:{{ product.price }}</div>
+                        <div class="product-category">工艺:{{ product.craftsmanshipList.join(',')  }}</div>
                       </div>
-                      <a-button type="text" @click="removeProduct(product.whiteProductId)" class="remove-btn">
+                      <a-button type="text" @click="removeProduct(product.podProductId)" class="remove-btn">
                         <CloseOutlined />
                       </a-button>
                     </div>
@@ -92,10 +93,11 @@ interface Props {
 }
 
 interface Product {
-  whiteProductId: string
+  podProductId: string
   title: string
-  categoryName: string
+  craftsmanshipList: any[]
   imageUrl: string
+  price:string
 }
 
 const props = defineProps<Props>()
@@ -148,7 +150,7 @@ const handleProductSelectorConfirm = (products: any[]) => {
 
 // 移除商品
 const removeProduct = (productId: string) => {
-  selectedProducts.value = selectedProducts.value.filter(p => p.whiteProductId !== productId)
+  selectedProducts.value = selectedProducts.value.filter(p => p.podProductId !== productId)
 }
 
 // 表单验证
@@ -176,7 +178,7 @@ const handleOk = async () => {
     // 调用创建标题生成任务的接口
     await createTitleGeneratorTask({
       generatorRule: formData.generatorRule,
-      podProductIdList: selectedProducts.value.map(p => p.whiteProductId)
+      podProductIdList: selectedProducts.value.map(p => p.podProductId)
     })
     
     message.success('任务创建成功')
