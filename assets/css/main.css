@@ -763,3 +763,401 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
+
+/* ===== Ant Design Vue DatePicker & TimePicker 日期时间选择器修复 ===== */
+
+/* DatePicker 下拉面板背景 */
+.ant-picker-dropdown {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* DatePicker 面板背景 */
+.ant-picker-panel {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* DatePicker 面板头部 */
+.ant-picker-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* DatePicker 头部按钮 */
+.ant-picker-header-view {
+  color: var(--text-primary) !important;
+}
+
+.ant-picker-header-view:hover {
+  color: var(--accent-color) !important;
+}
+
+/* DatePicker 年月切换按钮 */
+.ant-picker-header-prev-btn,
+.ant-picker-header-next-btn,
+.ant-picker-header-super-prev-btn,
+.ant-picker-header-super-next-btn {
+  color: var(--text-secondary) !important;
+}
+
+.ant-picker-header-prev-btn:hover,
+.ant-picker-header-next-btn:hover,
+.ant-picker-header-super-prev-btn:hover,
+.ant-picker-header-super-next-btn:hover {
+  color: var(--accent-color) !important;
+}
+
+/* DatePicker 面板主体 */
+.ant-picker-body {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* DatePicker 日期单元格默认样式 */
+.ant-picker-cell {
+  color: var(--text-primary) !important;
+}
+
+.ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* DatePicker 日期单元格内容 */
+.ant-picker-cell-inner {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+/* DatePicker 选中状态 - 解决您提到的蓝色背景问题 */
+.ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* DatePicker 今天日期 */
+.ant-picker-cell-today .ant-picker-cell-inner {
+  border-color: var(--accent-color) !important;
+  color: var(--accent-color) !important;
+}
+
+/* DatePicker 今天且选中状态 */
+.ant-picker-cell-today.ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* DatePicker 范围选择 */
+.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-range-end .ant-picker-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+.ant-picker-cell-in-range .ant-picker-cell-inner {
+  background-color: rgba(var(--accent-color-rgb, 34, 211, 238), 0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+/* DatePicker 禁用日期 */
+.ant-picker-cell-disabled .ant-picker-cell-inner {
+  color: var(--text-tertiary) !important;
+  background-color: transparent !important;
+}
+
+/* DatePicker 其他月份日期 */
+.ant-picker-cell-other-month .ant-picker-cell-inner {
+  color: var(--text-tertiary) !important;
+}
+
+/* TimePicker 时间列表 */
+.ant-picker-time-panel {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.ant-picker-time-panel-column {
+  border-color: var(--border-color) !important;
+}
+
+/* TimePicker 时间选项 */
+.ant-picker-time-panel-cell {
+  color: var(--text-primary) !important;
+}
+
+.ant-picker-time-panel-cell:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* TimePicker 选中时间 - 与DatePicker保持一致 */
+.ant-picker-time-panel-cell-selected {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* DatePicker 输入框样式 */
+.ant-picker {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-picker:hover {
+  border-color: var(--accent-color) !important;
+}
+
+.ant-picker-focused {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+}
+
+/* DatePicker 输入框占位符 */
+.ant-picker-input > input::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* DatePicker 清除按钮 */
+.ant-picker-clear {
+  color: var(--text-secondary) !important;
+}
+
+.ant-picker-clear:hover {
+  color: var(--text-primary) !important;
+}
+
+/* DatePicker 分隔符 */
+.ant-picker-separator {
+  color: var(--text-secondary) !important;
+}
+
+/* DatePicker 底部按钮区域 */
+.ant-picker-footer {
+  background-color: var(--bg-secondary) !important;
+  border-top-color: var(--border-color) !important;
+}
+
+.ant-picker-footer-extra {
+  color: var(--text-primary) !important;
+}
+
+/* DatePicker 现在按钮 */
+.ant-picker-now-btn {
+  color: var(--accent-color) !important;
+}
+
+.ant-picker-now-btn:hover {
+  color: var(--accent-hover) !important;
+}
+
+/* DatePicker 确定按钮 */
+.ant-picker-ok {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+}
+
+.ant-picker-ok:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+}
+
+/* ===== DatePicker 确定按钮白色边框修复 ===== */
+
+/* 修复确定按钮的白色边框问题 */
+.ant-picker-footer .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+.ant-picker-footer .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+.ant-picker-footer .ant-btn-primary:focus {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+}
+
+.ant-picker-footer .ant-btn-primary:active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+/* 特定CSS类名修复 - 确保覆盖所有可能的样式 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-footer .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-footer .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+/* 深度选择器修复 */
+::deep(.ant-picker-footer .ant-btn-primary) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+::deep(.ant-picker-footer .ant-btn-primary:hover) {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+/* 通用按钮边框修复 - 防止其他类似问题 */
+.ant-picker .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+.ant-picker .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+/* 确保所有主要按钮在DatePicker中的一致性 */
+*[class*="ant-picker"] .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+*[class*="ant-picker"] .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+/* 特定CSS类名修复 - 确保覆盖所有可能的样式 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-dropdown .ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-time-panel-cell-selected {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 深度选择器修复 */
+::deep(.ant-picker-dropdown .ant-picker-cell-selected .ant-picker-cell-inner) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+::deep(.ant-picker-time-panel-cell-selected) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 额外的属性选择器修复 - 确保所有状态都被正确覆盖 */
+*[class*="ant-picker-cell-selected"] .ant-picker-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+*[class*="ant-picker-time-panel-cell-selected"] {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 主题数据属性修复 */
+[data-theme="dark"] .ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+[data-theme="dark"] .ant-picker-time-panel-cell-selected {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+}
+
+/* ===== 特定TimePicker选择器修复 - 解决#f0fffe固定背景色问题 ===== */
+
+/* 针对您提到的具体选择器修复 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-dropdown .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+}
+
+/* TimePicker选中项的其他可能选择器 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+}
+
+/* 全局TimePicker选中项修复 - 覆盖所有可能的固定背景色 */
+.ant-picker-dropdown .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+}
+
+/* TimePicker选中项悬停状态 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-picker-dropdown .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected:hover .ant-picker-time-panel-cell-inner {
+  background-color: var(--accent-color) !important;
+  color: white !important;
+  border: 1px solid var(--accent-color) !important;
+}
+
+/* 确保TimePicker选中项在所有主题下都有正确的对比度 */
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+  font-weight: 500 !important;
+}
+
+/* 属性选择器修复 - 确保覆盖所有可能的样式变体 */
+*[class*="ant-picker-time-panel-cell-selected"] .ant-picker-time-panel-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+}
+
+/* 深度选择器修复 */
+::deep(.ant-picker-dropdown .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner) {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--accent-color) !important;
+}
+
+/* 针对可能的其他变体选择器 */
+.ant-picker-dropdown .ant-picker-time-panel-cell-selected,
+.ant-picker-dropdown .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner,
+.ant-picker-time-panel .ant-picker-time-panel-cell-selected,
+.ant-picker-time-panel .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background-color: var(--bg-primary) !important;
+  color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
