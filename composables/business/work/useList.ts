@@ -23,9 +23,9 @@ export function useList() {
   ]);
 
   const tableColumns = [
-    { title: '工作流ID', dataIndex: 'workflowId' },
-    { title: '工作流名称', dataIndex: 'workflowName' },
-    { title: '工作流流程', dataIndex: 'taskList', width: 600,
+    { title: '工作流ID', dataIndex: 'workflowId', key: 'workflowId' },
+    { title: '工作流名称', dataIndex: 'workflowName', key: 'workflowName' },
+    { title: '工作流流程', dataIndex: 'taskList', key: 'taskList', width: 600,
       customRender: ({ text }: { text: any[] }) => {
         // 检查是否为有效的数组
         if (!Array.isArray(text) || text.length === 0) {
@@ -42,8 +42,8 @@ export function useList() {
         return h(StatusTag, { value: text, type: 'status' });
       }
     },
-    { title: '创建人', dataIndex: 'createBy' },
-    { title: '创建时间', dataIndex: 'createTime' },
+    { title: '创建人', dataIndex: 'createBy', key: 'createBy' },
+    { title: '创建时间', dataIndex: 'createTime', key: 'createTime' },
     { title: '操作', key: 'action' }
   ];
 

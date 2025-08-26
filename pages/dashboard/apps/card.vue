@@ -35,39 +35,24 @@
         </template>
       </PageTable>
     </a-card>
-    <PageTableModal 
-      v-model:open="modalOpen" :subTitle="subTitle"
-      :subStatsData="subStatsData" 
-      :subTableColumns="subTableColumns"
-      :subTableData="subTableData"
-      :subTableLoading="subTableLoading" 
-      v-model:subSearchParams="subDetailSearchParams"  
-      :subSearchFields="subSearchFields"        
-      @subSearch="handleSubSearch"                    
-      @subReset="handleSubReset"                      
-      :subTablePagination="subTablePagination"        
-      :subSelectedRowKeys="subSelectedRowKeys"        
-      :subTableRowSelection="true"                    
-      @subTableChange="handleSubTableChange"          
-      @update:subSelectedRowKeys="subSelectedRowKeys = $event"
-    /> 
-  <!-- 新建合成任务弹窗 -->
-  <PodSynthesisNewTaskModal 
+    
+    <!-- 新建合成任务弹窗 -->
+    <PodSynthesisNewTaskModal 
     :isOpen="addOpen" 
     @close="addOpen = false"
     @submit="handleTaskSubmit"
   />
   
   <!-- SKU 详情模态框 -->
-  <SkuDetailModal
-    v-model:open="skuDetailModalOpen"
-    :sku-info="skuDetailInfo"
-    :table-columns="skuDetailTableColumns"
-    :table-data="skuDetailTableData"
-    :loading="skuDetailTableLoading"
-    :pagination="skuDetailTablePagination"
-    row-key="id"
-    @table-change="handleSkuDetailTableChange"
+  <!-- 工作流任务详情模态框 -->
+  <WorkflowTaskDetailModal
+    v-model:open="workflowDetailModalOpen"
+    :task-info="currentTaskInfo"
+    :workflow-data="currentWorkflowData"
+    :header-stats-data="currentStatsData"
+    @close="handleWorkflowDetailClose"
+    @continue-execution="handleContinueExecution"
+    @terminate-task="handleTerminateTask"
   />
   </div>    
 </template>
@@ -77,17 +62,22 @@ import PageTitle from '~/components/common/pageTitle.vue'
 import PageSearch from '~/components/common/pageSearch.vue'
 import PageTable from '~/components/common/pageTable.vue'
 import PageTableOption from '~/components/common/pageTableOption.vue'
-import PageTableModal from '~/components/common/pageTableModal.vue'
 import PodSynthesisNewTaskModal from '~/components/PodSynthesisNewTaskModal.vue'
-import SkuDetailModal from '~/components/common/skuDetailModal.vue'
+import WorkflowTaskDetailModal from '~/components/common/workflowTaskDetailModal.vue'
 
 // 导入 Composable
 import { useList } from '~/composables/business/work/useList'
-import { useDetailModal } from '~/composables/business/work/useDetailModal'
+import { getTaskTypeInfo } from '~/utils/statusUtils'
 
 
 const addOpen = ref<boolean>(false)
 const templateModalOpen = ref<boolean>(false)
+
+// 工作流任务详情模态框
+const workflowDetailModalOpen = ref<boolean>(false)
+const currentTaskInfo = ref<any>({})
+const currentWorkflowData = ref<any[]>([])
+const currentStatsData = ref<any[]>([])
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -128,38 +118,30 @@ const {
   fetchData: fetchMainTableData 
 } = useList()
 
-// 详情模态框逻辑
-// 🚀 移除 tableModalRef 的声明和使用，useCollectorDetailModal 不再需要它
-const {
-  subTitle,
-  subStatsData,
-  subTableColumns,
-  subSearchFields,
-  subTableData,
-  subTableLoading,
-  subTablePagination,
-  subSelectedRowKeys,
-  subDetailSearchParams, 
-  handleSubSearch,
-  handleSubReset,
-  handleSubTableChange,
-  onSubSelectChange,
-  openCollectorDetailModal,
-  modalOpen, // 🚀 从 useDetailModal 中解构出 modalOpen
-  
-  // SKU 详情模态框相关
-  skuDetailModalOpen,
-  skuDetailInfo,
-  skuDetailTableColumns,
-  skuDetailTableData,
-  skuDetailTableLoading,
-  skuDetailTablePagination,
-  handleSkuDetailTableChange
-} = useDetailModal() // 🚀 useDetailModal 不再接收参数
-
 // 点击查看详情的事件处理
 const handleDetail = async (record: any) => {
-  await openCollectorDetailModal(record)
+  // 设置当前任务信息
+  currentTaskInfo.value = record
+  
+  // 模拟工作流数据（实际项目中从API获取）
+  currentWorkflowData.value = [
+    { taskType: 1, taskStatus: 2, sort: 1 }, // 商品采集 - 已完成
+    { taskType: 2, taskStatus: 2, sort: 2 }, // 智能截图 - 已完成  
+    { taskType: 3, taskStatus: 1, sort: 3 }, // 一键抠图 - 进行中
+    { taskType: 4, taskStatus: 0, sort: 4 }, // 超级裂变 - 待执行
+    { taskType: 7, taskStatus: 0, sort: 5 }, // 标题生成 - 待执行
+    { taskType: 8, taskStatus: 0, sort: 6 }, // 批量刊登 - 待执行
+  ]
+  
+  // 设置头部统计数据
+  currentStatsData.value = [
+    { title: '工作流总数', value: 8 },
+    { title: '已经运行时间', value: '45分钟' },
+    { title: '当前进度', value: '图片合成 54/382' }
+  ]
+  
+  // 打开工作流任务详情模态框
+  workflowDetailModalOpen.value = true
 }
 
 const handleMore = (record: any) => {
@@ -175,6 +157,30 @@ const navigateToTemplateManagement = () => {
 const handleTaskSuccess = () => {
   getCount() // 重新获取统计数据
   fetchMainTableData() // 重新获取主表格数据
+}
+
+// 工作流详情模态框事件处理
+const handleWorkflowDetailClose = () => {
+  workflowDetailModalOpen.value = false
+  currentTaskInfo.value = {}
+  currentWorkflowData.value = []
+  currentStatsData.value = []
+}
+
+const handleContinueExecution = (taskInfo: any) => {
+  console.log('继续执行工作流:', taskInfo)
+  // 这里实现继续执行工作流的逻辑
+  // 可能需要调用API重启工作流
+  workflowDetailModalOpen.value = false
+}
+
+const handleTerminateTask = (taskInfo: any) => {
+  console.log('终止工作流任务:', taskInfo)
+  // 这里实现终止工作流的逻辑
+  // 需要调用API终止当前工作流
+  workflowDetailModalOpen.value = false
+  // 刷新主表格数据
+  fetchMainTableData()
 }
 
 // 页面加载时执行
