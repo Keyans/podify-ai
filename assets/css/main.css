@@ -1056,6 +1056,230 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   box-shadow: none !important;
 }
 
+/* ===== Modal 弹窗确认按钮白色底纹修复 ===== */
+
+/* 修复Modal弹窗确认按钮的白色底纹问题 - 加强版 */
+.ant-modal-footer .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+.ant-modal-footer .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+.ant-modal-footer .ant-btn-primary:focus {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+.ant-modal-footer .ant-btn-primary:active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+/* 特定CSS类名修复 - 确保覆盖所有可能的样式 */
+:where(.css-dev-only-do-not-override-1onovbn).ant-modal-footer .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1onovbn).ant-modal-footer .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1onovbn).ant-modal-footer .ant-btn-primary:focus {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1onovbn).ant-modal-footer .ant-btn-primary:active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+/* 深度选择器修复 */
+::deep(.ant-modal-footer .ant-btn-primary) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+::deep(.ant-modal-footer .ant-btn-primary:hover) {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+::deep(.ant-modal-footer .ant-btn-primary:focus) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+::deep(.ant-modal-footer .ant-btn-primary:active) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+/* 通用Modal按钮修复 - 防止其他类似问题 */
+.ant-modal .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+.ant-modal .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+.ant-modal .ant-btn-primary:focus {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+.ant-modal .ant-btn-primary:active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+/* 确保所有主要按钮在Modal中的一致性 */
+*[class*="ant-modal"] .ant-btn-primary {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+*[class*="ant-modal"] .ant-btn-primary:hover {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+*[class*="ant-modal"] .ant-btn-primary:focus {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+*[class*="ant-modal"] .ant-btn-primary:active {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+/* 针对可能的伪元素和内联样式覆盖 */
+.ant-modal-footer .ant-btn-primary::before,
+.ant-modal-footer .ant-btn-primary::after {
+  display: none !important;
+}
+
+.ant-modal .ant-btn-primary::before,
+.ant-modal .ant-btn-primary::after {
+  display: none !important;
+}
+
+/* 强制覆盖任何内联样式的白色底纹 */
+div[class*="ant-modal"] button[class*="ant-btn-primary"][style] {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* Modal取消按钮也需要适配暗色主题 */
+.ant-modal-footer .ant-btn:not(.ant-btn-primary) {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.ant-modal-footer .ant-btn:not(.ant-btn-primary):hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--accent-color) !important;
+  color: var(--accent-color) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
 /* 特定CSS类名修复 - 确保覆盖所有可能的样式 */
 :where(.css-dev-only-do-not-override-1onovbn).ant-picker-dropdown .ant-picker-cell-selected .ant-picker-cell-inner {
   background-color: var(--bg-primary) !important;

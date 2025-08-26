@@ -103,3 +103,112 @@ const handleOk = async() => {
 };
 </script>
 
+<style scoped>
+/* ===== 局部Modal确认按钮修复 - 彻底解决白色底纹问题 ===== */
+
+/* 确保Modal确认按钮在当前组件中使用主题色 */
+:deep(.ant-modal-footer .ant-btn-primary) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+:deep(.ant-modal-footer .ant-btn-primary:hover) {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+:deep(.ant-modal-footer .ant-btn-primary:focus) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb, 34, 211, 238), 0.2) !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+:deep(.ant-modal-footer .ant-btn-primary:active) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  outline: none !important;
+}
+
+/* 适配取消按钮 */
+:deep(.ant-modal-footer .ant-btn:not(.ant-btn-primary)) {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+:deep(.ant-modal-footer .ant-btn:not(.ant-btn-primary):hover) {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--accent-color) !important;
+  color: var(--accent-color) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* Modal整体样式适配暗色主题 */
+:deep(.ant-modal) {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+:deep(.ant-modal-header) {
+  background-color: var(--bg-secondary) !important;
+  border-bottom-color: var(--border-color) !important;
+}
+
+:deep(.ant-modal-title) {
+  color: var(--text-primary) !important;
+}
+
+:deep(.ant-modal-body) {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+:deep(.ant-modal-footer) {
+  background-color: var(--bg-secondary) !important;
+  border-top-color: var(--border-color) !important;
+}
+
+/* 强制覆盖任何内联样式的白色底纹 */
+:deep(.ant-modal-footer button[style]) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* 覆盖Ant Design的特定类名 */
+:deep(.css-dev-only-do-not-override-1onovbn.ant-btn-primary) {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+:deep(.css-dev-only-do-not-override-1onovbn.ant-btn-primary:hover) {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: white !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+</style>
+

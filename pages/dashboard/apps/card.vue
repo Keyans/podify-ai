@@ -12,7 +12,8 @@
       >
         <template #prefix>
           <div class="flex items-center space-x-4">
-            <a-button @click="addOpen = true">新建合成</a-button>
+            <a-button @click="addOpen = true">新建工作流</a-button>
+            <a-button @click="navigateToTemplateManagement">工作流管理</a-button>
           </div>
         </template>
       </PageSearch>
@@ -81,11 +82,12 @@ import PodSynthesisNewTaskModal from '~/components/PodSynthesisNewTaskModal.vue'
 import SkuDetailModal from '~/components/common/skuDetailModal.vue'
 
 // 导入 Composable
-import { useList } from '~/composables/business/application/pod/useList'
-import { useDetailModal } from '~/composables/business/application/pod/useDetailModal'
+import { useList } from '~/composables/business/work/useList'
+import { useDetailModal } from '~/composables/business/work/useDetailModal'
 
 
 const addOpen = ref<boolean>(false)
+const templateModalOpen = ref<boolean>(false)
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -162,6 +164,11 @@ const handleDetail = async (record: any) => {
 
 const handleMore = (record: any) => {
   console.log(record)
+}
+
+// 打开模板管理模态弹窗
+const navigateToTemplateManagement = () => {
+  templateModalOpen.value = true
 }
 
 // 处理任务创建成功事件

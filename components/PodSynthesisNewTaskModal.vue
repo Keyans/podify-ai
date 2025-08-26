@@ -181,7 +181,7 @@
                 <h3 class="text-white text-sm font-medium truncate">{{ product.name }}</h3>
                 <div class="flex items-center justify-between mt-1">
                   <span class="text-white text-xs font-medium">{{ product.price }}</span>
-                  <span class="text-white text-xs opacity-80">{{ product.category }}</span>
+                  <span class="text-white text-xs opacity-80">{{ product.craftsmanshipList.join(',') }}</span>
                 </div>
               </div>
             </div>
@@ -408,7 +408,7 @@
                     <img :src="product.image" alt="白品图片" class="w-12 h-12 object-cover rounded-md mr-3">
                     <div class="flex-1 overflow-hidden">
                       <p class="text-sm font-medium truncate" :style="{ color: 'var(--text-primary)' }">{{ product.name }}</p>
-                      <p class="text-xs mt-1" :style="{ color: 'var(--text-secondary)' }">{{ product.category }}</p>
+                      <p class="text-xs mt-1" :style="{ color: 'var(--text-secondary)' }">{{ product.craftsmanshipList.join(',') }}</p>
                     </div>
                     <button @click="removeProduct(product)" class="ml-2 p-1 rounded hover:bg-red-100">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -558,7 +558,7 @@
 
 <script setup>
 import { ref, reactive, computed, defineProps, defineEmits, onMounted, watch } from 'vue'
-import { getWhiteProductList } from '~/apis/business/white'
+import { getProductList } from '~/apis/business/white'
 import { getGalleryCategories, GalleryType } from '~/apis/business/gallery'
 import { addPodComposerTask } from '~/apis/business/pod-composer'
 import OptimizedImage from '~/components/OptimizedImage.vue'
@@ -611,8 +611,7 @@ const whiteProducts = ref([])
 const filteredWhiteProducts = computed(() => {
   if (!searchWhiteProduct.value) return whiteProducts.value
   return whiteProducts.value.filter(product => 
-    product.name.toLowerCase().includes(searchWhiteProduct.value.toLowerCase()) || 
-    product.category.toLowerCase().includes(searchWhiteProduct.value.toLowerCase())
+    product.name.toLowerCase().includes(searchWhiteProduct.value.toLowerCase())
   )
 })
 
@@ -750,7 +749,7 @@ const fetchWhiteProducts = async (force = false) => {
       }
     }
     
-    const response = await getWhiteProductList(params, {
+    const response = await getProductList(params, {
       signal: requestAbortController.value.signal
     })
     
