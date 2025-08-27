@@ -99,3 +99,27 @@ export const getTemplatesByPlatformAndStore = async (params: any): Promise<ApiRe
   const url = buildApiPath('/template/getTemplatesByPlatformAndStore', ServicePrefix.PUBLISH_GOODS)
   return get(url, params)
 }
+
+// 平台字段配置相关类型定义
+export interface PlatformFieldConfig {
+  id: string
+  platformId: string
+  fieldName: string
+  fieldLabel: string
+  fieldType: 'text' | 'select' | 'textarea' | 'number'
+  required: boolean
+  placeholder?: string
+  options?: Array<{ value: string; label: string }>
+}
+
+export interface PlatformFieldConfigResponse {
+  platformId: string
+  platformName: string
+  fields: PlatformFieldConfig[]
+}
+
+// 获取平台字段配置
+export const getPlatformFieldConfig = async (platformId: string): Promise<ApiResponse<PlatformFieldConfigResponse>> => {
+  const url = buildApiPath(`/api/attribute-config/platform/${platformId}`, ServicePrefix.PUBLISH_GOODS)
+  return get(url)
+}

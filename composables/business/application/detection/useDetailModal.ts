@@ -47,8 +47,8 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
     },
     {
       title: '风险等级',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'riskLevel',
+      key: 'riskLevel',
       customRender: ({ text }: { text: any }) => {
         return h(StatusTag, { value: text, type: 'riskLevel' });
       }
@@ -63,7 +63,7 @@ export function useDetailModal(): UseCollectorDetailModalReturn { // 🚀 不再
       dataIndex: 'confidence',
       key: 'confidence',
       customRender: ({ text }: { text: any }) => {
-        return h('div', `${(text * 100).toFixed(2)}%`);
+        return h('div', `${(text / 100).toFixed(2)}%`);
       }
     },
     {

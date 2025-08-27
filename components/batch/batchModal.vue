@@ -3,7 +3,6 @@
     v-model:open="internalVisible"
     title="刊登模板管理"
     :width="1200"
-    :footer="null"
     centered
     :maskClosable="false"
     class="template-modal"
@@ -63,101 +62,34 @@
     </div>
   </a-modal>
 
-  <!-- 上传模板弹窗 -->
-  <a-modal
+  <!-- 上传模板组件 -->
+  <UploadTemplateModal
     v-model:open="uploadModalVisible"
-    title="上传模板文件"
-    :width="600"
-    :footer="null"
-    centered
-    :maskClosable="false"
-  >
-    <div class="upload-form">
-      <!-- 平台选择 -->
-      <div class="form-item">
-        <label class="form-label">请选择模板平台</label>
-        <a-select
-          v-model:value="uploadForm.platform"
-          placeholder="请选择平台"
-          style="width: 100%"
-        >
-          <a-select-option value="amazon">亚马逊</a-select-option>
-          <a-select-option value="ebay">eBay</a-select-option>
-          <a-select-option value="shopify">Shopify</a-select-option>
-        </a-select>
-      </div>
-
-      <!-- 模板名称 -->
-      <div class="form-item">
-        <label class="form-label">模板名称</label>
-        <a-input
-          v-model:value="uploadForm.templateName"
-          placeholder="请输入名称（选填，不填写自动使用文件名）"
-        />
-      </div>
-
-      <!-- 文件上传 -->
-      <div class="form-item">
-        <label class="form-label">请选择本地模板文件</label>
-        <a-upload-dragger
-          v-model:fileList="fileList"
-          name="file"
-          :multiple="false"
-          :showUploadList="false"
-          :beforeUpload="beforeUpload"
-          :onChange="handleFileChange"
-          accept=".xlsx,.xls"
-        >
-          <p class="ant-upload-drag-icon">
-            <inbox-outlined />
-          </p>
-          <p class="ant-upload-text">选择模板文件</p>
-          <p class="ant-upload-hint">
-            支持拖拽上传，仅支持 Excel 格式文件
-          </p>
-        </a-upload-dragger>
-        
-        <!-- 显示已选择的文件 -->
-        <div v-if="uploadForm.file" class="selected-file">
-          <div class="file-info">
-            <file-excel-outlined style="color: #52c41a; margin-right: 8px" />
-            <span>{{ uploadForm.file.name }}</span>
-            <span class="file-size">({{ (uploadForm.file.size / 1024 / 1024).toFixed(2) }}MB)</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 底部按钮 -->
-      <div class="form-actions">
-        <a-button @click="handleCancelUpload">取消</a-button>
-        <a-button 
-          type="primary" 
-          :loading="uploading"
-          @click="handleConfirmUpload"
-        >
-          确定上传
-        </a-button>
-      </div>
-    </div>
-  </a-modal>
+    :platform-options="props.platformOptions"
+    :platform-loading="props.platformLoading"
+    @success="handleUploadSuccess"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import { InboxOutlined, FileExcelOutlined } from '@ant-design/icons-vue'
 import PageSearch from '~/components/common/pageSearch.vue'
 import PageTable from '~/components/common/pageTable.vue'
-import { getTemplatePageList, createTemplate, type TemplatePageListParams, type TemplateDTO } from '~/apis/business/publish'
-import { parseExcelToJson } from '~/utils/excelUtils'
+import UploadTemplateModal from '~/components/batch/upload/uploadTemplateModal.vue'
+import { getTemplatePageList, getStorePageList, type TemplatePageListParams } from '~/apis/business/publish'
 
 // Props
 interface Props {
   open?: boolean
+  platformOptions?: Array<{label: string, value: string, id?: string}>
+  platformLoading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  open: false
+  open: false,
+  platformOptions: () => [],
+  platformLoading: false
 })
 
 // Emits
@@ -182,23 +114,16 @@ const internalVisible = computed({
 // 上传模板弹窗状态
 const uploadModalVisible = ref(false)
 
-// 上传表单数据
-const uploadForm = reactive({
-  platform: '',
-  templateName: '',
-  file: null as File | null
-})
-
-// 文件上传相关
-const fileList = ref([])
-const uploading = ref(false)
-
 // 搜索参数
 const searchParams = ref({
   templateName: '',
-  platform: '',
+  platform: null as string | null,
+  store: null as string | null, // 添加店铺参数
   status: ''
 })
+
+// 店铺选项数据
+const storeOptions = ref<Array<{label: string, value: string}>>([])
 
 // API请求参数
 const apiParams = ref<TemplatePageListParams>({
@@ -207,11 +132,12 @@ const apiParams = ref<TemplatePageListParams>({
 })
 
 // 搜索字段配置
-const searchFields = [
+const searchFields = computed(() => [
   {
     key: 'templateName',
-    label: '模板名称/ID',
+    label: '模板ID',
     component: 'a-input',
+    allowClear: true,
     props:{
       placeholder: '请输入模板名称或ID搜索'
     }
@@ -222,28 +148,25 @@ const searchFields = [
     component: 'a-select',
     props:{
       placeholder: '请选择平台',
-      options: [
-        { label: '亚马逊', value: '亚马逊' },
-        { label: 'TEMU', value: 'TEMU' },
-        { label: 'Shein', value: 'Shein' }
-      ],
-      style: { width: '100px' } 
+      allowClear: true,
+      options: props.platformOptions,
+      loading: props.platformLoading,
+      style: { width: '120px' },
+      onChange: onPlatformChange // 添加平台变化事件
     }
   },
   {
-    key: 'status',
-    label: '状态',
+    key: 'store',
+    label: '店铺',
     component: 'a-select',
     props:{
-      placeholder: '请选择状态',
-      options: [
-        { label: '启用', value: '启用' },
-        { label: '禁用', value: '禁用' }
-      ],
-      style: { width: '100px' } 
+      placeholder: '请选择店铺',
+      allowClear: true,
+      options: storeOptions.value,
+      style: { width: '120px' }
     }
   }
-]
+])
 
 // 表格列配置
 const tableColumns = [
@@ -293,14 +216,14 @@ const tableColumns = [
     title: '操作',
     key: 'action',
     width: 180,
-    fixed: 'right'
+    fixed: 'right' as const
   }
 ]
 
 // 表格数据和状态
-const tableData = ref([])
+const tableData = ref<any[]>([])
 const tableLoading = ref(false)
-const selectedRowKeys = ref([])
+const selectedRowKeys = ref<any[]>([])
 
 // 分页配置
 const pagination = reactive({
@@ -327,14 +250,16 @@ const fetchTemplateList = async () => {
       params.name = searchParams.value.templateName
     }
     if (searchParams.value.platform) {
-      // 这里需要根据实际情况映射平台名称到platformId
-      // 暂时使用模拟的platformId映射
-      const platformMap: Record<string, number> = {
-        '亚马逊': 1,
-        'TEMU': 2,
-        'Shein': 3
+      // 使用新的辅助函数获取平台ID
+      const platformId = getPlatformIdFromOptions(searchParams.value.platform)
+      if (platformId) {
+        // 如果有平台ID，则传递给接口（转换为数字类型）
+        params.platformId = parseInt(platformId)
       }
-      params.platformId = platformMap[searchParams.value.platform]
+      // 如果是"全部"选项（platformId为null），则不传递platformId参数
+    }
+    if (searchParams.value.store) {
+      params.storeId = parseInt(searchParams.value.store)
     }
     
     const response = await getTemplatePageList(params)
@@ -366,7 +291,71 @@ const getPlatformName = (platformName: string) => {
   return platformName || '未知平台'
 }
 
-// 获取平台ID（根据平台名称映射为ID）
+// 获取平台ID（根据平台名称从传入的选项中查找真实ID）
+const getPlatformIdFromOptions = (platformName: string): string | null => {
+  if (!platformName || platformName === '') {
+    return null // "全部"选项返回null
+  }
+  
+  // 从传入的平台选项中查找对应的ID
+  const platformOption = props.platformOptions?.find(option => option.value === platformName)
+  return platformOption?.id || null
+}
+
+// 获取店铺列表
+const fetchStoreList = async (platformName: string) => {
+  try {
+    const platformId = getPlatformIdFromOptions(platformName)
+    
+    console.log('开始获取店铺列表...', { platformName, platformId })
+    
+    // 构建请求参数
+    const params: any = {
+      page: 1,
+      limit: 100 // 获取所有店铺
+    }
+    
+    // 如果有平台ID，则传递给接口
+    if (platformId) {
+      params.platform = platformId
+    }
+    
+    const response = await getStorePageList(params)
+    console.log('店铺列表获取成功:', response)
+    
+    if (response.success && response.data) {
+      // 构建店铺选项，添加"全部"选项
+      storeOptions.value  = response.data.records?.map((store: any) => ({
+        label: store.name || store.storeName,
+        value: store.id || store.storeId
+      })) || []
+    } else {
+      // 默认数据
+      storeOptions.value = [
+        { label: '全部', value: '' },
+        { label: '默认店铺', value: 'default' }
+      ]
+    }
+  } catch (error) {
+    console.error('获取店铺列表失败:', error)
+    // 错误处理
+    storeOptions.value = [
+      { label: '全部', value: '' },
+      { label: '默认店铺', value: 'default' }
+    ]
+  } 
+}
+
+// 平台变化事件处理
+const onPlatformChange = async (platformValue: string) => {
+  console.log('平台变化:', platformValue)
+  // 重置店铺选择
+  searchParams.value.store = null
+  storeOptions.value = []
+  await fetchStoreList(platformValue)
+}
+
+// 获取平台ID（根据平台名称映射为ID）- 保留向后兼容
 const getPlatformId = (platformName: string): number => {
   const platformMap: Record<string, number> = {
     'amazon': 1,
@@ -396,9 +385,14 @@ const onSearch = () => {
 const onReset = () => {
   searchParams.value = {
     templateName: '',
-    platform: '',
+    platform: null,
+    store: null, // 重置店铺选择
     status: ''
   }
+  // 重置店铺选项
+  storeOptions.value = [
+    { label: '全部', value: '' }
+  ]
   pagination.page = 1 // 重置到第一页
   fetchTemplateList()
 }
@@ -415,126 +409,15 @@ const onSelectChange = (keys: any[]) => {
   selectedRowKeys.value = keys
 }
 
-// 文件上传处理函数
-const beforeUpload = (file: File) => {
-  // 验证文件类型
-  const isValidType = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
-                     file.type === 'application/vnd.ms-excel' ||
-                     file.name.endsWith('.xlsx') ||
-                     file.name.endsWith('.xls')
-  
-  if (!isValidType) {
-    message.error('只能上传 Excel 文件！')
-    return false
-  }
-  
-  // 验证文件大小 (10MB)
-  const isLt10M = file.size / 1024 / 1024 < 10
-  if (!isLt10M) {
-    message.error('文件大小不能超过 10MB！')
-    return false
-  }
-  
-  uploadForm.file = file
-  
-  // 如果没有填写模板名称，使用文件名
-  if (!uploadForm.templateName) {
-    uploadForm.templateName = file.name.replace(/\.[^/.]+$/, '')
-  }
-  
-  return false // 阻止自动上传
-}
-
-const handleFileChange = (info: any) => {
-  const { fileList } = info
-  // 只保留最新的一个文件
-  if (fileList.length > 1) {
-    fileList.splice(0, fileList.length - 1)
-  }
-}
-
-// 取消上传
-const handleCancelUpload = () => {
-  uploadModalVisible.value = false
-  // 重置表单
-  uploadForm.platform = ''
-  uploadForm.templateName = ''
-  uploadForm.file = null
-  fileList.value = []
-}
-
-// 确定上传
-const handleConfirmUpload = async () => {
-  if (!uploadForm.platform || !uploadForm.file) {
-    message.error('请选择平台并上传文件')
-    return
-  }
-  
-  try {
-    uploading.value = true
-    
-    // 解析 Excel 文件
-    const parseResult = await parseExcelToJson(uploadForm.file, {
-      header: true,
-      skipRows: 0
-    })
-    
-    if (!parseResult.success) {
-      message.error(parseResult.message || 'Excel 文件解析失败')
-      return
-    }
-    
-    console.log('Excel 解析结果:', parseResult.data)
-    
-    // 构造模版DTO对象，将解析的数据填充到相应字段
-    const templateDTO: TemplateDTO = {
-      id: 0,
-      name: uploadForm.templateName || uploadForm.file.name.replace(/\.[^/.]+$/, ''),
-      platformId: getPlatformId(uploadForm.platform),
-      storeId: 0, // 根据实际需求设置
-      categoryId: 0, // 根据实际需求设置
-      baseTemplateId: 0, // 根据实际需求设置
-      platformFields: {
-        key: {
-          // 将解析的 Excel 数据填充到 platformFields
-          columns: parseResult.data.columns,
-          totalRows: parseResult.data.totalRows,
-          fileName: parseResult.data.fileName
-        }
-      },
-      categoryFields: {
-        key: {
-          // 将解析的 Excel 数据填充到 categoryFields
-          data: parseResult.data.rows.slice(0, 5), // 只取前5行作为示例
-          sheetName: parseResult.data.currentSheet
-        }
-      }
-    }
-    
-    // 调用创建模板接口
-    const response = await createTemplate(templateDTO)
-    
-    if (response.success) {
-      message.success('模板上传成功！')
-      handleCancelUpload()
-      
-      // 刷新模板列表
-      fetchTemplateList()
-    } else {
-      message.error(response.message || '上传失败，请重试')
-    }
-    
-  } catch (error) {
-    console.error('上传模板失败:', error)
-    message.error('上传失败，请重试')
-  } finally {
-    uploading.value = false
-  }
-}
-
 // 操作处理函数
 const handleCreateTemplate = () => {
   uploadModalVisible.value = true
+}
+
+// 上传成功处理
+const handleUploadSuccess = () => {
+  // 刷新模板列表
+  fetchTemplateList()
 }
 
 const handlePreview = (record: any) => {
@@ -560,14 +443,17 @@ const handleDelete = async (record: any) => {
 }
 
 // 监听弹窗打开状态，调用API获取数据
-watch(() => props.open, (newVal) => {
+watch(() => props.open, async (newVal) => {
   if (newVal) {
     // 弹窗打开时重置搜索条件并获取数据
     searchParams.value = {
       templateName: '',
-      platform: '',
+      platform: null,
+      store: null,
       status: ''
     }
+    // 初始化店铺选项 - 触发一次加载
+    await fetchStoreList('')
     pagination.page = 1
     fetchTemplateList()
   }
@@ -591,79 +477,5 @@ watch(() => props.open, (newVal) => {
 
 .template-modal :deep(.ant-table-wrapper) {
   border-radius: 8px;
-}
-
-/* 上传弹窗样式 */
-.upload-form {
-  .form-item {
-    margin-bottom: 24px;
-    
-    .form-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #262626;
-    }
-  }
-  
-  .selected-file {
-    margin-top: 12px;
-    padding: 12px;
-    background: #f6ffed;
-    border: 1px solid #b7eb8f;
-    border-radius: 6px;
-    
-    .file-info {
-      display: flex;
-      align-items: center;
-      
-      .file-size {
-        margin-left: 8px;
-        color: #8c8c8c;
-        font-size: 12px;
-      }
-    }
-  }
-  
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid #f0f0f0;
-  }
-}
-
-/* 自定义上传区域样式 */
-:deep(.ant-upload-drag) {
-  background: #fafafa;
-  border: 2px dashed #d9d9d9;
-  border-radius: 8px;
-  padding: 32px 16px;
-  
-  &:hover {
-    border-color: #40a9ff;
-  }
-  
-  .ant-upload-drag-icon {
-    margin-bottom: 16px;
-    
-    .anticon {
-      font-size: 48px;
-      color: #40a9ff;
-    }
-  }
-  
-  .ant-upload-text {
-    font-size: 16px;
-    color: #262626;
-    margin-bottom: 8px;
-  }
-  
-  .ant-upload-hint {
-    color: #8c8c8c;
-    font-size: 14px;
-  }
 }
 </style>

@@ -52,12 +52,22 @@
       @update:subSelectedRowKeys="subSelectedRowKeys = $event"
     /> 
     <pageAddTitle v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess"/>
-    <batchModal v-model:open="templateModalOpen" @close="templateModalOpen = false" />
-    <batchWork v-model:open="workOpen" @close="workOpen = false" />
+    <batchModal 
+      v-model:open="templateModalOpen" 
+      :platform-options="platformOptions"
+      :platform-loading="platformLoading"
+      @close="templateModalOpen = false" 
+    />
+    <batchWork 
+      v-model:open="workOpen" 
+      :platform-options="platformOptions"
+      :platform-loading="platformLoading"
+      @close="workOpen = false" 
+    />
   </div>    
 </template>
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import PageTitle from '~/components/common/pageTitle.vue'
 import PageSearch from '~/components/common/pageSearch.vue'
 import PageTable from '~/components/common/pageTable.vue'
@@ -69,11 +79,16 @@ import batchWork from '~/components/batch/batchWork.vue'
 // 导入 Composable
 import { useList } from '~/composables/business/application/batch/useList'
 import { useDetailModal } from '~/composables/business/application/batch/useDetailModal'
+import { getEnabledPlatforms } from '~/apis/business/publish'
 
 const workOpen = ref<boolean>(false)
 const addOpen = ref<boolean>(false)
 const imageTitle = ref<string>('新建标题')
 const templateModalOpen = ref<boolean>(false)
+
+// 平台数据状态 - 保存完整的平台信息
+const platformOptions = ref<Array<{label: string, value: string, id?: string}>>([])
+const platformLoading = ref(false)
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -133,13 +148,61 @@ const handleTaskSuccess = () => {
   fetchMainTableData() // 重新获取主表格数据
 }
 
+// 获取平台列表
+const fetchPlatformOptions = async () => {
+  try {
+    platformLoading.value = true
+    console.log('开始获取平台列表...')
+    const response = await getEnabledPlatforms()
+    console.log('平台列表获取成功:', response)
+    
+    if (response.success && response.data) {
+      // 构建平台选项，添加“全部”选项，保存完整的id和name信息
+      const platforms = response.data.map((platform: any) => ({
+        label: platform.name || platform.platformName,
+        value: platform.name || platform.platformName,
+        id: platform.id || platform.platformId // 保存平台ID用于后续接口调用
+      }))
+      
+      // 在前面添加“全部”选项
+      platformOptions.value = [
+        { label: '全部', value: '' }, // 全部选项不需要id
+        ...platforms
+      ]
+    } else {
+      // 提供默认数据作为后备方案
+      platformOptions.value = [
+        { label: '全部', value: '' },
+        { label: '亚马逊', value: '亚马逊', id: 'amazon' },
+        { label: 'TEMU', value: 'TEMU', id: 'temu' },
+        { label: 'Shein', value: 'Shein', id: 'shein' }
+      ]
+    }
+  } catch (error) {
+    console.error('获取平台列表失败:', error)
+    // 错误处理，提供默认数据
+    platformOptions.value = [
+      { label: '全部', value: '' },
+      { label: '亚马逊', value: '亚马逊', id: 'amazon' },
+      { label: 'TEMU', value: 'TEMU', id: 'temu' },
+      { label: 'Shein', value: 'Shein', id: 'shein' }
+    ]
+  } finally {
+    platformLoading.value = false
+  }
+}
+
 // 打开模板管理模态弹窗
 const navigateToTemplateManagement = () => {
   templateModalOpen.value = true
 }
 
 // 页面加载时执行
-onMounted(() => {
+onMounted(async () => {
+  // 先获取平台数据
+  await fetchPlatformOptions()
+  
+  // 然后获取其他数据
   getCount() // 获取统计数据
   fetchMainTableData() // 获取主表格数据
 })

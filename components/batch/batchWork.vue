@@ -66,14 +66,20 @@
             :disabled="!selectedTemplate || selectedProducts.length === 0"
             @click="handleSubmit"
           >
-            提交任务 ({{ selectedProducts.length }}个商品)
+            提交任务 
+            <span v-show="selectedProducts.length>0">({{ selectedProducts.length }}个商品)</span>
           </a-button>
         </div>
       </template>
     </a-modal>
 
     <!-- 模板选择弹窗 -->
-    <batchModal v-model:open="showTemplateModal" @template-selected="onTemplateSelected" />
+    <batchModal 
+      v-model:open="showTemplateModal" 
+      :platform-options="props.platformOptions"
+      :platform-loading="props.platformLoading"
+      @template-selected="onTemplateSelected" 
+    />
         
     <!-- 商品选择弹窗 -->
     <ProductSelectorModal
@@ -90,7 +96,7 @@ import PageSearch from '~/components/common/pageSearch.vue'
 import batchModal from '~/components/batch/batchModal.vue'
 import ProductSelectorModal from '~/components/ProductSelectorModal.vue'
 import commonImage from '../common/commonImage.vue'
-import { createTask, getEnabledPlatforms, getStorePageList, getTemplatesByPlatformAndStore } from '~/apis/business/publish'
+import { createTask, getStorePageList, getTemplatesByPlatformAndStore } from '~/apis/business/publish'
 
 // 定义接口
 interface Template {
@@ -110,9 +116,16 @@ interface Product {
 }
 
 // Props 和 Emits
-const props = defineProps<{
+interface Props {
   open: boolean
-}>()
+  platformOptions?: Array<{label: string, value: string, id?: string}>
+  platformLoading?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  platformOptions: () => [],
+  platformLoading: false
+})
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
@@ -226,6 +239,7 @@ const templateSearchFields = computed(() => [
       options: cascaderOptions.value,
       loadData: loadCascaderData,
       changeOnSelect: true,
+      allowClear: true,
       style: { width: '300px' },
       fieldNames: {
         label: 'name',
@@ -328,22 +342,19 @@ const removeProduct = (productId: string) => {
   selectedProducts.value = selectedProducts.value.filter(p => p.podProductId !== productId)
 }
 
-// 获取启用的平台列表
-const fetchEnabledPlatforms = async () => {
+// 获取启用的平台列表 - 使用传入的平台数据
+const initializePlatformData = () => {
   try {
-    loadingStates.value.platforms = true
-    console.log('开始获取平台列表...')
-    const response = await getEnabledPlatforms()
-    console.log('平台列表获取成功:', response)
-    
-    if (response.success && response.data) {
-      // 构建级联选择器的第一级数据（平台）
-      cascaderOptions.value = response.data.map((platform: any) => ({
-        id: platform.id || platform.platformId,
-        name: platform.name || platform.platformName,
-        isLeaf: false, // 表示还有子级数据
-        loading: false
-      }))
+    if (props.platformOptions && props.platformOptions.length > 0) {
+      // 使用传入的平台数据构建级联选择器的第一级数据（平台）
+      cascaderOptions.value = props.platformOptions
+        .filter(platform => platform.value !== '') // 过滤掉“全部”选项
+        .map((platform: any) => ({
+          id: platform.id || platform.value, // 优先使用id，如果没有则使用value
+          name: platform.label,
+          isLeaf: false, // 表示还有子级数据
+          loading: false
+        }))
     } else {
       // 提供默认数据作为后备方案
       cascaderOptions.value = [{
@@ -354,7 +365,7 @@ const fetchEnabledPlatforms = async () => {
       }]
     }
   } catch (error) {
-    console.error('获取平台列表失败:', error)
+    console.error('初始化平台数据失败:', error)
     // 错误处理，提供默认数据
     cascaderOptions.value = [{
       id: 'amazon',
@@ -362,8 +373,6 @@ const fetchEnabledPlatforms = async () => {
       isLeaf: false,
       loading: false
     }]
-  } finally {
-    loadingStates.value.platforms = false
   }
 }
 
@@ -505,10 +514,15 @@ const loadCascaderData = async (selectedOptions: any[]) => {
 
 
 
-// 组件挂载时获取平台列表
+// 组件挂载时初始化平台数据
 onMounted(() => {
-  fetchEnabledPlatforms()
+  initializePlatformData()
 })
+
+// 监听平台数据变化
+watch(() => props.platformOptions, () => {
+  initializePlatformData()
+}, { deep: true })
 
 // 监听弹窗关闭，重置数据
 watch(() => props.open, (newVal) => {
