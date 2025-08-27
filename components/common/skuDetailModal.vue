@@ -165,16 +165,127 @@ const getStatusText = (status: any) => {
 }
 
 .sku-info-section {
-  background: #fafafa;
+  background: var(--bg-tertiary);
   padding: 16px;
   border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .info-grid {
   line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.sku-basic-info h3 {
+  color: var(--text-primary);
+}
+
+.info-grid .font-medium {
+  color: var(--text-primary);
 }
 
 .table-section {
   min-height: 300px;
+}
+
+/* 暗色主题适配 */
+:deep(.ant-modal) {
+  background-color: var(--bg-secondary);
+}
+
+:deep(.ant-modal-header) {
+  background-color: var(--bg-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+:deep(.ant-modal-title) {
+  color: var(--text-primary);
+}
+
+:deep(.ant-modal-body) {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+:deep(.ant-modal-close) {
+  color: var(--text-secondary);
+}
+
+:deep(.ant-modal-close:hover) {
+  color: var(--text-primary);
+}
+
+:deep(.ant-divider) {
+  border-color: var(--border-color);
+}
+
+:deep(.ant-image) {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+:deep(.ant-empty) {
+  color: var(--text-secondary);
+}
+
+:deep(.ant-empty-description) {
+  color: var(--text-secondary);
+}
+
+/* PageTable 组件主题适配 */
+:deep(.ant-table) {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:deep(.ant-table-thead > tr > th) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+:deep(.ant-table-tbody > tr:hover > td) {
+  background-color: var(--bg-tertiary) !important;
+}
+
+:deep(.ant-table-placeholder) {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:deep(.ant-pagination) {
+  color: var(--text-secondary);
+}
+
+:deep(.ant-pagination-item) {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:deep(.ant-pagination-item a) {
+  color: var(--text-secondary);
+}
+
+:deep(.ant-pagination-item:hover) {
+  border-color: var(--accent-color);
+}
+
+:deep(.ant-pagination-item:hover a) {
+  color: var(--accent-color);
+}
+
+:deep(.ant-pagination-item-active) {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+:deep(.ant-pagination-item-active a) {
+  color: white;
 }
 </style>

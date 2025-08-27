@@ -8,7 +8,7 @@
       <div class="relative bg-dark-card rounded-lg shadow-xl max-w-2xl w-full border border-dark-border">
         <!-- 弹窗头部 -->
         <div class="flex items-center justify-between p-6 border-b border-dark-border">
-          <h3 class="text-lg font-medium text-dark-text">新建批量刊登任务</h3>
+          <h3 class="text-lg font-medium text-dark-text">新建刊登任务</h3>
           <button @click="close" class="text-dark-text-secondary hover:text-dark-text">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

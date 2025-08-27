@@ -1,7 +1,7 @@
 import { ref, h } from 'vue';
 import { useTableData } from '~/composables/useTableData';
 import StatusTag from '~/components/common/statusTag.vue';
-import { getTitleGeneratorStats, getTitleGeneratorTaskList } from '~/apis/business/title-generation'
+import { getTaskStatistics, getTaskPageList } from '~/apis/business/publish'
 
 export function useList() {
   const tableLoading = ref(false); // 主表格的 loading 状态
@@ -69,21 +69,21 @@ export function useList() {
   ];
 
   const getCount = async () => {
-    const res = await getTitleGeneratorStats();
+    const res = await getTaskStatistics();
     if (res.code === 200) {
-      statsData.value[0].value = res.data.count;
+      statsData.value[0].value = res.data.totalTasks;
       statsData.value[1].value = `${(res.data.successRate * 100).toFixed(2)}%`;
-      statsData.value[2].value = res.data.inProgressCount;
-      statsData.value[3].value = res.data.todayCount;
+      statsData.value[2].value = res.data.processingTasks;
+      statsData.value[3].value = res.data.todayTasks;
     }
   };
 
   const getTaskListForTable = async (params: Record<string, any>) => {
     tableLoading.value = true;
     try {
-      const res = await getTitleGeneratorTaskList(params);
+      const res = await getTaskPageList(params);
       if (res.code === 200) {
-        return { list: res.data.titleList, total: res.data.total };
+        return { list: res.data.records, total: res.data.total };
       } else {
         console.error("获取列表失败:", res.message);
         return { list: [], total: 0 };

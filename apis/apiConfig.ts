@@ -74,7 +74,9 @@ export const getApiConfig = (): EnvironmentConfig => {
 export enum ServicePrefix {
   CUZCUZ_AI = 'cuzcuz-ai',
   TENANT = 'tenant', 
-  PUBLISH_GOODS = 'publish-goods'
+  PUBLISH_GOODS = 'publish-goods',
+  API = 'api',
+  STORE = 'store'
 }
 
 // 获取API前缀（默认使用cuzcuz-ai）
