@@ -103,23 +103,31 @@ export const getTemplatesByPlatformAndStore = async (params: any): Promise<ApiRe
 // 平台字段配置相关类型定义
 export interface PlatformFieldConfig {
   id: string
-  platformId: string
-  fieldName: string
-  fieldLabel: string
-  fieldType: 'text' | 'select' | 'textarea' | 'number'
+  code: string
+  label: string
+  type: 'text' | 'select' | 'textarea' | 'number'
+  optionsSource: 'manual' | 'api'
+  optionsConfig?: {
+    placeholder?: string
+    maxLength?: number
+    min?: number
+    max?: number
+    step?: number
+    unit?: string
+    labelField?: string
+    valueField?: string
+    apiEndpoint?: string
+    options?: Array<{ vid: any; name?: string; value?: string }>
+  }
+  globalRequired: boolean
+  visible: boolean
   required: boolean
-  placeholder?: string
-  options?: Array<{ value: string; label: string }>
-}
-
-export interface PlatformFieldConfigResponse {
-  platformId: string
-  platformName: string
-  fields: PlatformFieldConfig[]
+  displayOrder: number
+  options: Array<{ value: any; label: any; disabled?: boolean; extendInfo?: any }>
 }
 
 // 获取平台字段配置
-export const getPlatformFieldConfig = async (platformId: string): Promise<ApiResponse<PlatformFieldConfigResponse>> => {
+export const getPlatformFieldConfig = async (platformId: string): Promise<ApiResponse<PlatformFieldConfig[]>> => {
   const url = buildApiPath(`/api/attribute-config/platform/${platformId}`, ServicePrefix.PUBLISH_GOODS)
   return get(url)
 }

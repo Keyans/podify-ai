@@ -2,7 +2,7 @@
   <!-- 上传模板弹窗 -->
   <a-modal
     v-model:open="internalVisible"
-    title="上传模板文件"
+    title="上传模板"
     :width="600"
     :footer="null"
     centered
@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive } from 'vue'
+import { computed, ref, reactive, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import ApiUploadForm from './upload-type/api/ApiUploadForm.vue'
 import UploadTemplateForm from './upload-type/template/UploadTemplateForm.vue'
@@ -126,7 +126,7 @@ const commonForm = reactive({
 })
 
 // 上传方式
-const uploadMethod = ref('template')
+const uploadMethod = ref('api')
 
 // 平台字段配置相关状态
 const platformFieldConfig = ref<PlatformFieldConfig[]>([])
@@ -144,6 +144,46 @@ const internalVisible = computed({
     if (!value) {
       emits('close')
     }
+  }
+})
+
+// 监听弹窗打开状态和平台选项变化，自动设置默认值
+watch([() => props.open, () => props.platformOptions], ([isOpen, newOptions]) => {
+  console.log('弹窗状态变化:', { isOpen, optionsLength: newOptions?.length, currentPlatform: commonForm.platform })
+  
+  // 只有在弹窗打开时才执行自动选择逻辑
+  if (!isOpen) {
+    return
+  }
+  
+  // 过滤掉空值选项，获取有效的平台选项
+  const validOptions = newOptions.filter(item => item.value !== '')
+  
+  // 如果有可用选项且当前未选择平台，自动选择第0个
+  if (validOptions.length > 0 && !commonForm.platform) {
+    const defaultPlatform = validOptions[0].value
+    console.log('弹窗打开时自动设置默认平台:', defaultPlatform)
+    
+    // 设置默认平台
+    commonForm.platform = defaultPlatform
+    
+    // 自动加载该平台的字段配置
+    onPlatformChange(defaultPlatform)
+  } else if (commonForm.platform && validOptions.length > 0) {
+    // 如果当前已经有选中的平台，确保字段配置被加载
+    console.log('当前已选择平台，重新加载字段配置:', commonForm.platform)
+    onPlatformChange(commonForm.platform)
+  }
+})
+
+// 监听上传方式变化，确保切换到API上传时重新加载字段配置
+watch(uploadMethod, (newMethod) => {
+  console.log('上传方式变化:', newMethod, '当前平台:', commonForm.platform)
+  
+  // 如果切换到API上传且已经选择了平台，重新加载字段配置
+  if (newMethod === 'api' && commonForm.platform) {
+    console.log('切换到API上传，重新加载字段配置')
+    onPlatformChange(commonForm.platform)
   }
 })
 
@@ -230,7 +270,9 @@ const fetchPlatformFieldConfig = async (platformValue: string) => {
     const response = await getPlatformFieldConfig(platformId.toString())
     
     if (response.success && response.data) {
-      platformFieldConfig.value = response.data.fields || []
+      // 接口返回的数据结构是 response.data 而不是 response.data.fields
+      const fields = Array.isArray(response.data) ? response.data : []
+      platformFieldConfig.value = fields
       console.log('平台字段配置获取成功:', response.data)
       message.success(`获取${platformValue}平台字段配置成功`)
     } else {

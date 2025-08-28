@@ -1,6 +1,6 @@
 import { ref, h, type Ref } from 'vue';
 import { useModalTable } from '~/composables/useModalTable'; // 确保路径正确
-import { getDetectionTaskDetail, getDetectionTaskInfo } from '~/apis/business/detection'
+import { getDetectionTaskDetail } from '~/apis/business/detection'
 import StatusTag from '~/components/common/statusTag.vue';
 import CommonImage from '~/components/common/commonImage.vue';
 
