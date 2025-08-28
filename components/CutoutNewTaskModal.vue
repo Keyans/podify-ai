@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="p-5 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium text-dark-text">新建抠图任务</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-300">
+        <button @click.stop="close" class="text-gray-400 hover:text-gray-300">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -25,7 +25,7 @@
             上传图片
           </button>
           <button 
-            @click="openLibrarySelector"
+            @click="activeTab = 'gallery'"
             class="flex-1 py-3 px-4 flex items-center justify-center border border-dark-border rounded-md hover:bg-dark-hover focus:outline-none"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,17 +47,20 @@
             @files-change="handleFilesChange"
           />
         </div>
+        <div v-else class="mb-6">
+          <GalleryPickerModal :inline="true" :isOpen="true" :maxSelect="1000" @change="handleGalleryPicked" />
+        </div>
         
         <div class="text-sm text-gray-400 flex items-center mt-4">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          一次最多支持 1000 张图片
+          一次最多支持 1000 张图片，已选择 {{ selectedFiles.length }} 张
         </div>
       </div>
       
       <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
+        <button @click.stop="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
         <button 
           @click="submit" 
           :disabled="submitting"
@@ -69,102 +72,14 @@
       </div>
     </div>
     
-    <!-- 图库选择器弹窗 -->
-    <div v-if="showLibrarySelector" class="bg-dark-card rounded-lg w-full max-w-xl max-h-[90vh] overflow-y-auto text-dark-text">
-      <div class="p-5 border-b border-dark-border flex justify-between items-center">
-        <h3 class="font-medium text-dark-text">从图库选择</h3>
-        <button @click="closeLibrarySelector" class="text-gray-400 hover:text-gray-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 6L6 18M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-      
-      <div class="p-6">
-        <!-- 搜索区域 -->
-        <div class="flex mb-6">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="搜索图片"
-            class="flex-1 px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
-          />
-          <div class="relative ml-2">
-            <button 
-              @click="showCategoryDropdown = !showCategoryDropdown"
-              class="px-3 py-2 bg-dark-input border border-dark-border rounded-md flex items-center"
-            >
-              {{ selectedCategory }}
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <!-- Dropdown Menu -->
-            <div v-if="showCategoryDropdown" class="absolute top-full left-0 mt-1 w-32 bg-dark-card border border-dark-border rounded-md shadow-lg z-10">
-              <button 
-                v-for="category in ['全部', '产品', '服装', '配饰', '家居']" 
-                :key="category"
-                @click="selectCategory(category)"
-                class="w-full text-left px-3 py-2 hover:bg-dark-hover"
-              >
-                {{ category }}
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 图库图片列表 -->
-        <div class="grid grid-cols-5 gap-3">
-          <div v-for="(image, index) in libraryImages" :key="index" class="relative">
-            <div 
-              class="relative h-20 w-full rounded-md overflow-hidden cursor-pointer"
-              :class="{'ring-2 ring-green-500': image.selected}"
-              @click="toggleSelectImage(index)"
-            >
-              <img :src="image.url" alt="图库图片" class="h-full w-full object-cover">
-                              <div v-if="image.selected" class="absolute top-1 right-1 bg-cyan-400 rounded-full p-1">
-                <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 分页 -->
-        <div class="flex items-center justify-center mt-6 space-x-2">
-          <button class="p-1 border border-dark-border rounded-md">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button class="w-8 h-8 flex items-center justify-center border border-dark-border rounded-md bg-dark-hover">1</button>
-          <button class="w-8 h-8 flex items-center justify-center border border-dark-border rounded-md">2</button>
-          <button class="w-8 h-8 flex items-center justify-center border border-dark-border rounded-md">3</button>
-          <span class="text-gray-400">...</span>
-          <button class="p-1 border border-dark-border rounded-md">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-        
-        <div class="text-sm text-gray-400 mt-4">
-          已选 {{ selectedLibraryImages.length }} 张图片
-        </div>
-      </div>
-      
-      <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="closeLibrarySelector" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
-        <button @click="confirmLibrarySelection" class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500">确定选择 (5秒内)</button>
-      </div>
-    </div>
+    <!-- 统一图库选择器（不再使用弹窗模式） -->
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, watch, computed } from 'vue'
 import TencentCosUpload from './TencentCosUpload.vue'
+import GalleryPickerModal from './GalleryPickerModal.vue'
 import { createMattingTask } from '~/apis/business/matting'
 
 const props = defineProps({
@@ -433,4 +348,4 @@ watch(() => props.isOpen, (newVal) => {
     resetForm()
   }
 })
-</script> 
+</script>

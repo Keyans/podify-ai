@@ -127,8 +127,8 @@
               <div><strong>方法：</strong> POST</div>
               <div><strong>请求头：</strong></div>
               <ul class="ml-4 text-xs text-gray-400">
-                <li>X-Auth-Platform-Type: web</li>
-                <li>X-Client-Type: cuzcuz-ai-web</li>
+                <li>X-Auth-Platform-Type: AI_PROJECT</li>
+                <li>X-Client-Type: AI_C_WEB</li>
               </ul>
               <div><strong>请求体：</strong></div>
               <ul class="ml-4 text-xs text-gray-400">
@@ -221,6 +221,16 @@
               </button>
             </div>
             
+            <div v-if="registerMethod === 'phone'" class="mb-4">
+              <label class="block text-sm font-medium mb-2">邀请码（可选）</label>
+              <input 
+                v-model="registerForm.inviteCode"
+                type="text" 
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
+                placeholder="输入邀请码"
+              >
+            </div>
+            
             <div v-if="registerMethod === 'email'" class="mb-4 flex space-x-2">
               <input 
                 v-model="registerForm.emailCode"
@@ -256,16 +266,17 @@
               <div><strong>方法：</strong> POST</div>
               <div><strong>请求头：</strong></div>
               <ul class="ml-4 text-xs text-gray-400">
-                <li>X-Auth-Platform-Type: web</li>
-                <li>X-Client-Type: cuzcuz-ai-web</li>
+                <li>X-Auth-Platform-Type: AI_PROJECT</li>
+                <li>X-Client-Type: AI_C_WEB</li>
               </ul>
               <div><strong>注册请求体：</strong></div>
               <ul class="ml-4 text-xs text-gray-400">
-                <li v-if="registerMethod === 'email'">email: 用户邮箱</li>
-                <li v-if="registerMethod === 'phone'">phone: 手机号码</li>
+                <li v-if="registerMethod === 'email'">contactEmail: 用户邮箱</li>
+                <li v-if="registerMethod === 'phone'">contactPhone: 手机号码</li>
                 <li>password: 用户密码</li>
                 <li v-if="registerMethod === 'email'">emailCode: 邮箱验证码</li>
                 <li v-if="registerMethod === 'phone'">smsCode: 短信验证码</li>
+                <li v-if="registerMethod === 'phone'">inviteCode: 邀请码（可选）</li>
               </ul>
               <div><strong>验证码请求体：</strong></div>
               <ul class="ml-4 text-xs text-gray-400">
@@ -341,7 +352,8 @@ const registerForm = ref({
   phone: '',
   password: '',
   smsCode: '',
-  emailCode: '' // Added for email verification
+  emailCode: '', // Added for email verification
+  inviteCode: '' // Added for phone registration invite code
 })
 
 const isSmsLoading = ref(false)
@@ -508,15 +520,16 @@ const testRegister = async () => {
     
     if (registerMethod.value === 'email') {
       registerData = {
-        email: registerForm.value.email,
+        contactEmail: registerForm.value.email,
         password: registerForm.value.password,
         emailCode: registerForm.value.emailCode
       }
     } else {
       registerData = {
-        phone: registerForm.value.phone,
+        contactPhone: registerForm.value.phone,
         password: registerForm.value.password,
-        smsCode: registerForm.value.smsCode
+        smsCode: registerForm.value.smsCode,
+        inviteCode: registerForm.value.inviteCode
       }
     }
     

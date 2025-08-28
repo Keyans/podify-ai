@@ -56,13 +56,6 @@
           </div>
         </div>
 
-        <!-- 提示信息 -->
-        <div class="text-center text-dark-text-secondary mb-6">
-          这两个图表第三方接口返回情况
-          <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
 
         <!-- 筛选器 -->
         <div class="flex items-center space-x-4 mb-4">
@@ -72,10 +65,10 @@
               class="px-3 py-2 bg-dark-input border border-dark-border rounded-md text-dark-text focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">风险等级</option>
-              <option value="low">低风险</option>
-              <option value="medium">中风险</option>
-              <option value="high">高风险</option>
-              <option value="unknown">未知</option>
+              <option value="0">无风险</option>
+              <option value="1">低风险</option>
+              <option value="2">中风险</option>
+              <option value="3">高风险</option>
             </select>
           </div>
         </div>
@@ -103,11 +96,17 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text">{{ index + 1 }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <img 
-                    :src="item.imageUrl || 'https://via.placeholder.com/60x60'" 
-                    :alt="item.imageName"
-                    class="w-15 h-15 object-cover rounded-md"
-                  />
+                  <div class="w-20 h-20 bg-dark-hover rounded-md overflow-hidden">
+                    <OptimizedImage
+                      :src="item.imageUrl || 'https://via.placeholder.com/80x80'"
+                      :alt="item.fileName || item.imageName || '检测图片'"
+                      :zoomable="true"
+                      :show-zoom-icon="true"
+                      :lazy="false"
+                      container-class="w-full h-full group"
+                      image-class="w-full h-full object-cover"
+                    />
+                  </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span 
@@ -118,10 +117,10 @@
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text">
-                  {{ item.riskLabel || '疑似含有侵权内容' }}
+                  {{ item.reason || item.riskLabel || '疑似含有侵权内容' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text">
-                  {{ item.confidence || '42.51%' }}
+                  {{ item.confidence ? `${(item.confidence / 100).toFixed(2)}%` : '0%' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-dark-text-secondary">
                   {{ item.detectionTime || '2025-07-24 01:12:39' }}
@@ -267,6 +266,7 @@
 
 <script setup>
 import { ref, computed, defineProps, defineEmits, watch } from 'vue'
+import OptimizedImage from '~/components/OptimizedImage.vue'
 
 const props = defineProps({
   isOpen: {
@@ -297,61 +297,23 @@ const pagination = ref({
 const jumpToPage = ref(1)
 const showPodDropdown = ref(false)
 
-// 模拟详情数据
-const detailList = ref([
-  {
-    id: 1,
-    imageUrl: 'https://via.placeholder.com/60x60',
-    imageName: '商品图片1',
-    riskLevel: 'low',
-    riskLabel: '疑似含有侵权身份内容',
-    confidence: '42.51%',
-    detectionTime: '2025-07-24 01:12:39'
-  },
-  {
-    id: 2,
-    imageUrl: 'https://via.placeholder.com/60x60',
-    imageName: '商品图片2',
-    riskLevel: 'unknown',
-    riskLabel: '无',
-    confidence: '79.25%',
-    detectionTime: '2025-07-24 01:12:39'
-  },
-  {
-    id: 3,
-    imageUrl: 'https://via.placeholder.com/60x60',
-    imageName: '商品图片3',
-    riskLevel: 'medium',
-    riskLabel: '疑似含有明星相关内容',
-    confidence: '90.23%',
-    detectionTime: '2025-07-24 01:12:39'
-  },
-  {
-    id: 4,
-    imageUrl: 'https://via.placeholder.com/60x60',
-    imageName: '商品图片4',
-    riskLevel: 'high',
-    riskLabel: '疑似含有艺术品色情内容',
-    confidence: '16.20%',
-    detectionTime: '2025-07-24 01:12:39'
-  },
-  {
-    id: 5,
-    imageUrl: 'https://via.placeholder.com/60x60',
-    imageName: '商品图片5',
-    riskLevel: 'unknown',
-    riskLabel: '未知风险',
-    confidence: '59.16%',
-    detectionTime: '2025-07-24 01:12:39'
-  }
-])
+// 详情数据（从props传入）
+const detailList = ref([])
+
+// 添加调试信息
+watch(detailList, (newList) => {
+  console.log('detailList更新:', newList)
+  console.log('detailList长度:', newList.length)
+}, { deep: true })
 
 // 根据筛选条件过滤数据
 const filteredDetailList = computed(() => {
   let result = [...detailList.value]
   
   if (filterRiskLevel.value) {
-    result = result.filter(item => item.riskLevel === filterRiskLevel.value)
+    // 确保数字比较正确，filterRiskLevel.value是字符串，需要转换为数字进行比较
+    const targetRiskLevel = parseInt(filterRiskLevel.value)
+    result = result.filter(item => item.riskLevel === targetRiskLevel)
   }
   
   return result
@@ -371,33 +333,45 @@ const paginatedDetailList = computed(() => {
 
 // 获取风险等级样式
 const getRiskLevelClass = (level) => {
+  // 支持数字和字符串风险等级，按照API文档：0=无风险,1=低风险,2=中风险,3=高风险
   switch (level) {
+    case 0:
+    case 'none':
+      return 'bg-gray-100 text-gray-800'  // 无风险
+    case 1:
     case 'low':
-      return 'bg-green-100 text-green-800'
+      return 'bg-green-100 text-green-800'  // 低风险
+    case 2:
     case 'medium':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-yellow-100 text-yellow-800'  // 中风险
+    case 3:
     case 'high':
-      return 'bg-red-100 text-red-800'
-    case 'unknown':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-red-100 text-red-800'  // 高风险
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-blue-100 text-blue-800'  // 未知风险
   }
 }
 
 // 获取风险等级文本
 const getRiskLevelText = (level) => {
+  // 支持数字和字符串风险等级，按照API文档：0=无风险,1=低风险,2=中风险,3=高风险
+  console.log('🔍 getRiskLevelText 调试:', { level, type: typeof level })
+  
   switch (level) {
+    case 0:
+    case 'none':
+      return '无风险'
+    case 1:
     case 'low':
       return '低风险'
+    case 2:
     case 'medium':
       return '中风险'
+    case 3:
     case 'high':
       return '高风险'
-    case 'unknown':
-      return '未知'
     default:
-      return '无风险'
+      return '未知风险'
   }
 }
 
@@ -459,10 +433,19 @@ watch(() => props.isOpen, (newVal) => {
     
     // 如果有任务数据，使用任务数据中的详情列表
     if (props.taskData?.detailList) {
+      console.log('弹窗打开时，接收到的详情数据:', props.taskData.detailList)
       detailList.value = props.taskData.detailList
     }
   }
 })
+
+// 监听任务数据变化
+watch(() => props.taskData?.detailList, (newDetailList) => {
+  if (newDetailList && newDetailList.length > 0) {
+    console.log('任务详情数据更新:', newDetailList)
+    detailList.value = newDetailList
+  }
+}, { deep: true, immediate: true })
 
 // 任务统计信息
 const taskInfo = computed(() => {

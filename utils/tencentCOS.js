@@ -253,6 +253,7 @@ class TencentCOS {
         customFileName = null,
         bucketId = "",
         galleryType = "application", // 默认使用application类型
+        batchId = Date.now()
       } = options;
 
       // 生成文件名 - 使用prefix和galleryType
@@ -282,11 +283,11 @@ class TencentCOS {
             Body: file,
             SliceSize: 1024 * 1024 * 5, // 5MB分片
             onProgress: (progressData) => {
-              const percent = Math.round(progressData.percent * 100);
+              const percent = Math.min(Math.max(progressData.percent, 0), 1);
               console.log(`📊 上传进度: ${percent}%`);
-
               if (onProgress && typeof onProgress === "function") {
                 onProgress({
+                  batchId,
                   percent,
                   loaded: progressData.loaded,
                   total: progressData.total,
@@ -354,7 +355,7 @@ class TencentCOS {
   async uploadFiles(files, options = {}) {
     const results = [];
     const {
-      concurrent = 3, // 并发上传数量
+      concurrent = 1, // 并发上传数量
       onFileProgress = null,
       onOverallProgress = null,
       galleryType = "application", // 默认使用application类型

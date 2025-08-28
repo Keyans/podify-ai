@@ -4,15 +4,28 @@ import { getEnvironmentConfig } from './config/environments'
 // 获取当前环境配置
 const envConfig = getEnvironmentConfig(process.env.NUXT_ENV)
 
+
+function proxy() {
+  //let targetTest = "https://cuz-ai.riin.com"; //测试环境
+  let devTarget = "http://192.168.1.151:30882"; //dev 环境
+  //let devTarget = "http://10.120.22.134:8080"; //hzh本地
+  return {
+    "/pod": {
+      target: devTarget,
+      ws: false,
+      changeOrigin: true,
+      secure: false, //证书免校验
+    },
+  };
+}
+
+
+
 export default defineNuxtConfig({
-  compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
   ssr: false,
   css: ['~/assets/css/main.css'],
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt'
-  ],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@ant-design-vue/nuxt', '@nuxt/image'],
   // 开发服务器配置
   devServer: {
     host: '0.0.0.0', // 允许通过IP地址访问
@@ -21,7 +34,7 @@ export default defineNuxtConfig({
   // 路由规则配置
   routeRules: {
     // 公开页面 - 改为客户端渲染，支持动态功能
-    '/': { ssr: false },
+    '/': { ssr: true },
     '/login': { ssr: false }, // 客户端渲染
     '/register': { ssr: false },
     
@@ -44,6 +57,38 @@ export default defineNuxtConfig({
       ]
     }
   },
+  // 图像优化
+  image: {
+      quality: 80,
+      format: ["webp", "avif", "jpg", "png"],
+      screens: {
+        xs: 320,
+        sm: 640,
+        md: 768,
+        lg: 1024,
+        xl: 1280,
+        xxl: 1536,
+      },
+      domains: ["your-domain.com"],
+      presets: {
+        product: {
+          modifiers: {
+            format: "webp",
+            quality: 80,
+            width: 500,
+            height: 500,
+          },
+        },
+        thumbnail: {
+          modifiers: {
+            format: "webp",
+            quality: 60,
+            width: 200,
+            height: 200,
+          },
+        },
+      },
+  },
   runtimeConfig: {
     public: {
       // API配置
@@ -56,38 +101,14 @@ export default defineNuxtConfig({
         // authorization 现在在客户端动态设置
       },
       // 业务配置
-      microPodUrl: process.env.NUXT_PUBLIC_MICRO_POD_URL || envConfig.microPodUrl,
-      galleryUrl: process.env.NUXT_PUBLIC_GALLERY_URL || envConfig.galleryUrl,
       backendApi: process.env.NUXT_PUBLIC_BACKEND_API || envConfig.backendApi,
-      clientType: process.env.NUXT_PUBLIC_CLIENT_TYPE || envConfig.clientType,
-      // 环境信息
-      environment: process.env.NUXT_ENV || 'development',
-      environmentName: envConfig.name,
-      // CLS配置
-      clsSecretId: process.env.NUXT_PUBLIC_CLS_SECRET_ID || '',
-      clsSecretKey: process.env.NUXT_PUBLIC_CLS_SECRET_KEY || '',
-      clsTopicId: process.env.NUXT_PUBLIC_CLS_TOPIC_ID || '',
-      clsEndpoint: process.env.NUXT_PUBLIC_CLS_ENDPOINT || ''
     }
   },
   // 代理配置
   vite: {
+    base: "/",
     server: {
-      proxy: {
-        // API代理配置
-        [process.env.NUXT_PUBLIC_API_PROXY_PREFIX || envConfig.apiProxyPrefix]: {
-          target: process.env.NUXT_PUBLIC_API_PROXY_TARGET || envConfig.apiProxyTarget,
-          changeOrigin: true,
-          secure: false,
-          ws: false,
-          configure: (proxy, options) => {
-            proxy.on('proxyReq', (proxyReq) => {
-              // 基本的client-type头部，认证头部由客户端请求添加
-              proxyReq.setHeader('x-client-type', process.env.NUXT_PUBLIC_API_CLIENT_TYPE || envConfig.apiClientType)
-            })
-          }
-        }
-      }
+      proxy: proxy()
     }
   }
 })

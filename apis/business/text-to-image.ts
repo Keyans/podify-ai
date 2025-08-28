@@ -49,9 +49,8 @@ export const getTextToImageTaskDetail = async (params: {
 // 创建文生图任务参数
 export interface CreateTextToImageTaskParams {
   promptWord: string          // 生图提示词
-  creatorSize: number         // 生图尺寸 (0:自定义 1:16:9 2:4:3 3:3:2 4:1:1 5:2:3 6:3:4 7:9:16)
-  creatorWidth: number        // 图片宽度
-  creatorHeight: number       // 图片高度
+  creatorWidth: number        // 图片宽度 (必填)
+  creatorHeight: number       // 图片高度 (必填)
   creatorNum: number          // 生成数量
   uploadType?: number         // 上传类型 (1:本地上传 2:图库上传) - 可选，仅有示例图时传递
   imageName?: string          // 图片名称 - 可选，仅有示例图时传递

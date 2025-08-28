@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="p-5 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium text-dark-text">新建标题生成任务</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-300">
+        <button @click.stop="close" class="text-gray-400 hover:text-gray-300">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -92,7 +92,7 @@
       </div>
       
       <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="close" class="px-4 py-2 border border-dark-border rounded-md text-dark-text-secondary hover:bg-dark-hover">取消</button>
+        <button @click.stop="close" class="px-4 py-2 border border-dark-border rounded-md text-dark-text-secondary hover:bg-dark-hover">取消</button>
         <button 
           @click="submit" 
           :disabled="submitting || !canSubmit"
@@ -291,4 +291,4 @@ watch(() => props.isOpen, (newVal) => {
     resetForm()
   }
 })
-</script> 
+</script>

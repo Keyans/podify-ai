@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="p-5 border-b border-dark-border flex justify-between items-center">
         <h3 class="font-medium text-dark-text">新建裂变任务</h3>
-        <button @click="close" class="text-gray-400 hover:text-gray-300">
+        <button @click.stop="close" class="text-gray-400 hover:text-gray-300">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -25,7 +25,7 @@
             上传图片
           </button>
           <button 
-            @click="openLibrarySelector"
+            @click="activeTab = 'gallery'"
             class="flex-1 py-3 px-4 flex items-center justify-center border border-dark-border rounded-md hover:bg-dark-hover focus:outline-none"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,6 +46,9 @@
             @upload-error="handleUploadError"
             @files-change="handleFilesChange"
           />
+        </div>
+        <div v-else class="mb-6">
+          <GalleryPickerModal :inline="true" :isOpen="true" :maxSelect="1000" @change="handleGalleryPicked" />
         </div>
         
         <!-- 一键抠图选项 -->
@@ -90,13 +93,13 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          一次最多支持 1000 张图片
+          一次最多支持 1000 张图片，已选择 {{ selectedFiles.length }} 张
         </div>
       </div>
       
       <!-- Footer Buttons -->
       <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
+        <button @click.stop="close" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
         <button 
           @click="submit" 
           :disabled="submitting"
@@ -108,100 +111,14 @@
       </div>
     </div>
     
-    <!-- 图库选择器弹窗 -->
-    <div v-if="showLibrarySelector" class="bg-dark-card rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto text-dark-text">
-      <!-- Header -->
-      <div class="p-5 border-b border-dark-border flex justify-between items-center">
-        <h3 class="font-medium text-dark-text">从图库选择</h3>
-        <button @click="closeLibrarySelector" class="text-gray-400 hover:text-gray-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      
-      <div class="p-6">
-        <!-- Search/Category -->
-        <div class="flex mb-6">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="搜索图片" 
-            class="flex-1 px-3 py-2 bg-dark-input border border-dark-border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-dark-text"
-          />
-          <div class="relative ml-2">
-            <button 
-              @click="showCategoryDropdown = !showCategoryDropdown" 
-              class="px-3 py-2 bg-dark-input border border-dark-border rounded-md flex items-center"
-            >
-              选择分类
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div v-if="showCategoryDropdown" class="absolute right-0 mt-1 w-40 bg-dark-card border border-dark-border rounded-md shadow-lg z-10">
-              <div class="py-1">
-                <a href="#" @click.prevent="selectCategory('全部')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">全部</a>
-                <a href="#" @click.prevent="selectCategory('产品')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">产品</a>
-                <a href="#" @click.prevent="selectCategory('服装')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">服装</a>
-                <a href="#" @click.prevent="selectCategory('背景')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">背景</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Library Images Grid -->
-        <div class="grid grid-cols-5 gap-3">
-          <div v-for="(image, index) in libraryImages" :key="index" class="relative">
-            <div 
-              class="relative h-20 w-full rounded-md overflow-hidden cursor-pointer" 
-              :class="{'ring-2 ring-green-500': image.selected}" 
-              @click="toggleSelectImage(index)"
-            >
-              <img :src="image.url" alt="图库图片" class="h-full w-full object-cover">
-                              <div v-if="image.selected" class="absolute top-1 right-1 bg-cyan-400 rounded-full p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Pagination -->
-        <div class="flex items-center justify-between mt-6">
-          <span class="text-sm text-gray-400">已选 {{ selectedLibraryImages.length }} 张图片</span>
-          <div class="flex items-center space-x-2">
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border bg-blue-600 text-white">1</button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">2</button>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">3</button>
-            <span class="mx-1">...</span>
-            <button class="w-8 h-8 flex items-center justify-center rounded-md border border-dark-border">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Footer Buttons -->
-      <div class="p-5 border-t border-dark-border flex justify-end space-x-3">
-        <button @click="closeLibrarySelector" class="px-4 py-2 border border-dark-border rounded-md text-gray-400 hover:bg-dark-hover">取消</button>
-        <button @click="confirmLibrarySelection" class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500">确定选择 (5秒内)</button>
-      </div>
-    </div>
+    <!-- 统一图库选择器（不再使用弹窗模式） -->
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits, watch, computed } from 'vue'
 import TencentCosUpload from './TencentCosUpload.vue'
+import GalleryPickerModal from './GalleryPickerModal.vue'
 import { createFissionTask } from '~/apis/business/fission'
 
 const props = defineProps({
@@ -287,50 +204,23 @@ const toggleSelectImage = (index) => {
   libraryImages.value[index].selected = !libraryImages.value[index].selected
 }
 
-// 确认图库选择
-const confirmLibrarySelection = async () => {
-  // 将选中的图库图片添加到已选文件
-  for (const img of selectedLibraryImages.value) {
-    try {
-      // 获取图片信息
-      const response = await fetch(img.url)
-      const blob = await response.blob()
-      
-      // 创建临时图片对象获取尺寸
-      const imgElement = new Image()
-      const imageUrl = URL.createObjectURL(blob)
-      
-      await new Promise((resolve) => {
-        imgElement.onload = () => {
-          selectedFiles.value.push({
-            file: new File([blob], `library-image-${img.id}.jpg`, { type: 'image/jpeg' }),
-            preview: img.url,
-            name: `library-image-${img.id}.jpg`,
-            url: img.url,
-            width: imgElement.naturalWidth,
-            height: imgElement.naturalHeight,
-            format: 'JPG',
-            size: blob.size,
-            uploaded: true, // 图库图片视为已上传
-            uploadType: 2 // 图库上传类型
-          })
-          URL.revokeObjectURL(imageUrl)
-          resolve()
-        }
-        imgElement.src = imageUrl
-      })
-    } catch (error) {
-      console.error('获取图库图片信息失败:', error)
-    }
-  }
-  
-  // 关闭图库选择器
-  closeLibrarySelector()
-  
-  // 重置图库选择状态
-  libraryImages.value.forEach(img => {
-    img.selected = false
+// 统一图库回填
+const handleGalleryPicked = (list) => {
+  list.forEach(img => {
+    selectedFiles.value.push({
+      file: null,
+      preview: img.imageUrl,
+      name: img.imageName || 'gallery-image.jpg',
+      url: img.imageUrl,
+      width: 0,
+      height: 0,
+      format: 'JPG',
+      size: 0,
+      uploaded: true,
+      uploadType: 2
+    })
   })
+  closeLibrarySelector()
 }
 
 // 关闭弹窗
@@ -346,7 +236,7 @@ const submit = async () => {
     // 1. 先上传所有文件到 COS
     let cosImageList = []
     if (cosUploadRef.value) {
-      await cosUploadRef.value.uploadAllFilesToCos()
+      await cosUploadRef.value.uploadAllFiles()
       cosImageList = cosUploadRef.value.getImageInfoList()
     }
     
@@ -374,9 +264,7 @@ const submit = async () => {
     const taskParams = {
       uploadType: cosImageList.length > 0 ? 1 : 2, // 如果有 COS 上传的图片就是本地上传，否则是图库上传
       fissionNum: parseInt(fissionCount.value), // 裂变数量
-      imageList: allImageList,
-      // 如果启用了一键抠图，可以在这里添加相关参数
-      autoCutout: enableAutoCutout.value
+      imageList: allImageList
     }
     
     console.log('创建复变任务参数:', taskParams)
@@ -459,4 +347,4 @@ watch(() => props.isOpen, (newVal) => {
     resetForm()
   }
 })
-</script> 
+</script>

@@ -34,7 +34,7 @@ export const getEnvironmentConfig = (env?: string): EnvironmentConfig => {
     apiPrefix: process.env.NUXT_PUBLIC_API_PREFIX || '/pod/cuzcuz-ai',
     apiProxyTarget: process.env.NUXT_PUBLIC_API_PROXY_TARGET || '',
     apiProxyPrefix: process.env.NUXT_PUBLIC_API_PROXY_PREFIX || '/pod',
-    apiClientType: process.env.NUXT_PUBLIC_API_CLIENT_TYPE || 'cuzcuz-ai-web',
+    apiClientType: process.env.NUXT_PUBLIC_API_CLIENT_TYPE || 'AI_C_WEB',
     microPodUrl: process.env.NUXT_PUBLIC_MICRO_POD_URL || '',
     galleryUrl: process.env.NUXT_PUBLIC_GALLERY_URL || '',
     backendApi: process.env.NUXT_PUBLIC_BACKEND_API || '',

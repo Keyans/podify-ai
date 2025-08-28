@@ -91,20 +91,47 @@
             </div>
             
             <!-- 服务条款 -->
-            <div class="flex items-start">
-              <input type="checkbox" required class="w-4 h-4 mt-1 text-green-600 bg-gray-800 border-gray-600 rounded focus:ring-green-500">
-              <span class="ml-2 text-sm text-gray-300">
-                我已阅读并同意
-                <a href="#" class="text-green-400 hover:text-green-300 transition-colors">服务条款</a>
-                和
-                <a href="#" class="text-green-400 hover:text-green-300 transition-colors">隐私政策</a>
-              </span>
+            <div class="flex items-center space-x-3">
+              <label class="flex items-center space-x-3 cursor-pointer group">
+                <div class="relative">
+                  <input 
+                    v-model="agreeToTerms" 
+                    type="checkbox"
+                    class="sr-only"
+                    required
+                  >
+                  <!-- 未选中状态：深灰色背景，灰色边框 -->
+                  <!-- 选中状态：亮绿色背景，绿色边框，白色对勾 -->
+                  <div class="w-5 h-5 rounded border-2 transition-all duration-300 ease-in-out flex items-center justify-center transform"
+                       :class="agreeToTerms 
+                         ? 'bg-green-500 border-green-500 scale-110 shadow-lg shadow-green-500/50' 
+                         : 'bg-gray-700 border-gray-500 group-hover:border-gray-400 group-hover:bg-gray-600'">
+                    <!-- 对勾图标，仅在选中时显示 -->
+                    <svg v-if="agreeToTerms" 
+                         class="w-3.5 h-3.5 text-white checkmark-animation" 
+                         fill="none" 
+                         stroke="currentColor" 
+                         viewBox="0 0 24 24">
+                      <path stroke-linecap="round" 
+                            stroke-linejoin="round" 
+                            stroke-width="3" 
+                            d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                </div>
+                <span class="text-gray-300 text-sm group-hover:text-white transition-colors">
+                  我已阅读并同意
+                  <a href="#" class="text-green-400 hover:text-green-300 transition-colors">服务条款</a>
+                  和
+                  <a href="#" class="text-green-400 hover:text-green-300 transition-colors">隐私政策</a>
+                </span>
+              </label>
             </div>
             
             <!-- 注册按钮 -->
             <button 
               type="submit"
-              :disabled="loading"
+              :disabled="loading || !agreeToTerms"
               class="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 disabled:hover:scale-100 shadow-lg"
             >
               <span v-if="loading" class="flex items-center justify-center">
@@ -197,6 +224,9 @@ const loading = ref(false)
 const message = ref('')
 const messageType = ref('') // 'success', 'error'
 
+// 同意条款状态
+const agreeToTerms = ref(false)
+
 // 显示消息
 const showMessage = (msg, type = 'error') => {
   message.value = msg
@@ -215,6 +245,12 @@ const handleRegister = async () => {
   message.value = ''
   messageType.value = ''
   
+  // 验证是否同意条款
+  if (!agreeToTerms.value) {
+    showMessage('请先同意服务条款和隐私政策', 'error')
+    return
+  }
+  
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
     showMessage('密码不一致，请重新输入', 'error')
     return
@@ -225,29 +261,59 @@ const handleRegister = async () => {
     
     // 准备注册数据
     const registerData = {
-      email: registerForm.value.email,
+      contactEmail: registerForm.value.email,
       password: registerForm.value.password,
       nickname: registerForm.value.username
     }
     
     console.log('开始注册，数据:', registerData)
     
-    // 调用注册API
-    const response = await register(registerData)
+    // 使用Nuxt的auth插件调用注册API
+    const { $auth } = useNuxtApp()
+    const response = await $auth.register(registerData)
     
     console.log('注册响应:', response)
     
-    // 检查注册是否成功
-    if (response && (response.success || response.code === 200)) {
-      console.log('注册成功，准备跳转到登录页面')
+    // 检查注册是否成功并且返回了accessToken
+    if (response && response.accessToken) {
+      const userData = response
+      
+      console.log('注册成功，保存登录状态并跳转到dashboard')
+      
+      // 保存登录状态到localStorage (兼容现有逻辑)
+      localStorage.setItem('isLoggedIn', 'true')
+      
+      // 保存认证相关信息（用于API调用）
+      localStorage.setItem('auth_token', userData.accessToken)
+      localStorage.setItem('access_token', userData.accessToken) // 保留兼容性
+      localStorage.setItem('user_id', userData.userId)
+      localStorage.setItem('tenant_id', userData.tenantId)
+      
+      // 保存完整用户信息
+      localStorage.setItem('userInfo', JSON.stringify({
+        email: userData.email || userData.username,
+        name: userData.nickname || '用户',
+        avatar: userData.avatar || '',
+        userId: userData.userId,
+        tenantId: userData.tenantId,
+        tenantCode: userData.tenantCode,
+        tenantName: userData.tenantName,
+        permissions: userData.permissions || []
+      }))
       
       // 显示成功提示
-      showMessage('注册成功！即将跳转到登录页面...', 'success')
+      showMessage('注册成功，欢迎使用CUZCUZAI！', 'success')
       
-      // 延迟跳转，让用户看到成功消息
+      // 延迟跳转，确保认证状态已保存
       setTimeout(async () => {
-        await navigateTo('/login')
-      }, 2000)
+        try {
+          await navigateTo('/dashboard')
+        } catch (error) {
+          console.error('跳转失败:', error)
+          // 强制刷新到dashboard页面
+          window.location.href = '/dashboard'
+        }
+      }, 500)
     } else {
       // 注册失败，显示错误信息
       const errorMessage = response?.message || '注册失败，请重试'
@@ -294,5 +360,25 @@ useHead({
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* 自定义弹跳动画 - 更柔和的效果 */
+@keyframes checkmark-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.checkmark-animation {
+  animation: checkmark-bounce 0.3s ease-out;
 }
 </style>

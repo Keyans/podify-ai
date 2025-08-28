@@ -66,9 +66,9 @@
                 <a 
                   href="#" 
                   @click.prevent="openInTab('/dashboard', '驾驶舱')"
-                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text hover:border-r-2 hover:border-cyan-400" 
-                  :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard' }"
-                  :style="{ color: currentActivePath === '/dashboard' ? '#22d3ee' : 'var(--text-secondary)' }"
+                  class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input hover:text-dark-text dashboard-menu-item" 
+                  :class="{ 'dashboard-menu-active': currentActivePath === '/dashboard' }"
+                  :style="{ color: currentActivePath === '/dashboard' ? 'var(--accent-color)' : 'var(--text-secondary)' }"
                 >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
@@ -106,40 +106,40 @@
               </svg>
             </div>
             <div v-show="isMyAppsOpen" class="ml-6 space-y-1">
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input hover:text-cyan-400" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/collection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/collection' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/collection' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/collection', '商品采集')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/collection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/collection' }" :style="{ color: currentActivePath === '/dashboard/apps/collection' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/collection' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>商品采集</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/cropping', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cropping' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/cropping' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cropping', '智能裁图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/cropping', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cropping' }" :style="{ color: currentActivePath === '/dashboard/apps/cropping' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/cropping' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>智能裁图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/cutout', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cutout' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/cutout' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/cutout', '一键抠图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/cutout', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/cutout' }" :style="{ color: currentActivePath === '/dashboard/apps/cutout' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/cutout' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>一键抠图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/text-to-image', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/text-to-image' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/text-to-image' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/text-to-image', '文生图')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/text-to-image', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/text-to-image' }" :style="{ color: currentActivePath === '/dashboard/apps/text-to-image' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/text-to-image' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>文生图</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/transform', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/transform' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/transform' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/transform', '超级裂变')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/transform', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/transform' }" :style="{ color: currentActivePath === '/dashboard/apps/transform' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/transform' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>超级裂变</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/detection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/detection' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/detection' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/detection', '侵权检测')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/detection', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/detection' }" :style="{ color: currentActivePath === '/dashboard/apps/detection' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/detection' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>侵权检测</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/pod-synthesis', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/pod-synthesis' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/pod-synthesis' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/pod-synthesis', 'POD合成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/pod-synthesis', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/pod-synthesis' }" :style="{ color: currentActivePath === '/dashboard/apps/pod-synthesis' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/pod-synthesis' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>POD合成</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/title-generation', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/title-generation' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/title-generation' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/title-generation', '标题生成')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/title-generation', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/title-generation' }" :style="{ color: currentActivePath === '/dashboard/apps/title-generation' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/title-generation' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>标题生成</span>
               </a>
-              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 px-4 py-1.5 text-sm hover:bg-dark-input hover:text-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400': currentActivePath === '/dashboard/apps/batch-listing', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/batch-listing' }">
-                <div class="w-1.5 h-1.5 rounded-full" :class="currentActivePath === '/dashboard/apps/batch-listing' ? 'bg-cyan-400' : 'bg-dark-text-tertiary'"></div>
+              <a href="#" @click.prevent="openInTab('/dashboard/apps/batch-listing', '批量刊登')" class="flex items-center space-x-2 px-4 py-1.5 text-sm transition-all duration-200 hover:bg-dark-input dashboard-sub-menu-item" :class="{ 'dashboard-sub-menu-active': currentActivePath === '/dashboard/apps/batch-listing', 'text-dark-text-secondary': currentActivePath !== '/dashboard/apps/batch-listing' }" :style="{ color: currentActivePath === '/dashboard/apps/batch-listing' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                <div class="w-1.5 h-1.5 rounded-full dashboard-sub-menu-dot" :style="{ backgroundColor: currentActivePath === '/dashboard/apps/batch-listing' ? 'var(--accent-color)' : 'var(--text-tertiary)' }"></div>
                 <span>批量刊登</span>
               </a>
             </div>
@@ -148,8 +148,8 @@
           <div class="mb-4">
             <ul class="space-y-1">
               <li>
-                <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 px-4 py-2 text-sm hover:bg-dark-input hover:border-r-2 hover:border-cyan-400 transition-all duration-200" :class="{ 'bg-cyan-400/10 text-cyan-400 border-r-4 border-cyan-400': currentActivePath === '/dashboard/workflow', 'text-dark-text-secondary': currentActivePath !== '/dashboard/workflow' }">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" :class="currentActivePath === '/dashboard/workflow' ? 'text-cyan-400' : 'text-dark-text-secondary'">
+                <a href="#" @click.prevent="openInTab('/dashboard/workflow', '工作流')" class="flex items-center space-x-3 px-4 py-2 text-sm transition-all duration-200 hover:bg-dark-input dashboard-menu-item" :class="{ 'dashboard-menu-active': currentActivePath === '/dashboard/workflow', 'text-dark-text-secondary': currentActivePath !== '/dashboard/workflow' }" :style="{ color: currentActivePath === '/dashboard/workflow' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" :style="{ color: currentActivePath === '/dashboard/workflow' ? 'var(--accent-color)' : 'var(--text-secondary)' }">
                     <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
                   </svg>
                   <span>工作流</span>
@@ -292,7 +292,7 @@
                   </svg>
                 </div>
                 <div class="flex flex-col">
-                  <span class="text-sm font-medium text-dark-text">体验用户</span>
+                  <span class="text-sm font-medium text-dark-text">{{ userInfo.username || userInfo.nickname || userInfo.displayName || '用户' }}</span>
                   <span class="text-xs text-dark-text-secondary">{{ currentTeam.name }}</span>
                 </div>
               </div>
@@ -556,7 +556,7 @@
         </div>
 
         <!-- 页面内容区域 -->
-        <main class="flex-1 overflow-auto">
+        <main class="flex-1 overflow-auto flex flex-col">
         <slot />
       </main>
       </div>
@@ -586,19 +586,51 @@
                 <p class="text-sm text-dark-text-secondary">管理团队和账号设置</p>
               </div>
             </div>
-            <button 
-              @click="closeTeamModal"
-              class="p-2 hover:bg-dark-input rounded-lg transition-colors text-dark-text-secondary hover:text-dark-text"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
+            <div class="flex items-center space-x-2">
+              <!-- 刷新按钮 -->
+              <button 
+                @click="refreshTeamData"
+                :disabled="isLoadingTeams"
+                class="p-2 hover:bg-dark-input rounded-lg transition-colors text-dark-text-secondary hover:text-dark-text disabled:opacity-50 disabled:cursor-not-allowed"
+                title="刷新团队数据"
+              >
+                <svg class="w-5 h-5" :class="{ 'animate-spin': isLoadingTeams }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+              </button>
+              <!-- 关闭按钮 -->
+              <button 
+                @click="closeTeamModal"
+                class="p-2 hover:bg-dark-input rounded-lg transition-colors text-dark-text-secondary hover:text-dark-text"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- 弹窗内容 -->
         <div class="p-6 space-y-6">
+          <!-- 错误状态显示 -->
+          <div v-if="teamLoadError" class="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+            <div class="flex items-center space-x-3">
+              <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              <div>
+                <p class="text-sm font-medium text-red-400">{{ teamLoadError }}</p>
+                <button 
+                  @click="refreshTeamData"
+                  class="mt-2 text-xs text-red-300 hover:text-red-200 underline"
+                >
+                  点击重试
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- 团队切换区域 -->
           <div>
             <label class="flex items-center space-x-2 text-sm font-medium text-dark-text mb-3">
@@ -613,7 +645,7 @@
                 @change="switchTeam"
                 class="w-full px-4 py-3 bg-dark-input border border-dark-border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 text-dark-text appearance-none cursor-pointer transition-all"
               >
-                <option v-for="team in availableTeams" :key="team.id" :value="team.id">
+                <option v-for="team in availableTeams" :key="team.id" :value="String(team.id)">
                   {{ team.name }}
                 </option>
               </select>
@@ -635,14 +667,24 @@
                 </div>
                 <div>
                   <div class="font-semibold text-dark-text">{{ currentTeam.name }}</div>
-                  <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                    {{ currentTeam.version }}
+                  <div class="text-xs text-dark-text-secondary mb-1">{{ currentTeam.teamCode }}</div>
+                  <div class="flex items-center space-x-2">
+                    <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                      {{ currentTeam.version }}
+                    </div>
+                    <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-4h3v-3c0-1.1.9-2 2-2h2V7h2v2h2c1.1 0 2 .9 2 2v3h3v4H4z"/>
+                      </svg>
+                      {{ (currentTeam.currentMemberCount || 0) }}/{{ currentTeam.maxMembers || 0 }}
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="text-right">
-                <div class="text-sm text-dark-text-secondary">账户余额</div>
-                <div class="text-lg font-bold text-green-400">¥{{ currentTeam.balance }}</div>
+                <div class="text-sm text-dark-text-secondary">团队描述</div>
+                <div class="text-sm text-dark-text max-w-24 truncate">{{ currentTeam.teamDescription || '暂无描述' }}</div>
+                <div class="text-xs text-dark-text-secondary mt-1">负责人: {{ currentTeam.ownerUsername || '未知' }}</div>
               </div>
             </div>
           </div>
@@ -708,6 +750,14 @@
         </div>
       </div>
     </div>
+
+    <!-- 创建团队弹窗 -->
+    <TeamCreateModal 
+      :is-open="showCreateTeamModal" 
+      :external-error="createTeamError"
+      @close="closeCreateTeamModal"
+      @submit="handleCreateTeam"
+    />
   </div>
 </template>
 
@@ -715,7 +765,8 @@
 import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
 import { useThemeStore } from '~/composables/useTheme'
 import ThemeSelector from '~/components/ThemeSelector.vue'
-import { isLoggedIn, logout as clearAuthData } from '~/apis/auth'
+import TeamCreateModal from '~/components/TeamCreateModal.vue'
+import { isLoggedIn, logout as clearAuthData, getMyTeam, createNewTeam, getStoredTeamInfo, getCurrentTeamInfo, setCurrentTeam } from '~/apis/auth'
 import { post } from '~/apis/index'
 
 const themeStore = useThemeStore()
@@ -746,11 +797,28 @@ watch(() => route.path, () => {
   }
 }, { immediate: true })
 
+// 组件挂载时初始化数据
+onMounted(async () => {
+  if (process.client) {
+    // 检查登录状态
+    if (checkAuthAndRedirect()) {
+      // 加载用户数据
+      loadUserData()
+      // 加载团队数据
+      await loadTeamData()
+    }
+  }
+})
+
 // 菜单状态
 const isMyAppsOpen = ref(true)
 const isImageLibraryOpen = ref(false)
 const isProductManagementOpen = ref(false)
 const showTeamModal = ref(false)
+const showCreateTeamModal = ref(false)
+const isLoadingTeams = ref(false)
+const teamLoadError = ref('')
+const createTeamError = ref('')
 
 // 导航状态管理
 const isNavigating = ref(false)
@@ -762,12 +830,28 @@ const openTabs = ref([
 ])
 const activeTab = ref('dashboard')
 
+// 用户信息管理
+const userInfo = ref({
+  username: '加载中...',
+  email: '',
+  phone: '',
+  nickname: '',
+  displayName: ''
+})
+
 // 团队管理
-const availableTeams = ref([
-  { id: 'cuzcuz', name: 'CUZCUZ团队', version: '团队版', balance: '431.31' },
-  { id: 'abc', name: 'ABC团队', version: '个人版', balance: '168.50' },
-])
-const currentTeam = ref(availableTeams.value[0])
+const availableTeams = ref([])
+const currentTeam = ref({
+  id: '',
+  name: '加载中...',
+  teamCode: '',
+  teamDescription: '',
+  ownerUsername: '',
+  maxMembers: 0,
+  currentMemberCount: 0,
+  balance: '0.00',
+  version: '加载中...'
+})
 
 // 标签页右键菜单
 const showContextMenu = ref(false)
@@ -1108,21 +1192,230 @@ const toggleProductManagement = () => {
   isProductManagementOpen.value = !isProductManagementOpen.value
 }
 
+// 加载用户数据
+const loadUserData = () => {
+  try {
+    if (process.client) {
+      // 从localStorage获取存储的用户信息
+      const storedUserInfo = localStorage.getItem('user_info')
+      if (storedUserInfo) {
+        const parsedLoginData = JSON.parse(storedUserInfo)
+        if (parsedLoginData && parsedLoginData.userInfo) {
+          const userData = parsedLoginData.userInfo
+          userInfo.value = {
+            username: userData.username || userData.email || userData.phone || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            nickname: userData.nickname || '',
+            displayName: userData.displayName || ''
+          }
+          console.log('加载用户信息成功:', userInfo.value)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('加载用户信息失败:', error)
+    // 设置默认用户信息
+    userInfo.value = {
+      username: '用户',
+      email: '',
+      phone: '',
+      nickname: '',
+      displayName: ''
+    }
+  }
+}
+
+// 加载团队数据
+const loadTeamData = async () => {
+  isLoadingTeams.value = true
+  teamLoadError.value = '' // 清空之前的错误
+  try {
+    // 首先尝试从本地存储获取团队数据
+    const storedTeams = getStoredTeamInfo()
+    const currentStoredTeam = getCurrentTeamInfo()
+    
+    if (storedTeams && storedTeams.length > 0) {
+      // 转换团队数据格式为UI需要的格式
+      availableTeams.value = storedTeams.map(team => ({
+        id: team.id,
+        name: team.teamName || team.teamDescription || '未命名团队',
+        teamCode: team.teamCode,
+        teamDescription: team.teamDescription,
+        ownerUsername: team.ownerUsername,
+        maxMembers: team.maxMembers || 0,
+        currentMemberCount: team.currentMemberCount || 0,
+        balance: '0.00', // API没有余额信息，使用默认值
+        version: '团队版' // API没有版本信息，使用默认值
+      }))
+      
+      // 设置当前团队
+      if (currentStoredTeam) {
+        currentTeam.value = availableTeams.value.find(team => team.id === currentStoredTeam.id) || availableTeams.value[0]
+      } else {
+        currentTeam.value = availableTeams.value[0]
+      }
+    }
+    
+    // 检查认证状态再请求API
+    if (process.client) {
+      const authToken = localStorage.getItem('auth_token')
+      const userId = localStorage.getItem('user_id')
+      const tenantId = localStorage.getItem('tenant_id')
+      
+      if (!authToken || !userId || !tenantId) {
+        console.warn('认证信息缺失，跳过API请求')
+        return // 不继续请求API，使用缓存数据
+      }
+    }
+    
+    // 从服务器获取最新的团队数据
+    const teamResponse = await getMyTeam()
+    if (teamResponse && teamResponse.success && teamResponse.data && Array.isArray(teamResponse.data)) {
+      // 转换团队数据格式
+      availableTeams.value = teamResponse.data.map(team => ({
+        id: team.id,
+        name: team.teamName || team.teamDescription || '未命名团队',
+        teamCode: team.teamCode,
+        teamDescription: team.teamDescription,
+        ownerUsername: team.ownerUsername,
+        maxMembers: team.maxMembers || 0,
+        currentMemberCount: team.currentMemberCount || 0,
+        balance: '0.00', // API没有余额信息，使用默认值
+        version: '团队版' // API没有版本信息，使用默认值
+      }))
+      
+      // 更新当前团队（如果有的话，使用第一个）
+      if (availableTeams.value.length > 0) {
+        currentTeam.value = availableTeams.value[0]
+        // 设置为当前团队
+        if (teamResponse.data[0]) {
+          setCurrentTeam(teamResponse.data[0])
+        }
+      }
+    }
+  } catch (error) {
+    console.error('加载团队数据失败:', error)
+    
+    // 设置错误状态
+    if (error.response?.status === 401) {
+      teamLoadError.value = '登录已过期，请重新登录'
+    } else {
+      teamLoadError.value = '加载团队数据失败，请稍后重试'
+    }
+    
+    // 显示错误提示
+    if (process.client && window.$toast) {
+      if (error.response?.status === 401) {
+        window.$toast.error('登录已过期，请重新登录')
+        // 401错误时跳转到登录页
+        setTimeout(() => {
+          navigateTo('/login')
+        }, 1500)
+      } else {
+        window.$toast.error('加载团队数据失败，请稍后重试')
+      }
+    }
+    
+    // 保留现有数据，不覆盖
+    // 只有在没有任何团队数据时才设置默认值
+    if (availableTeams.value.length === 0 && (!currentTeam.value || !currentTeam.value.id)) {
+      currentTeam.value = {
+        id: 'default',
+        name: '默认团队',
+        teamCode: '',
+        teamDescription: '默认团队',
+        ownerUsername: '',
+        maxMembers: 0,
+        currentMemberCount: 0,
+        balance: '0.00',
+        version: '团队版'
+      }
+    }
+  } finally {
+    isLoadingTeams.value = false
+  }
+}
+
 // 团队相关方法
 const toggleTeamModal = () => {
   showTeamModal.value = !showTeamModal.value
+  // 不再每次打开弹窗都刷新数据，只在必要时刷新
 }
 
 const closeTeamModal = () => {
   showTeamModal.value = false
 }
 
+// 手动刷新团队数据
+const refreshTeamData = async () => {
+  console.log('手动刷新团队数据...')
+  
+  // 检查认证状态
+  if (process.client) {
+    const authToken = localStorage.getItem('auth_token')
+    const userId = localStorage.getItem('user_id')
+    const tenantId = localStorage.getItem('tenant_id')
+    
+    console.log('当前认证状态:', {
+      hasAuthToken: !!authToken,
+      hasUserId: !!userId,
+      hasTenantId: !!tenantId,
+      authTokenLength: authToken?.length || 0
+    })
+    
+    if (!authToken || !userId || !tenantId) {
+      if (window.$toast) {
+        window.$toast.error('认证信息缺失，请重新登录')
+      }
+      setTimeout(() => {
+        navigateTo('/login')
+      }, 1500)
+      return
+    }
+  }
+  
+  await loadTeamData()
+}
+
 const switchTeam = () => {
-  const selectedTeam = availableTeams.value.find(team => team.id === currentTeam.value.id)
+  const selectedTeam = availableTeams.value.find(team => String(team.id) === String(currentTeam.value.id))
   if (selectedTeam) {
     currentTeam.value = selectedTeam
     console.log('切换到团队:', selectedTeam.name)
-    // 实际应用中这里会更新当前团队信息和权限
+    
+    // 找到对应的原始团队数据并设置为当前团队
+    const storedTeams = getStoredTeamInfo()
+    if (storedTeams) {
+      const originalTeam = storedTeams.find(team => String(team.id) === String(selectedTeam.id))
+      if (originalTeam) {
+        setCurrentTeam(originalTeam)
+        
+        // 将当前团队信息重新存储到 localStorage
+        if (process.client) {
+          localStorage.setItem('current_team', JSON.stringify(originalTeam))
+          console.log('当前团队信息已更新到 localStorage:', originalTeam)
+          // 同步 currentTeam 卡片信息（包含成员数/版本等）
+          currentTeam.value = {
+            id: originalTeam.id,
+            name: originalTeam.teamName || originalTeam.teamDescription || selectedTeam.name,
+            teamCode: originalTeam.teamCode,
+            teamDescription: originalTeam.teamDescription,
+            ownerUsername: originalTeam.ownerUsername,
+            maxMembers: originalTeam.maxMembers || selectedTeam.maxMembers || 0,
+            currentMemberCount: originalTeam.currentMemberCount || selectedTeam.currentMemberCount || 0,
+            balance: '0.00',
+            version: '团队版'
+          }
+          // 广播团队切换事件，通知各页面刷新数据
+          try {
+            window.dispatchEvent(new CustomEvent('team-switched', { detail: originalTeam }))
+          } catch (e) {
+            console.warn('广播团队切换事件失败', e)
+          }
+        }
+      }
+    }
   }
 }
 
@@ -1135,7 +1428,78 @@ const joinNewTeam = () => {
 const createTeam = () => {
   console.log('创建新团队')
   closeTeamModal()
-  // 实际应用中这里会打开创建团队的表单或页面
+  showCreateTeamModal.value = true
+}
+
+// 处理创建团队表单提交
+const handleCreateTeam = async (teamData) => {
+  try {
+    console.log('🚀 开始创建团队，数据:', teamData)
+    
+    // 清空之前的错误
+    createTeamError.value = ''
+    
+    // 调用创建团队 API
+    console.log('📡 调用createNewTeam API...')
+    const response = await createNewTeam(teamData)
+    console.log('📥 API响应:', response)
+    
+    if (response && response.success) {
+      // 创建成功，显示成功消息
+      if (process.client && window.$toast) {
+        window.$toast.success('团队创建成功！')
+      }
+      
+      // 关闭弹窗
+      showCreateTeamModal.value = false
+      
+      // 重新加载团队数据
+      await loadTeamData()
+      
+    } else {
+      // 创建失败，显示错误消息
+      console.log('❌ API响应表示失败:', response)
+      const errorMessage = response?.message || '创建团队失败，请重试'
+      
+      // 设置错误状态，传递给子组件
+      createTeamError.value = errorMessage
+      
+      if (process.client && window.$toast) {
+        window.$toast.error(errorMessage)
+      }
+      // 不关闭弹窗，不抛出错误（让子组件通过 externalError 接收错误）
+    }
+  } catch (error) {
+    console.error('💥 创建团队异常:', error)
+    
+    // 检查是否是来自子组件的错误（如头像上传失败）
+    const isChildComponentError = error?.message?.includes('头像上传失败')
+    
+    // 显示错误消息
+    let errorMessage = error?.response?.data?.message || error?.message || '创建团队失败，请重试'
+    
+    // 对于401错误，提供简单的提示，不要求重新登录
+    if (error?.response?.status === 401) {
+      errorMessage = '权限验证失败，请稍后重试'
+    }
+    
+    // 设置错误状态，传递给子组件
+    createTeamError.value = errorMessage
+    
+    // 如果是子组件错误，不显示toast（避免重复显示）
+    if (!isChildComponentError && process.client && window.$toast) {
+      window.$toast.error(errorMessage)
+    }
+    
+    // 不抛出错误，让子组件保留表单数据
+  }
+}
+
+// 关闭创建团队弹窗
+const closeCreateTeamModal = () => {
+  showCreateTeamModal.value = false
+  // 清空创建团队的错误状态
+  createTeamError.value = ''
 }
 
 // 退出登录
@@ -1189,8 +1553,8 @@ const callLogoutApi = async () => {
         return {
           'X-Tenant-Id': tenantId || '',
           'X-Auth-User-Id': userId || '', 
-          'X-Auth-Platform-Type': 'web',
-          'X-Client-Type': 'cuzcuz-ai-web',
+          'X-Auth-Platform-Type': 'AI_PROJECT',
+          'X-Client-Type': 'AI_C_WEB',
           'Authorization': authToken || ''
         }
       }
@@ -1359,6 +1723,13 @@ onMounted(() => {
 
   // 页面加载时检查登录状态
   checkAuthAndRedirect()
+
+  // 监听来自基本信息页面的“打开团队切换器”事件
+  if (process.client) {
+    window.addEventListener('open-team-switcher', () => {
+      showTeamModal.value = true
+    })
+  }
 })
 
 // 组件卸载时清理事件监听器
@@ -1369,6 +1740,7 @@ onBeforeUnmount(() => {
   // 清理localStorage监听器
   if (process.client) {
     window.removeEventListener('storage', handleStorageChange)
+    window.removeEventListener('open-team-switcher', () => {})
   }
 })
 </script>
@@ -1417,5 +1789,23 @@ onBeforeUnmount(() => {
 
 .logo-hover:hover .logo-pulse {
   animation: techPulse 1.5s ease-in-out infinite;
+}
+
+/* Dashboard 菜单样式 */
+.dashboard-menu-item:hover {
+  border-right: 2px solid var(--accent-color);
+}
+
+.dashboard-menu-active {
+  background-color: rgba(34, 211, 238, 0.1) !important;
+  border-right: 4px solid var(--accent-color) !important;
+}
+
+.dashboard-sub-menu-item:hover {
+  color: var(--accent-color) !important;
+}
+
+.dashboard-sub-menu-active {
+  background-color: rgba(34, 211, 238, 0.1) !important;
 }
 </style>

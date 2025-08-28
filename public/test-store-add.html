@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店铺添加功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+        .step {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 店铺添加功能测试工具</h1>
+        <div class="status info">
+            <strong>测试说明：</strong>使用测试账号 qq@qq.com / 123456 登录后测试添加店铺功能
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>步骤 1: 模拟登录</h2>
+            <div class="form-group">
+                <label>邮箱:</label>
+                <input type="email" id="email" value="qq@qq.com" readonly>
+            </div>
+            <div class="form-group">
+                <label>密码:</label>
+                <input type="password" id="password" value="123456" readonly>
+            </div>
+            <button onclick="simulateLogin()">模拟登录</button>
+            <div id="loginResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>步骤 2: 测试平台列表API</h2>
+            <button onclick="testPlatformAPI()" id="testPlatformBtn" disabled>测试平台列表API</button>
+            <div id="platformResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>步骤 3: 模拟添加店铺</h2>
+            <div class="form-group">
+                <label>店铺名称:</label>
+                <input type="text" id="storeName" value="测试店铺" placeholder="输入店铺名称">
+            </div>
+            <div class="form-group">
+                <label>平台:</label>
+                <select id="platformSelect">
+                    <option value="">请先获取平台列表</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>店铺URL:</label>
+                <input type="url" id="storeUrl" value="https://test-store.example.com" placeholder="输入店铺URL">
+            </div>
+            <button onclick="testAddStore()" id="addStoreBtn" disabled>测试添加店铺</button>
+            <div id="addStoreResult"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 调试信息</h2>
+        <button onclick="showDebugInfo()">显示调试信息</button>
+        <div id="debugInfo"></div>
+    </div>
+
+    <script>
+        let isLoggedIn = false;
+        let platformList = [];
+
+        // 模拟登录函数
+        async function simulateLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.innerHTML = '<div class="status info">正在模拟登录...</div>';
+
+            try {
+                // 模拟登录API调用
+                const response = await fetch('/api/v1/tenants/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Client-Type': 'AI_C_WEB'
+                    },
+                    body: JSON.stringify({
+                        account: 'qq@qq.com',
+                        password: '123456'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.data) {
+                    // 保存登录信息到localStorage
+                    const userData = data.data;
+                    localStorage.setItem('access_token', userData.accessToken);
+                    localStorage.setItem('auth_token', userData.accessToken);
+                    localStorage.setItem('user_id', userData.userId);
+                    localStorage.setItem('tenant_id', userData.tenantId);
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    isLoggedIn = true;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="status success">✅ 登录成功！</div>
+                        <pre>用户ID: ${userData.userId}\n租户ID: ${userData.tenantId}</pre>
+                    `;
+                    
+                    // 启用下一步按钮
+                    document.getElementById('testPlatformBtn').disabled = false;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">❌ 登录失败</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ 登录请求失败: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 测试平台列表API
+        async function testPlatformAPI() {
+            const resultDiv = document.getElementById('platformResult');
+            resultDiv.innerHTML = '<div class="status info">正在获取平台列表...</div>';
+
+            try {
+                const response = await fetch('/api/v1/stores/platform-list', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': localStorage.getItem('access_token') || '',
+                        'X-Tenant-Id': localStorage.getItem('tenant_id') || '',
+                        'X-Auth-User-Id': localStorage.getItem('user_id') || '',
+                        'X-Auth-Platform-Type': 'AI_PROJECT',
+                        'X-Client-Type': 'AI_C_WEB',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.data) {
+                    platformList = data.data;
+                    
+                    // 填充平台选择框
+                    const select = document.getElementById('platformSelect');
+                    select.innerHTML = '<option value="">请选择平台</option>';
+                    platformList.forEach(platform => {
+                        const option = document.createElement('option');
+                        option.value = platform.code;
+                        option.textContent = platform.name;
+                        select.appendChild(option);
+                    });
+                    
+                    resultDiv.innerHTML = `
+                        <div class="status success">✅ 平台列表获取成功！</div>
+                        <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                    `;
+                    
+                    // 启用添加店铺按钮
+                    document.getElementById('addStoreBtn').disabled = false;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">❌ 平台列表获取失败</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ 平台列表请求失败: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 测试添加店铺
+        async function testAddStore() {
+            const resultDiv = document.getElementById('addStoreResult');
+            const storeName = document.getElementById('storeName').value;
+            const platform = document.getElementById('platformSelect').value;
+            const storeUrl = document.getElementById('storeUrl').value;
+
+            if (!storeName || !platform || !storeUrl) {
+                resultDiv.innerHTML = '<div class="status warning">⚠️ 请填写完整的店铺信息</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="status info">正在添加店铺...</div>';
+
+            try {
+                const response = await fetch('/api/v1/stores', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': localStorage.getItem('access_token') || '',
+                        'X-Tenant-Id': localStorage.getItem('tenant_id') || '',
+                        'X-Auth-User-Id': localStorage.getItem('user_id') || '',
+                        'X-Auth-Platform-Type': 'AI_PROJECT',
+                        'X-Client-Type': 'AI_C_WEB',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: storeName,
+                        platform: platform,
+                        url: storeUrl,
+                        status: 'active'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">✅ 店铺添加成功！</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">❌ 店铺添加失败</div>
+                        <div class="status error">HTTP状态: ${response.status}</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">❌ 店铺添加请求失败: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 显示调试信息
+        function showDebugInfo() {
+            const debugDiv = document.getElementById('debugInfo');
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                storage[key] = localStorage.getItem(key);
+            }
+            
+            debugDiv.innerHTML = `
+                <h3>localStorage 内容:</h3>
+                <pre>${JSON.stringify(storage, null, 2)}</pre>
+                <h3>当前状态:</h3>
+                <pre>登录状态: ${isLoggedIn ? '已登录' : '未登录'}\n平台列表: ${platformList.length} 个平台</pre>
+            `;
+        }
+
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            const accessToken = localStorage.getItem('access_token');
+            const userId = localStorage.getItem('user_id');
+            const tenantId = localStorage.getItem('tenant_id');
+            
+            if (accessToken && userId && tenantId) {
+                isLoggedIn = true;
+                document.getElementById('testPlatformBtn').disabled = false;
+                document.getElementById('loginResult').innerHTML = '<div class="status success">✅ 检测到已有登录信息</div>';
+            }
+        };
+    </script>
+</body>
+</html>

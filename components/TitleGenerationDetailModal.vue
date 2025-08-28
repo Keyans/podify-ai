@@ -101,12 +101,7 @@
                     </div>
                   </td>
                   <td class="px-4 py-3">
-                    <span 
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      :class="getStatusClass(item.status || getSimulatedStatus(index))"
-                    >
-                      {{ getStatusText(item.status || getSimulatedStatus(index)) }}
-                    </span>
+                    <TaskStatus :status="item.status || getSimulatedStatus(index)" size="sm" />
                   </td>
                 </tr>
               </tbody>
@@ -243,6 +238,7 @@
 
 <script setup>
 import { ref, computed, defineProps, defineEmits, watch } from 'vue'
+import TaskStatus from '~/components/TaskStatus.vue'
 
 const props = defineProps({
   isOpen: {

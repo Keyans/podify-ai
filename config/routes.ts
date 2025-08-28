@@ -9,13 +9,7 @@ export const routeConfig = {
   publicRoutes: [
     '/',
     '/login',
-    '/register',
-    '/test-api',
-    '/test-env',
-    '/test-cropper',
-    '/test-task-list',
-    '/test-upload-ui',
-    '/debug-env'
+    '/register'
   ],
   
   // 已登录用户不应该访问的路由（如登录页）

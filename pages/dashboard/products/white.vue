@@ -3,90 +3,14 @@
     <!-- 顶部区域 - 页面标题 + 统计卡片 + 搜索栏 -->
     <div class="p-6 space-y-6">
       <!-- 页面标题和操作按钮 -->
-      <div class="flex items-center justify-between">
-  <div>
-          <h1 class="text-2xl font-bold text-dark-text mb-2">白品管理</h1>
-          <p class="text-dark-text-secondary text-sm">管理您的原始商品及其SKU</p>
-        </div>
-        <div class="flex items-center space-x-3">
-          <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            <span>新建白品</span>
-          </button>
-          <button class="bg-dark-input hover:bg-dark-hover text-dark-text px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors border border-dark-border">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-            </svg>
-            <span>批量导出</span>
-          </button>
-      </div>
-    </div>
+      <PageTitle :totalList="totalList" />
 
-      <!-- 统计卡片 -->
-      <div class="grid grid-cols-4 gap-6">
-      <!-- 商品总数 -->
-        <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
-          <div class="flex items-center justify-between">
-        <div>
-              <p class="text-dark-text-secondary text-sm">商品总数</p>
-              <p class="text-dark-text text-2xl font-bold">{{ stats.productCount }}</p>
-        </div>
-            <div class="bg-blue-600 bg-opacity-20 p-3 rounded-lg">
-              <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-          </svg>
-            </div>
-        </div>
-      </div>
-
-      <!-- SKU总数 -->
-        <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
-          <div class="flex items-center justify-between">
-        <div>
-              <p class="text-dark-text-secondary text-sm">SKU总数</p>
-              <p class="text-dark-text text-2xl font-bold">{{ stats.skuCount }}</p>
-        </div>
-            <div class="bg-green-600 bg-opacity-20 p-3 rounded-lg">
-              <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-          </svg>
-            </div>
-        </div>
-      </div>
-
-      <!-- 今日新增 -->
-        <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
-          <div class="flex items-center justify-between">
-        <div>
-              <p class="text-dark-text-secondary text-sm">今日新增</p>
-              <p class="text-dark-text text-2xl font-bold">{{ stats.todayCount }}</p>
-            </div>
-            <div class="bg-purple-600 bg-opacity-20 p-3 rounded-lg">
-              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- 空间占用 -->
-        <div class="bg-dark-card rounded-lg p-6 border border-dark-border">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-dark-text-secondary text-sm">空间占用</p>
-              <p class="text-dark-text text-2xl font-bold">{{ stats.storageUsed }}</p>
-            </div>
-            <div class="bg-orange-600 bg-opacity-20 p-3 rounded-lg">
-              <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <PageSearch  
+        v-model="params"
+        :fields="searchFields"
+        @search="onSearch"
+        @reset="onReset"
+      />
       <!-- 搜索和筛选栏 -->
       <div class="bg-dark-card rounded-lg p-4 border border-dark-border">
         <div class="flex items-center justify-between">
@@ -406,12 +330,20 @@
     </div>
 
     <!-- 商品详情弹窗 -->
-    <ProductDetailModal 
-      v-if="showDetailModal"
+    <!-- <WhiteProductDetailModal 
+      :isOpen="showDetailModal"
       :product="selectedProduct"
       @close="closeDetailModal"
       @confirm="handleProductConfirm"
-    />
+      @adjust-effect="handleAdjustEffect"
+    /> -->
+
+    <!-- 新建白品 - 选择产品弹窗 -->
+    <!-- <ProductSelectorModal
+      :isOpen="showCreateModal"
+      @close="showCreateModal = false"
+      @confirm="handleCreateConfirm"
+    /> -->
 
     <!-- 添加分类弹窗 -->
     <div v-if="showAddCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="showAddCategoryModal = false">
@@ -457,8 +389,68 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import ProductDetailModal from '~/components/ProductDetailModal.vue'
+import { ref, computed, onMounted,reactive } from 'vue'
+import auth from '~/apis/auth'
+import whiteApi from '~/apis/business/white'
+import WhiteProductDetailModal from '~/components/WhiteProductDetailModal.vue'
+import ProductSelectorModal from '~/components/ProductSelectorModal.vue'
+import PageTitle from '~/components/common/pageTitle.vue'
+import PageSearch from '~/components/common/pageSearch.vue'
+
+
+const params = reactive({
+  keyword: '',
+  status: undefined,
+  date: []
+})
+
+const searchFields = [
+  {
+    key: 'keyword',
+    label: '关键词',
+    component: 'a-input',
+    props: { placeholder: '请输入', allowClear: true }
+  },
+  {
+    key: 'status',
+    label: '状态',
+    component: 'a-select',
+    props: {
+      placeholder: '请选择',
+      allowClear: true,
+      options: [
+        { label: '启用', value: 1 },
+        { label: '停用', value: 0 }
+      ]
+    }
+  },
+  {
+    key: 'date',
+    label: '日期',
+    component: 'a-range-picker',
+    props: {
+      placeholder: ['开始日期', '结束日期']
+    }
+  }
+]
+
+const onSearch = (val) => console.log('查询:', val)
+const onReset = () => console.log('已重置')
+
+const totalList = ref([
+  {
+    title: '产品总数',
+    value: '1000'
+  },
+  {
+    title: '自建',
+    value: '1000'
+  },
+  {
+    title: '今日新增',
+    value: '1000'
+  }
+])
 
 // 使用 dashboard 布局
 definePageMeta({
@@ -481,6 +473,7 @@ const selectedCategory = ref(null)
 const editingCategory = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = ref(20)
+const showCreateModal = ref(false)
 
 // 搜索和筛选
 const searchQuery = ref('')
@@ -516,104 +509,37 @@ const userCategories = ref([
 ])
 
 // 商品数据
-const products = ref([
-  {
-    id: 'NT003',
-    name: '纯棉圆领T恤',
-    price: '21.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '侵权',
-    selected: false,
-    category: 'clothing'
-  },
-  {
-    id: 'CU031',
-    name: '陶瓷马克杯',
-    price: '39.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '侵权',
-    selected: false,
-    category: 'home'
-  },
-  {
-    id: 'BD921',
-    name: '帆布手提袋',
-    price: '23.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '侵权',
-    selected: false,
-    category: 'accessories'
-  },
-  {
-    id: 'BZ031',
-    name: '方形抱枕',
-    price: '21.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '蓝标',
-    selected: false,
-    category: 'home'
-  },
-  {
-    id: 'WY043',
-    name: '连帽卫衣',
-    price: '39.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '蓝标',
-    selected: false,
-    category: 'clothing'
-  },
-  {
-    id: 'YSM004',
-    name: '鸭舌帽',
-    price: '21.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '蓝标',
-    selected: false,
-    category: 'accessories'
-  },
-  {
-    id: 'WY054',
-    name: '圆领卫衣',
-    price: '21.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '绿标',
-    selected: false,
-    category: 'clothing'
-  },
-  {
-    id: 'WY921',
-    name: '女士圆领卫衣',
-    price: '39.12',
-    sku: '24 SKUs',
-    creator: 'Admin',
-    createTime: '2025-07-28 18:12:38',
-    image: '/api/placeholder/200/200',
-    status: '侵权',
-    selected: false,
-    category: 'clothing'
+const products = ref([])
+const loading = ref(false)
+const activeTab = ref('official') // official: 官方白品, self: 自有白品
+
+const fetchProducts = async () => {
+  try {
+    loading.value = true
+    const query = {
+      page: currentPage.value,
+      limit: itemsPerPage.value,
+      categoryId: selectedCategory.value?.id || '',
+      title: searchQuery.value || '',
+      userId: activeTab.value === 'self' ? localStorage.getItem('user_id') || '' : ''
+    }
+    const res = await whiteApi.getWhiteProductList(query)
+    const list = res?.data?.whiteProductList || []
+    products.value = list.map((it)=>({      id: it.whiteProductId || it.id,
+      name: it.title || it.name,
+      price: it.price,
+      sku: `${it.skuNum || 0} SKUs`,
+      creator: it.creator || 'Admin',
+      createTime: it.createTime,
+      image: it.imageUrl || it.coverUrl,
+      status: it.statusName || '',
+      selected: false,
+      category: it.categoryId
+    }))
+  } finally {
+    loading.value = false
   }
-])
+}
 
 // 计算属性
 const filteredProducts = computed(() => {
@@ -668,6 +594,8 @@ const toggleProduct = (productId) => {
 const showProductDetail = (product) => {
   selectedProduct.value = product
   showDetailModal.value = true
+  // 拉取并填充详情（仅官方白品）
+  fetchOfficialDetail(product.id)
 }
 
 const closeDetailModal = () => {
@@ -678,6 +606,27 @@ const closeDetailModal = () => {
 const handleProductConfirm = (productData) => {
   console.log('确认商品数据:', productData)
   closeDetailModal()
+}
+
+const handleAdjustEffect = (product) => {
+  console.log('调整商品效果图:', product)
+  // TODO: 实现调整商品效果图的逻辑
+}
+
+// 获取官方白品详情
+const fetchOfficialDetail = async (id) => {
+  try {
+    const res = await whiteApi.getWhiteProductDetail(id)
+    if (res?.data) {
+      // 将详情字段合并到 selectedProduct，用于详情弹窗展示
+      selectedProduct.value = {
+        ...selectedProduct.value,
+        ...res.data
+      }
+    }
+  } catch (e) {
+    console.error('获取白品详情失败', e)
+  }
 }
 
 const getStatusClass = (status) => {
@@ -750,8 +699,19 @@ const nextPage = () => {
 }
 
 onMounted(() => {
-  console.log('白品管理页面已加载')
+  fetchProducts()
 })
+
+// 打开新建弹窗
+const openCreateModal = () => {
+  showCreateModal.value = true
+}
+
+// 处理选择产品后的确认
+const handleCreateConfirm = (selectedProducts) => {
+  console.log('选择用于新建的产品:', selectedProducts)
+  showCreateModal.value = false
+}
 </script> 
 
 <style scoped>
@@ -761,4 +721,4 @@ onMounted(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-</style> 
+</style>

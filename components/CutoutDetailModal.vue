@@ -41,9 +41,11 @@
             <div v-if="showStatusDropdown" class="absolute mt-1 w-40 bg-dark-card border border-dark-border rounded-md shadow-lg z-10">
               <div class="py-1">
                 <a href="#" @click.prevent="filterByStatus('全部')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">全部</a>
-                <a href="#" @click.prevent="filterByStatus('成功')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">成功</a>
+                <a href="#" @click.prevent="filterByStatus('待执行')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">待执行</a>
+                <a href="#" @click.prevent="filterByStatus('进行中')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">进行中</a>
+                <a href="#" @click.prevent="filterByStatus('已完成')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">已完成</a>
+                <a href="#" @click.prevent="filterByStatus('部分失败')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">部分失败</a>
                 <a href="#" @click.prevent="filterByStatus('失败')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">失败</a>
-                <a href="#" @click.prevent="filterByStatus('处理中')" class="block px-4 py-2 text-sm text-dark-text hover:bg-dark-hover">处理中</a>
               </div>
             </div>
           </div>
@@ -83,7 +85,15 @@
                 <td class="py-3 px-4">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img v-if="item.originalImage || item.imageUrl" :src="item.originalImage || item.imageUrl" alt="原图" class="w-full h-full object-cover" @error="handleImageError" />
+                    <OptimizedImage 
+                      v-if="item.originalImage || item.imageUrl" 
+                      :src="item.originalImage || item.imageUrl" 
+                      alt="原图" 
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
+                    />
                     <div v-else class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <span class="text-xs text-gray-500">无原图</span>
                     </div>
@@ -91,7 +101,15 @@
                 </td>
                 <td class="py-3 px-4">
                   <div class="w-16 h-16 bg-dark-hover rounded-md overflow-hidden">
-                    <img v-if="item.cutoutImage || item.resultsImageUrl || item.resultUrl" :src="item.cutoutImage || item.resultsImageUrl || item.resultUrl" alt="抠图" class="w-full h-full object-cover" @error="handleImageError" />
+                    <OptimizedImage 
+                      v-if="item.cutoutImage || item.resultsImageUrl || item.resultUrl" 
+                      :src="item.cutoutImage || item.resultsImageUrl || item.resultUrl" 
+                      alt="抠图" 
+                      container-class="w-full h-full"
+                      image-class="w-full h-full object-cover"
+                      :zoomable="true"
+                      :lazy="false"
+                    />
                     <div v-else-if="item.status === 0" class="w-full h-full bg-dark-hover flex items-center justify-center">
                       <div class="text-xs text-yellow-400 text-center">
                         <div class="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-1"></div>
@@ -104,12 +122,7 @@
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <span 
-                    class="px-2 py-1 text-xs font-medium rounded-md"
-                    :class="getStatusClass(item.status)"
-                  >
-                    {{ getStatusText(item.status) }}
-                  </span>
+                  <TaskStatus :status="item.status" size="sm" />
                 </td>
                 <td class="py-3 px-4 text-right">
                   <a href="#" class="text-green-500 hover:underline" @click.prevent="downloadImage(item)">下载图片</a>
@@ -287,10 +300,11 @@ const getStatusText = (status) => {
   // 确保status是数字类型
   const numStatus = typeof status === 'string' ? parseInt(status) : status
   const statusMap = {
-    0: '处理中',
-    1: '成功',
-    2: '失败',
-    3: '暂停'
+    0: '待执行',
+    1: '进行中',
+    2: '已完成',
+    3: '部分失败',
+    4: '失败'
   }
   return statusMap[numStatus] || '未知'
 }
@@ -299,10 +313,12 @@ const getStatusText = (status) => {
 const getStatusClass = (status) => {
   const statusText = getStatusText(status)
   return {
-    'bg-green-500 text-white': statusText === '成功',
+    'bg-gray-500 text-white': statusText === '待执行',
+    'bg-blue-500 text-white': statusText === '进行中',
+    'bg-green-500 text-white': statusText === '已完成',
+    'bg-orange-500 text-white': statusText === '部分失败',
     'bg-red-500 text-white': statusText === '失败',
-    'bg-yellow-500 text-white': statusText === '处理中',
-    'bg-gray-500 text-white': statusText === '暂停' || statusText === '未知'
+    'bg-gray-500 text-white': statusText === '未知'
   }
 }
 

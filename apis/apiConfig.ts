@@ -22,19 +22,19 @@ export const environments: Record<string, EnvironmentConfig> = {
   development: {
     apiBaseUrl: '', // 开发环境使用代理
     apiHeaders: {
-      'x-client-type': 'cuzcuz-ai-web'
+      'x-client-type': 'AI_C_WEB'
     }
   },
   test: {
     apiBaseUrl: '', // 测试环境使用代理
     apiHeaders: {
-      'x-client-type': 'cuzcuz-ai-web'
+      'x-client-type': 'AI_C_WEB'
     }
   },
   production: {
     apiBaseUrl: '', // 生产环境使用代理
     apiHeaders: {
-      'x-client-type': 'cuzcuz-ai-web'
+      'x-client-type': 'AI_C_WEB'
     }
   }
 }
@@ -70,21 +70,36 @@ export const getApiConfig = (): EnvironmentConfig => {
   return environments[env] || environments.development
 }
 
-// 获取API前缀
-export const getApiPrefix = (): string => {
+// 服务前缀枚举
+export enum ServicePrefix {
+  CUZCUZ_AI = 'cuzcuz-ai',
+  TENANT = 'tenant', 
+  PUBLISH_GOODS = 'publish-goods',
+  API = 'api',
+  STORE = 'store'
+}
+
+// 获取API前缀（默认使用cuzcuz-ai）
+export const getApiPrefix = (service?: ServicePrefix): string => {
   // 优先使用运行时配置
   const runtimeConfig = getRuntimeConfig()
-  if (runtimeConfig?.apiPrefix) {
+  if (runtimeConfig?.apiPrefix && !service) {
     return runtimeConfig.apiPrefix
   }
   
+  // 根据服务类型返回对应前缀
+  const basePrefix = '/pod'
+  if (service) {
+    return `${basePrefix}/${service}`
+  }
+  
   // 兜底使用默认前缀
-  return '/pod/cuzcuz-ai'
+  return `${basePrefix}/${ServicePrefix.CUZCUZ_AI}`
 }
 
 // 构建完整API路径
-export const buildApiPath = (path: string): string => {
-  const prefix = getApiPrefix()
+export const buildApiPath = (path: string, service?: ServicePrefix): string => {
+  const prefix = getApiPrefix(service)
   return `${prefix}${path}`
 }
 
@@ -120,7 +135,7 @@ export const clearAuthToken = (): void => {
 // 是否已认证（现在检查localStorage中的token）
 export const isAuthenticated = (): boolean => {
   if (process.client) {
-    return !!localStorage.getItem('access_token')
+    return !!localStorage.getItem('auth_token')
   }
   return false
 }
@@ -128,6 +143,7 @@ export const isAuthenticated = (): boolean => {
 export default {
   environments,
   HttpStatusCode,
+  ServicePrefix,
   getCurrentEnv,
   getApiConfig,
   getApiPrefix,

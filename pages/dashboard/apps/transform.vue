@@ -1,556 +1,137 @@
 <template>
-  <div class="flex flex-col h-screen bg-dark-bg overflow-hidden">
-    <!-- 统计卡片 -->
-    <div class="flex-shrink-0 p-4 border-b border-dark-border">
-      <div class="grid grid-cols-4 gap-4">
-        <div v-for="(stat, index) in stats" :key="index" class="bg-dark-card rounded-lg shadow-sm border border-dark-border p-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-dark-text-secondary">{{ stat.label }}</p>
-            <p class="text-2xl font-bold text-dark-text mt-1">{{ stat.value }}</p>
-          </div>
-          <div class="w-12 h-12 rounded-lg flex items-center justify-center" :class="stat.iconBg">
-            <svg class="w-6 h-6" :class="stat.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="stat.iconPath"/>
-            </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 任务表格区域 - 精确自适应高度 -->
-    <div class="flex-1 min-h-0 p-4">
-    <TaskTable
-      :data="tableData"
-      :loading="loading"
-      :currentApp="'transform'"
-      idLabel="裂变"
-      typeLabel="裂变"
-      quantityLabel="裂变"
-      statusLabel="任务"
-      newButtonText="新建裂变"
-      :showType="false"
-      @view="showTaskDetail"
-      @newTask="showCreateModal = true"
-      @page-change="handlePageChange"
-      @filter-change="handleFilterChange"
+  <div>
+    <a-card class="ml-10 mr-10 mt-4">
+      <PageTitle :totalList="statsData" />
+    </a-card>
+    <a-card class="ml-10 mr-10 mt-4">
+      <PageSearch
+        v-model="searchParams"
+        :fields="searchFields"
+        @search="onSearch"
+        @reset="onReset"
       >
-        <!-- 自定义搜索栏设计 -->
-        <template #custom-filters>
-          <div class="p-4 rounded-lg border border-dark-border bg-dark-card">
-            <!-- 左右布局：左侧操作按钮，右侧搜索条件 -->
-            <div class="flex items-center justify-between">
-              <!-- 左侧：新建按钮 -->
-              <div class="flex space-x-3">
-                <button 
-                  @click="showCreateModal = true"
-                  class="flex items-center space-x-2 px-4 py-2 bg-cyan-400 text-white rounded-lg hover:bg-cyan-500 text-sm"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                  <span>新建裂变</span>
-                </button>
-              </div>
-
-              <!-- 右侧：搜索过滤区域 -->
-              <div class="flex items-center space-x-4">
-                <!-- 任务ID搜索 -->
-                <div class="relative">
-                  <input 
-                    type="text" 
-                    v-model="filters.taskId" 
-                    placeholder="搜索任务ID"
-                    class="pl-10 pr-4 py-2 rounded-lg border text-sm w-48"
-                    :style="{
-                      backgroundColor: 'var(--bg-tertiary)',
-                      color: 'var(--text-primary)',
-                      borderColor: 'var(--border-color)'
-                    }"
-                  >
-                  <svg class="absolute left-3 top-3 w-4 h-4" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                </div>
-
-                <!-- 任务状态筛选 -->
-                <div class="relative">
-                  <select 
-                    v-model="filters.status" 
-                    class="appearance-none px-4 py-2 pr-8 rounded-lg border text-sm min-w-32"
-                    :style="{
-                      backgroundColor: 'var(--bg-tertiary)',
-                      color: 'var(--text-primary)',
-                      borderColor: 'var(--border-color)'
-                    }"
-                  >
-                    <option value="">全部状态</option>
-                    <option value="waiting">等待中</option>
-                    <option value="processing">裂变中</option>
-                    <option value="completed">已完成</option>
-                    <option value="failed">失败</option>
-                  </select>
-                  <svg class="absolute right-2 top-3 w-4 h-4 pointer-events-none" :style="{ color: 'var(--text-secondary)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </div>
-
-                <!-- 开始日期 -->
-                <input 
-                  type="date" 
-                  v-model="filters.startDate"
-                  class="px-4 py-2 rounded-lg border text-sm"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                />
-
-                <!-- 结束日期 -->
-                <input 
-                  type="date" 
-                  v-model="filters.endDate"
-                  class="px-4 py-2 rounded-lg border text-sm"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-primary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                />
-
-                <!-- 搜索按钮 -->
-                <button 
-                  @click="handleSearch"
-                  class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                  </svg>
-                  <span>搜索</span>
-                </button>
-
-                <!-- 重置按钮 -->
-                <button 
-                  @click="resetFilters"
-                  class="px-4 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
-                  :style="{
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-secondary)',
-                    borderColor: 'var(--border-color)'
-                  }"
-                >
-                  重置
-                </button>
-              </div>
-            </div>
+        <template #prefix>
+          <div class="flex items-center space-x-4">
+            <a-button @click="addOpen = true">新建裂变</a-button>
           </div>
         </template>
-      </TaskTable>
-    </div>
-  </div>
-
-  <!-- 新建裂变任务弹窗 -->
-  <TransformNewTaskModal 
-    :isOpen="showCreateModal" 
-    @close="showCreateModal = false"
-    @submit="handleTaskSubmit"
-  />
-
-  <!-- 裂变任务详情弹窗 -->
-  <TransformDetailModal
-    :isOpen="showDetailModal"
-    :taskData="currentTaskData"
-    @close="showDetailModal = false"
-    @download="handleDownloadImages"
-    @page-change="handleDetailPageChange"
-  />
+      </PageSearch>
+    </a-card>
+    <a-card class="ml-10 mr-10 mt-4">
+      <PageTable
+        :columns="tableColumns"
+        :data-source="tableData"
+        row-key="fissionId"
+        :loading="tableLoading"
+        :pagination="{ total: Number(pagination.total), pageSize: Number(pagination.limit), current: Number(pagination.page) }"
+        :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
+        @change="handleTableChange"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'action'">
+            <PageTableOption :record="record" @detail="handleDetail" @more="handleMore"></PageTableOption>
+          </template>
+        </template>
+      </PageTable>
+    </a-card>
+    <PageTableModal 
+      v-model:open="modalOpen" :subTitle="subTitle"
+      :subStatsData="subStatsData" 
+      :subTableColumns="subTableColumns"
+      :subTableData="subTableData"
+      :subTableLoading="subTableLoading" 
+      v-model:subSearchParams="subDetailSearchParams"  
+      :subSearchFields="subSearchFields"        
+      @subSearch="handleSubSearch"                    
+      @subReset="handleSubReset"                      
+      :subTablePagination="subTablePagination"        
+      :subSelectedRowKeys="subSelectedRowKeys"        
+      :subTableRowSelection="true"                    
+      @subTableChange="handleSubTableChange"          
+      @update:subSelectedRowKeys="subSelectedRowKeys = $event"
+    /> 
+    <PageImage v-model:open="addOpen" :title="imageTitle" @close="addOpen = false" @success="handleTaskSuccess" :useMethod="createFissionTask" :otherParams="{fissionNum}"/>
+  </div>    
 </template>
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import PageTitle from '~/components/common/pageTitle.vue'
+import PageSearch from '~/components/common/pageSearch.vue'
+import PageTable from '~/components/common/pageTable.vue'
+import PageTableOption from '~/components/common/pageTableOption.vue'
+import PageTableModal from '~/components/common/pageTableModal.vue'
+import PageImage from '~/components/common/pageImage.vue'
+import { createFissionTask } from '~/apis/business/fission'
 
-<script setup>
-import { ref, onMounted, computed } from 'vue'
-import TaskTable from '~/components/TaskTable.vue'
-import TransformNewTaskModal from '~/components/TransformNewTaskModal.vue'
-import TransformDetailModal from '~/components/TransformDetailModal.vue'
-import { getFissionStats, getFissionTaskList, getFissionTaskDetail } from '~/apis/business/fission'
+// 导入 Composable
+import { useList } from '~/composables/business/application/transform/useList'
+import { useDetailModal } from '~/composables/business/application/transform/useDetailModal'
+
+
+const addOpen = ref<boolean>(false)
+const imageTitle = ref<string>('新建裂变')
+const fissionNum = ref<number>(1)
 
 // 使用 dashboard 布局
 definePageMeta({
   layout: 'dashboard'
 })
 
-// 控制新建裂变弹窗显示
-const showCreateModal = ref(false)
+// 主表格逻辑
+const {
+  statsData,
+  getCount,
+  tableColumns,
+  searchFields,
+  pagination,
+  tableData,
+  tableLoading,
+  selectedRowKeys,
+  onSelectChange,
+  searchParams,
+  onSearch,
+  handleTableChange,
+  onReset,
+  fetchData: fetchMainTableData 
+} = useList()
 
-// 控制详情弹窗显示
-const showDetailModal = ref(false)
-const currentTaskData = ref({})
-const taskDetailData = ref([])
-const detailLoading = ref(false)
+// 详情模态框逻辑
+const {
+  subTitle,
+  subStatsData,
+  subTableColumns,
+  subSearchFields,
+  subTableData,
+  subTableLoading,
+  subTablePagination,
+  subSelectedRowKeys,
+  subDetailSearchParams, 
+  handleSubSearch,
+  handleSubReset,
+  handleSubTableChange,
+  onSubSelectChange,
+  openCollectorDetailModal,
+  modalOpen, // 🚀 从 useDetailModal 中解构出 modalOpen
+} = useDetailModal() // 🚀 useDetailModal 不再接收参数
 
-// 页面加载状态
-const loading = ref(false)
-
-// 统计数据
-const statsData = ref({
-  count: '0',
-  successCount: '0',
-  failedCount: '0',
-  successRate: 0,
-  inProgressCount: '0',
-  todayCount: '0'
-})
-
-// 计算属性：统计卡片数据
-const stats = computed(() => [
-  {
-    label: '总裂变数',
-    value: statsData.value.count,
-    iconPath: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600'
-  },
-  {
-    label: '成功率',
-    value: `${statsData.value.successRate}%`,
-    iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600'
-  },
-  {
-    label: '处理中',
-    value: statsData.value.inProgressCount,
-    iconPath: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-    iconBg: 'bg-yellow-100',
-    iconColor: 'text-yellow-600'
-  },
-  {
-    label: '今日裂变',
-    value: statsData.value.todayCount,
-    iconPath: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600'
-  }
-])
-
-// 表格数据
-const tableData = ref([])
-
-// 分页参数
-const pageParams = ref({
-  page: 1,
-  limit: 10
-})
-
-// 筛选参数
-const filterParams = ref({
-  taskId: '',
-  status: '',
-  startTime: '',
-  endTime: '',
-  userId: ''
-})
-
-// 表单筛选器状态
-const filters = ref({
-  taskId: '',
-  status: '',
-  startDate: '',
-  endDate: ''
-})
-
-// 获取统计数据
-const fetchStats = async () => {
-  try {
-    const response = await getFissionStats()
-    if (response.success) {
-      statsData.value = response.data
-    }
-  } catch (error) {
-    console.error('获取统计数据失败:', error)
-  }
+// 点击查看详情的事件处理
+const handleDetail = async (record: any) => {
+  await openCollectorDetailModal(record)
 }
 
-// 获取任务列表
-const fetchTaskList = async () => {
-  try {
-    loading.value = true
-    const params = {
-      ...pageParams.value,
-      ...filterParams.value
-    }
-    const response = await getFissionTaskList(params)
-    if (response.success) {
-      // 映射数据字段到表格需要的格式
-      const rawList = response.data?.fissionTaskList || []
-      tableData.value = rawList.map(item => ({
-        id: item.fissionId,
-        裂变ID: item.fissionId,
-        目标: item.fissionNum,
-        成功: item.fissionSuccessNum,
-        失败: item.fissionFailNum,
-        任务状态: getStatusText(item.fissionStatus),
-        创建人: item.createBy,
-        创建时间: item.createTime,
-        // 保留原始数据以备后用
-        _raw: item
-      }))
-    }
-  } catch (error) {
-    console.error('获取任务列表失败:', error)
-  } finally {
-    loading.value = false
-  }
+const handleMore = (record: any) => {
+  console.log(record)
 }
 
-// 状态文本转换
-const getStatusText = (status) => {
-  const statusMap = {
-    0: '待执行',
-    1: '进行中',
-    2: '已完成',
-    3: '部分失败',
-    4: '失败'
-  }
-  return statusMap[status] || '未知'
+// 处理任务创建成功事件
+const handleTaskSuccess = () => {
+  getCount() // 重新获取统计数据
+  fetchMainTableData() // 重新获取主表格数据
 }
 
-// 查看任务详情
-const showTaskDetail = async (item) => {
-  // 设置当前任务数据，包含详情数据结构
-  currentTaskData.value = {
-    ...item,
-    detailList: [], // 初始化为空数组
-    detailPagination: {
-      page: 1,
-      limit: 10,
-      total: 0
-    }
-  }
-  
-  showDetailModal.value = true
-  
-  // 获取详情数据，使用 taskId (对应裂变ID)
-  const taskId = item.id || item.裂变ID || item._raw?.fissionId || item._raw?.taskId
-  if (taskId) {
-    await fetchTaskDetail(taskId)
-  }
-}
-
-// 获取任务详情
-const fetchTaskDetail = async (taskId) => {
-  try {
-    detailLoading.value = true
-    const params = {
-      taskId,  // 使用 taskId 作为参数名
-      page: currentTaskData.value.detailPagination?.page || 1,
-      limit: currentTaskData.value.detailPagination?.limit || 10
-    }
-    console.log('获取任务详情，参数:', params)
-    const response = await getFissionTaskDetail(params)
-    console.log('任务详情响应:', response)
-    
-    if (response.success) {
-      // 根据实际返回的数据结构处理
-      const detailList = response.data?.fissionList || response.data?.list || []
-      
-      // 将API数据转换为组件期望的格式
-      const formattedDetailList = detailList.map(item => ({
-        id: item.fissionId,
-        fissionId: item.fissionId,
-        imageUrl: item.imageUrl,
-        originalImage: item.imageUrl,
-        fissionUrl: item.resultsImageUrl,
-        fissionedImage: item.resultsImageUrl,
-        status: item.status,
-        fissionStatus: item.status,
-        // 保留原始数据
-        rawData: item
-      }))
-      
-      // 更新当前任务数据中的详情信息
-      currentTaskData.value = {
-        ...currentTaskData.value,
-        detailList: formattedDetailList,
-        detailPagination: {
-          page: parseInt(response.data?.current || params.page),
-          limit: parseInt(response.data?.size || params.limit),
-          total: parseInt(response.data?.total || formattedDetailList.length),
-          pages: parseInt(response.data?.pages || 1)
-        }
-      }
-      
-      // 同时更新taskDetailData以保持兼容性
-      taskDetailData.value = formattedDetailList
-      
-      console.log('✅ 任务详情数据已格式化:', {
-        detailList: formattedDetailList,
-        pagination: currentTaskData.value.detailPagination
-      })
-    }
-  } catch (error) {
-    console.error('获取任务详情失败:', error)
-  } finally {
-    detailLoading.value = false
-  }
-}
-
-// 处理详情页面变化
-const handleDetailPageChange = async (pagination) => {
-  console.log('详情页面变化:', pagination)
-  
-  // 更新当前任务数据的分页信息
-  currentTaskData.value.detailPagination = {
-    ...currentTaskData.value.detailPagination,
-    ...pagination
-  }
-  
-  // 重新获取详情数据
-  const taskId = currentTaskData.value.id || currentTaskData.value.裂变ID || currentTaskData.value._raw?.fissionId || currentTaskData.value._raw?.taskId
-  if (taskId) {
-    await fetchTaskDetail(taskId)
-  }
-}
-
-// 事件处理函数
-// 手动搜索
-const handleSearch = () => {
-  console.log('执行搜索，当前筛选条件:', filters.value)
-  // 将filters映射到filterParams
-  filterParams.value = {
-    taskId: filters.value.taskId || '',
-    status: filters.value.status || '',
-    startTime: filters.value.startDate || '',
-    endTime: filters.value.endDate || '',
-    userId: ''
-  }
-  pageParams.value.page = 1 // 重置到第一页
-  fetchTaskList()
-}
-
-const handleFilterChange = (newFilters) => {
-  console.log('筛选条件变化:', newFilters)
-  // 如果传入了新的筛选条件，更新filters
-  if (newFilters) {
-    filters.value = { ...filters.value, ...newFilters }
-  }
-  
-  // 将filters映射到filterParams
-  filterParams.value = {
-    taskId: filters.value.taskId || '',
-    status: filters.value.status || '',
-    startTime: filters.value.startDate || '',
-    endTime: filters.value.endDate || '',
-    userId: ''
-  }
-  
-  pageParams.value.page = 1 // 重置到第一页
-  fetchTaskList()
-}
-
-// 重置筛选条件
-const resetFilters = () => {
-  filters.value = {
-    taskId: '',
-    status: '',
-    startDate: '',
-    endDate: ''
-  }
-  // 更新filterParams并重新获取数据
-  filterParams.value = {
-    taskId: filters.value.taskId || '',
-    status: filters.value.status || '',
-    startTime: filters.value.startDate || '',
-    endTime: filters.value.endDate || '',
-    userId: ''
-  }
-  pageParams.value.page = 1
-  fetchTaskList()
-}
-
-const handlePageChange = (page) => {
-  console.log('分页变化:', page)
-  pageParams.value.page = page
-  fetchTaskList()
-}
-
-// 处理新建裂变任务提交
-const handleTaskSubmit = async (formData) => {
-  console.log('新建裂变任务:', formData)
-  
-  try {
-    // 关闭弹窗
-    showCreateModal.value = false
-    
-    // 无论任务创建成功还是失败，都要刷新数据
-    await Promise.all([
-      fetchStats(),
-      fetchTaskList()
-    ])
-    
-    // 检查任务创建结果并显示相应提示
-    if (formData.success && formData.taskResponse) {
-      console.log('任务创建成功，响应数据:', formData.taskResponse)
-      console.log('任务创建成功，数据已刷新')
-      
-      // 可以在这里添加成功提示
-      // ElMessage.success('任务创建成功')
-      
-    } else {
-      console.error('任务创建失败:', formData.error || '未知错误')
-      
-      // 可以在这里添加错误提示
-      // ElMessage.error(formData.error || '任务创建失败')
-    }
-    
-  } catch (error) {
-    console.error('处理任务提交失败:', error)
-    // 即使出错也要关闭弹窗
-    showCreateModal.value = false
-  }
-}
-
-// 处理下载图片
-const handleDownloadImages = (images) => {
-  console.log('下载图片:', images)
-  // 实际应用中应该调用下载API
-}
-
-// 页面初始化
-// 页面强制刷新监听
-const handleForceRefresh = (event) => {
-  if (event.detail?.path === route.path) {
-    console.log('页面强制刷新:', route.path)
-    // 重新加载页面数据
-    Promise.all([
-      fetchStats(),
-      fetchTaskList()
-    ]).catch(error => {
-      console.error('强制刷新数据加载失败:', error)
-    })
-  }
-}
-
+// 页面加载时执行
 onMounted(() => {
-  // 立即显示页面，后台异步获取数据（不等待完成）
-  Promise.all([
-    fetchStats(),
-    fetchTaskList()
-  ]).catch(error => {
-    console.error('数据加载失败:', error)
-  })
-  
-  // 监听页面强制刷新事件
-  window.addEventListener('page-force-refresh', handleForceRefresh)
-})
-
-onBeforeUnmount(() => {
-  // 清理事件监听
-  window.removeEventListener('page-force-refresh', handleForceRefresh)
+  getCount() // 获取统计数据
+  fetchMainTableData() // 获取主表格数据
 })
 </script>
-
-<style scoped>
-/* 页面特定样式 */
-</style>

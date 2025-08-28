@@ -5,7 +5,7 @@
     @click="closeModal"
   >
     <div 
-      class="bg-dark-card rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border border-dark-border"
+      class="bg-dark-card rounded-lg w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-dark-border mx-1 sm:mx-4 md:mx-6"
       @click.stop
     >
       <!-- 弹窗头部 -->
@@ -24,14 +24,14 @@
       </div>
 
       <!-- 弹窗内容 -->
-      <div class="p-6 overflow-y-auto max-h-[70vh]">
+      <div class="p-2 xs:p-3 sm:p-4 md:p-6 overflow-y-auto max-h-[75vh] sm:max-h-[70vh]">
         <!-- 上传区域 -->
         <div 
           ref="dropArea"
           @drop="handleDrop"
           @dragover.prevent
           @dragenter.prevent
-          class="border-2 border-dashed border-dark-border rounded-lg p-8 text-center transition-colors"
+          class="border-2 border-dashed border-dark-border rounded-lg p-3 xs:p-4 sm:p-6 md:p-8 text-center transition-colors"
           :class="{'border-blue-500 bg-blue-50/10': dragActive}"
         >
           <div class="flex flex-col items-center">
@@ -39,14 +39,14 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
             </svg>
             
-            <h3 class="text-lg font-medium text-dark-text mb-2">上传图片</h3>
-            <p class="text-dark-text-secondary mb-4">拖拽图片文件到此处，或点击下方按钮选择</p>
+            <h3 class="text-base sm:text-lg font-medium text-dark-text mb-2">上传图片</h3>
+            <p class="text-xs sm:text-sm text-dark-text-secondary mb-3 sm:mb-4">拖拽图片文件到此处，或点击下方按钮选择</p>
             
             <!-- 上传按钮组 -->
-            <div class="flex space-x-4">
+            <div class="flex flex-col xs:flex-row space-y-2 xs:space-y-0 xs:space-x-2 sm:space-x-4">
               <button 
                 @click="triggerFileInput"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                class="px-2 xs:px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center text-xs xs:text-sm sm:text-base"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -56,7 +56,7 @@
               
               <button 
                 @click="triggerFolderInput"
-                class="px-4 py-2 bg-cyan-400 text-white rounded-md hover:bg-cyan-500 flex items-center"
+                class="px-2 xs:px-3 py-2 sm:px-4 bg-cyan-400 text-white rounded-md hover:bg-cyan-500 flex items-center justify-center text-xs xs:text-sm sm:text-base"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
@@ -66,7 +66,7 @@
               
               <button 
                 @click="triggerZipInput"
-                class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center"
+                class="px-2 xs:px-3 py-2 sm:px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center justify-center text-xs xs:text-sm sm:text-base"
               >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-4-4m4 4l4-4m5.618-6.016A9 9 0 0121 12a9 9 0 01-9 9"/>
@@ -75,7 +75,7 @@
               </button>
             </div>
             
-            <p class="text-xs text-dark-text-secondary mt-4">
+            <p class="text-xs text-dark-text-secondary mt-3 sm:mt-4">
               支持 JPG、PNG、WEBP 格式，单个文件不超过 10MB
             </p>
           </div>
@@ -180,15 +180,15 @@
       </div>
 
       <!-- 弹窗底部 -->
-      <div class="flex items-center justify-between p-4 border-t border-dark-border">
+      <div class="flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 border-t border-dark-border space-y-2 sm:space-y-0">
         <div class="text-sm text-dark-text-secondary">
           共 {{ files.length }} 个文件，已上传 {{ uploadedCount }} 个
         </div>
         
-        <div class="flex space-x-3">
+        <div class="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
           <button 
             @click="closeModal"
-            class="px-4 py-2 text-dark-text border border-dark-border rounded-md hover:bg-dark-hover"
+            class="flex-1 sm:flex-none px-3 py-2 sm:px-4 text-dark-text border border-dark-border rounded-md hover:bg-dark-hover text-sm sm:text-base"
           >
             取消
           </button>
@@ -196,7 +196,7 @@
           <button 
             @click="startUpload"
             :disabled="files.length === 0 || uploading"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex-1 sm:flex-none px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
             {{ uploading ? '上传中...' : '开始上传' }}
           </button>
@@ -568,4 +568,4 @@ nextTick(() => {
     dropArea.value.addEventListener('dragleave', onDragLeave)
   }
 })
-</script> 
+</script>

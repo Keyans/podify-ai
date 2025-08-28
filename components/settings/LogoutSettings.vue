@@ -230,8 +230,8 @@ const callLogoutApi = async () => {
         return {
           'X-Tenant-Id': tenantId || '',
           'X-Auth-User-Id': userId || '', 
-          'X-Auth-Platform-Type': 'web',
-          'X-Client-Type': 'cuzcuz-ai-web',
+          'X-Auth-Platform-Type': 'AI_PROJECT',
+          'X-Client-Type': 'AI_C_WEB',
           'Authorization': authToken || ''
         }
       }
